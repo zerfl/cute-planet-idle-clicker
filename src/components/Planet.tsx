@@ -1008,10 +1008,10 @@ export const Planet: React.FC<PlanetProps> = ({
           {renderAccessory()}
 
           {/* Sparkles or halo */}
-{!usingPlanetImage && level >= 5 && (
+{!usingPlanetImage && level >= 5 && ()}
 
           {/* Glowing Planetary Rings for Theme 4, 5+ */}
-{!usingPlanetImage && theme.hasRings && (
+{!usingPlanetImage && theme.hasRings && ()}
 
       {/* Floating Sparkly Text Particles */}
       <div className="absolute inset-0 pointer-events-none z-30">
