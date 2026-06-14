@@ -1,10 +1,9 @@
 {
-  "projectId": "mythical-isomer-rjwpf",
-  "appId": "1:794091232492:web:f0921ba8fade3ae783d9c9",
-  "apiKey": "AIzaSyBvXTELO42DE-XzlMX3sdCdV956WYnfd74",
-  "authDomain": "mythical-isomer-rjwpf.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-dc534372-02be-4f77-aee3-64ae6d17d7bd",
-  "storageBucket": "mythical-isomer-rjwpf.firebasestorage.app",
-  "messagingSenderId": "794091232492",
-  "measurementId": ""
+  "apiKey": "AIzaSyClwXYQzv25hGNt1Hy3Xde4nU58tVs8ijk",
+  "authDomain": "cute-planet-6096c.firebaseapp.com",
+  "projectId": "cute-planet-6096c",
+  "storageBucket": "cute-planet-6096c.firebasestorage.app",
+  "messagingSenderId": "365290427181",
+  "appId": "1:365290427181:web:3fe46a9118114badfc39a4",
+  "measurementId": "G-BYB6882SGB"
 }
