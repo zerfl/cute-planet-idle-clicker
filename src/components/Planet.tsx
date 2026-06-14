@@ -1007,9 +1007,6 @@ export const Planet: React.FC<PlanetProps> = ({
           {/* Render Active Cosmetic Accessory */}
           {renderAccessory()}
 
-          {/* Sparkles or halo */}
-{!usingPlanetImage && level >= 5 && (}
-            
       {/* Floating Sparkly Text Particles */}
       <div className="absolute inset-0 pointer-events-none z-30">
         <AnimatePresence>
