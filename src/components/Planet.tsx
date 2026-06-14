@@ -886,18 +886,12 @@ export const Planet: React.FC<PlanetProps> = ({
           {/* Level Up Flash / Glow Aura */}
           <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
 
-          {/* Planet SVG representation */} 
-          {theme.image && !imageError ? (
-          <img
-    src={theme.image}
-    alt={theme.name}
-    onError={() => setImageError(true)}
-    className="w-full h-full object-contain select-none pointer-events-none"
-    draggable={false}
-  />
-) : (
-  <div className="w-full h-full rounded-full bg-pink-200" />
-)}
+          {/* Planet SVG representation */}
+          <svg
+            viewBox="0 0 200 200"
+            className="w-full h-full select-none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
           {/* Definitions for Gradients and Filters */}
           <defs>
             <radialGradient id="planetGrad" cx="40%" cy="40%" r="65%">
