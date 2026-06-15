@@ -2,7 +2,7 @@ import React from "react";
 
 interface ActionButtonsProps {
   onShowAnimals: () => void;
-  onShowConstellations: () => void;
+  onShowCrafting: () => void;
   onShowStars: () => void;
   onShowUpgrades: () => void;
   onShowAchievements: () => void;
@@ -23,7 +23,7 @@ interface ActionButtonsProps {
 
 export const ActionButtons: React.FC<ActionButtonsProps> = ({
   onShowAnimals,
-  onShowConstellations,
+  onShowCrafting,
   onShowStars,
   onShowUpgrades,
   onShowAchievements,
@@ -63,22 +63,22 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         </span>
       </button>
 
-      {/* Button 1.5: Constellations (Sternbilder) */}
+      {/* Button 1.5: Schmieden (Crafting) */}
       <button
-        onClick={onShowConstellations}
+        onClick={onShowCrafting}
         className={`group relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2.5xl border-3 font-sans font-black cursor-pointer selection:bg-transparent modal-frame-target ${
           disableAnimations ? "" : "transition-all hover:scale-105 active:scale-95"
         } ${
           isNightStyle
-            ? "border-[#22d3ee] bg-gradient-to-br from-[#101c36] via-[#091021] to-[#0e1830] hover:from-[#1b325c] hover:to-[#122244] text-[#ffeef4] shadow-[4px_4px_0px_#22d3ee]"
-            : "border-[#22d3ee] bg-gradient-to-br from-[#101c36] via-[#091021] to-[#0e1830] hover:from-[#1b325c] hover:to-[#122244] text-[#ffeef4]"
+            ? "border-orange-400 bg-gradient-to-br from-[#3b1a10] via-[#210e08] to-[#2b1008] hover:from-[#4d251d] hover:to-[#3f1c14] text-[#ffeef4] shadow-[4px_4px_0px_rgba(251,146,60,0.8)]"
+            : "border-orange-400 bg-gradient-to-br from-[#3b1a10] via-[#210e08] to-[#2b1008] hover:from-[#4d251d] hover:to-[#3f1c14] text-[#ffeef4]"
         }`}
       >
-        <div className={`text-3xl filter drop-shadow-sm mb-1 ${disableAnimations ? "" : "group-hover:animate-pulse"}`}>✨</div>
-        <span className={`text-[11px] uppercase tracking-wider text-center leading-normal ${isNightStyle ? "text-cyan-300" : "text-cyan-300"}`}>Sternbilder</span>
+        <div className={`text-3xl filter drop-shadow-sm mb-1 ${disableAnimations ? "" : "group-hover:animate-pulse"}`}>🔨</div>
+        <span className={`text-[11px] uppercase tracking-wider text-center leading-normal ${isNightStyle ? "text-orange-300" : "text-orange-300"}`}>Schmieden</span>
         
-        <span className="absolute -top-1.5 -right-1.5 bg-cyan-500 text-white font-mono font-black text-[9px] h-5 px-1.5 rounded-full flex items-center justify-center border-2 border-[#22d3ee] shadow-sm">
-          {activeConstellationsCount}
+        <span className="absolute -top-1.5 -right-1.5 bg-orange-500 text-white font-mono font-black text-[9px] h-5 px-1.5 rounded-full flex items-center justify-center border-2 border-orange-400 shadow-sm">
+          52
         </span>
       </button>
 

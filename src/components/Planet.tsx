@@ -2,6 +2,7 @@ import React, { useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Star, Sparkles, Heart, Moon } from "lucide-react";
 import { FloatingText } from "../types";
+import { ZODIACS } from "../data/zodiacs";
 
 export interface PurchasedAnimalInfo {
   id: string;
@@ -25,6 +26,8 @@ interface PlanetProps {
   isLowMemory?: boolean;
   moonsCount?: number;
   activeMoonSkin?: string;
+  activeZodiacId?: string;
+  onOpenZodiacModal?: () => void;
 }
 
 const STAR_STYLES: Record<string, { fill: string; border: string; glow: string; ping: string; extraClass?: string }> = {
@@ -340,6 +343,8 @@ export const Planet: React.FC<PlanetProps> = ({
   isLowMemory = false,
   moonsCount = 0,
   activeMoonSkin = "default",
+  activeZodiacId,
+  onOpenZodiacModal,
 }) => {
   const [imageError, setImageError] = React.useState(false);
 
@@ -1082,6 +1087,11 @@ export const Planet: React.FC<PlanetProps> = ({
                   <Heart className="w-5 h-5 fill-[#FFD1DC] stroke-[#f15e75] stroke-[2.5] inline animate-bounce" /> {item.text}
                 </div>
               )}
+              {item.type === "crit-click" && (
+                <div className="font-sans font-black text-3xl text-amber-500 flex items-center gap-1.5 filter drop-shadow-[0_3px_6px_rgba(245,158,11,0.5)] scale-110">
+                  <Sparkles className="w-5.5 h-5.5 text-amber-300 fill-amber-100 inline animate-[spin_3s_linear_infinite]" /> {item.text}
+                </div>
+              )}
               {item.type === "star-click" && (() => {
                 const sStyle = STAR_STYLES[activeStarColor] || STAR_STYLES.default;
                 return (
@@ -1121,7 +1131,7 @@ export const Planet: React.FC<PlanetProps> = ({
       </div>
 
       {/* Planet Info Display & Level-Bar */}
-      <div className={`mt-6 flex flex-col items-center w-full max-w-sm relative z-10 rounded-2.5xl p-5 border-3 transition-colors duration-500 shadow-md ${
+      <div className={`mt-6 flex flex-col items-center w-full max-w-md relative z-10 rounded-2.5xl p-6 border-3 transition-colors duration-500 shadow-md ${
         isNight 
           ? "bg-[#130f2c]/95 border-[#caa5fe]/60 text-[#ffeef4]" 
           : "bg-[#fffdf2]/95 border-amber-300 text-slate-800"
@@ -1171,6 +1181,32 @@ export const Planet: React.FC<PlanetProps> = ({
             />
           </div>
         </div>
+
+        {(() => {
+          const resolvedZodiacId = activeZodiacId || "katze";
+          const zodiacObj = ZODIACS.find((z) => z.id === resolvedZodiacId);
+          if (!zodiacObj) return null;
+          return (
+            <button
+              onClick={onOpenZodiacModal}
+              title="Klicke für Details"
+              className={`mt-4 w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-[11px] font-bold border shadow-sm transition-all hover:scale-[1.01] active:scale-95 cursor-pointer ${
+                isNight
+                  ? "bg-[#251f4d]/85 hover:bg-[#322769] text-purple-200 border-purple-500/30 hover:border-purple-400/50"
+                  : "bg-amber-50/90 hover:bg-amber-100/90 text-amber-900 border-amber-200 hover:border-amber-300"
+              }`}
+            >
+              <span className="text-xs">{zodiacObj.emoji}</span>
+              <span className={isNight ? "text-purple-300 font-semibold" : "text-amber-800 font-semibold"}>Sternzeichen {zodiacObj.name}:</span>
+              <span className={isNight ? "text-amber-200 font-black" : "text-amber-950 font-black"}>
+                {zodiacObj.bonusDesc}
+              </span>
+              <span className={`text-[9px] uppercase font-black px-1.5 py-0.5 rounded ml-1 animate-pulse ${
+                isNight ? "bg-purple-500/20 text-purple-300" : "bg-amber-100 text-[#7c2d12]"
+              }`}>ℹ️ Info</span>
+            </button>
+          );
+        })()}
       </div>
     </div>
   );

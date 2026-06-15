@@ -72,4 +72,5 @@ export interface GameState {
   constellations?: Record<string, number>; // constellationId -> level (0 if unpurchased)
   glitterDust?: number;
   blackHoleSize?: number;
+  zodiac?: string;
 }

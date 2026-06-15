@@ -53,10 +53,11 @@ import { SyncConflictDialog } from "./components/modals/SyncConflictDialog";
 import { Cloud, Trophy } from "lucide-react";
 import { MissionsModal } from "./components/modals/MissionsModal";
 import { InventoryModal } from "./components/modals/InventoryModal";
+import { ZodiacModal } from "./components/modals/ZodiacModal";
 import { PrestigeModal } from "./components/modals/PrestigeModal";
 import { OfflineEarningsModal } from "./components/modals/OfflineEarningsModal";
 import { LeaderboardModal } from "./components/modals/LeaderboardModal";
-import { ConstellationsModal } from "./components/modals/ConstellationsModal";
+import { CraftingModal } from "./components/modals/CraftingModal";
 import { calculateOfflineLps } from "./utils/offline";
 import { generateMissionsForSet } from "./data/missions";
 
@@ -164,7 +165,8 @@ export default function App() {
   // Cloud Sync Modal state
   const [showCloudSyncModal, setShowCloudSyncModal] = useState<boolean>(false);
   const [showLeaderboardModal, setShowLeaderboardModal] = useState<boolean>(false);
-  const [showConstellationsModal, setShowConstellationsModal] = useState<boolean>(false);
+  const [showCraftingModal, setShowCraftingModal] = useState<boolean>(false);
+  const [craftedItems, setCraftedItems] = useState<Record<string, number>>({});
   const [constellations, setConstellations] = useState<Record<string, number>>({});
   const [autosaveNotification, setAutosaveNotification] = useState<{ show: boolean; text: string; success: boolean } | null>(null);
 
@@ -215,6 +217,7 @@ export default function App() {
   const [missionSetNumber, setMissionSetNumber] = useState<number>(1);
   const [claimedMissionIds, setClaimedMissionIds] = useState<string[]>([]);
   const [missionsCooldownEnd, setMissionsCooldownEnd] = useState<number | null>(null);
+  const [activeZodiacId, setActiveZodiacId] = useState<string>("katze");
   const [prestigeCount, setPrestigeCount] = useState<number>(0);
   const [blackHoleSize, setBlackHoleSize] = useState<number>(1);
   const [blackHoleResult, setBlackHoleResult] = useState<{
@@ -229,6 +232,7 @@ export default function App() {
   const [showMissionsModal, setShowMissionsModal] = useState<boolean>(false);
   const [showInventoryModal, setShowInventoryModal] = useState<boolean>(false);
   const [showPrestigeModal, setShowPrestigeModal] = useState<boolean>(false);
+  const [showZodiacModal, setShowZodiacModal] = useState<boolean>(false);
   
   // Offline Progress States
   const [showOfflineModal, setShowOfflineModal] = useState<boolean>(false);
@@ -344,8 +348,9 @@ export default function App() {
     const currentMissions = generateMissionsForSet(missionSetNumber);
     const allClaimedNow = currentMissions.every((m) => updatedClaimed.includes(m.id));
     if (allClaimedNow) {
-      // 5-minute cooldown starts!
-      const cooldownMs = 5 * 60 * 1000;
+      // 5-minute cooldown starts! Frosch (frog) zodiac increases mission cooldown speed by 2.5x (cooldown is only 2 minutes instead of 5!)
+      const isFrosch = activeZodiacId === "frosch";
+      const cooldownMs = isFrosch ? 2 * 60 * 1000 : 5 * 60 * 1000;
       const cooldownEnd = Date.now() + cooldownMs;
       setMissionsCooldownEnd(cooldownEnd);
     }
@@ -544,9 +549,11 @@ export default function App() {
         if (data.missionsCooldownEnd !== undefined) setMissionsCooldownEnd(data.missionsCooldownEnd);
         if (data.moonsCount !== undefined) setMoonsCount(data.moonsCount);
         if (data.constellations) setConstellations(data.constellations);
+        if (data.craftedItems) setCraftedItems(data.craftedItems);
         if (data.glitterDust !== undefined) setGlitterDust(data.glitterDust);
         if (data.cosmeticRarityLevels) setCosmeticRarityLevels(data.cosmeticRarityLevels);
         if (data.blackHoleSize !== undefined) setBlackHoleSize(data.blackHoleSize || 1);
+        if (data.zodiac !== undefined) setActiveZodiacId(data.zodiac);
       }
     };
     window.addEventListener("firebase-load-state", handleFirebaseLoad);
@@ -581,8 +588,10 @@ export default function App() {
         if (savedStateObj.missionsCooldownEnd !== undefined) setMissionsCooldownEnd(savedStateObj.missionsCooldownEnd);
         if (savedStateObj.moonsCount !== undefined) setMoonsCount(savedStateObj.moonsCount);
         if (savedStateObj.constellations) setConstellations(savedStateObj.constellations);
+        if (savedStateObj.craftedItems) setCraftedItems(savedStateObj.craftedItems);
         if (savedStateObj.glitterDust !== undefined) setGlitterDust(savedStateObj.glitterDust);
         if (savedStateObj.cosmeticRarityLevels) setCosmeticRarityLevels(savedStateObj.cosmeticRarityLevels);
+        setActiveZodiacId(savedStateObj.zodiac || "katze");
       }
     } catch (e) {
       console.error("Failed to parse initial save for Web Worker:", e);
@@ -621,11 +630,13 @@ export default function App() {
           if (ws.blackHoleSize !== undefined) setBlackHoleSize(ws.blackHoleSize || 1);
           
           setConstellations((prevOrder) => isObjEqual(prevOrder, ws.constellations) ? prevOrder : (ws.constellations || {}));
+          setCraftedItems((prev) => isObjEqual(prev, ws.craftedItems) ? prev : (ws.craftedItems || {}));
           if (ws.glitterDust !== undefined) setGlitterDust(ws.glitterDust);
           if (ws.cosmeticRarityLevels) setCosmeticRarityLevels((prev) => isObjEqual(prev, ws.cosmeticRarityLevels) ? prev : ws.cosmeticRarityLevels);
           if (ws.activeEventDecision !== undefined) setActiveEventDecision(ws.activeEventDecision);
           if (ws.unlockedCosmetics !== undefined) setUnlockedCosmetics((prev) => isArrEqual(prev, ws.unlockedCosmetics) ? prev : ws.unlockedCosmetics);
           if (ws.shootingStarsCount !== undefined) setShootingStarsCount(ws.shootingStarsCount);
+          if (ws.zodiac !== undefined) setActiveZodiacId(ws.zodiac || "katze");
 
           setCalculations((prevCalculations: any) => {
             if (
@@ -1017,9 +1028,11 @@ export default function App() {
       offlineLpsRate,
       offlineEarnedLife,
       constellations,
+      craftedItems,
       glitterDust,
       cosmeticRarityLevels,
       blackHoleSize,
+      activeZodiacId,
     };
   }, [
     isLoaded,
@@ -1049,8 +1062,10 @@ export default function App() {
     offlineLpsRate,
     offlineEarnedLife,
     constellations,
+    craftedItems,
     glitterDust,
     cosmeticRarityLevels,
+    activeZodiacId,
   ]);
 
   // Synchronize dynamic local saves and autosave intervals
@@ -1085,9 +1100,11 @@ export default function App() {
           offlineLpsRate: s.offlineLpsRate,
           offlineEarnedLife: s.offlineEarnedLife,
           constellations: s.constellations,
+          craftedItems: s.craftedItems,
           glitterDust: s.glitterDust,
           cosmeticRarityLevels: s.cosmeticRarityLevels,
           blackHoleSize: s.blackHoleSize,
+          zodiac: s.activeZodiacId,
           lastSavedAt: Date.now(),
         };
         localStorage.setItem("cute_planet_save", JSON.stringify(stateToSave));
@@ -1145,9 +1162,11 @@ export default function App() {
           offlineLpsRate: s.offlineLpsRate,
           offlineEarnedLife: s.offlineEarnedLife,
           constellations: s.constellations,
+          craftedItems: s.craftedItems,
           glitterDust: s.glitterDust,
           cosmeticRarityLevels: s.cosmeticRarityLevels,
           blackHoleSize: s.blackHoleSize,
+          zodiac: s.activeZodiacId,
           lastSavedAt: Date.now(),
         };
 
@@ -1267,7 +1286,12 @@ export default function App() {
     });
 
     // Predict & render floating text instantly for absolute zero click lag/latency
-    const actualClickLife = clickPower * clickMultiplierForEvents;
+    const isKatze = activeZodiacId === "katze";
+    const critChance = isKatze ? 0.20 : 0.05;
+    const isCrit = Math.random() < critChance;
+    const critMult = isKatze ? 7 : 3;
+    const clickVal = isCrit ? (clickPower * critMult) : clickPower;
+    const actualClickLife = clickVal * clickMultiplierForEvents;
     const pId = nextParticleId.current++;
     setFloatingTexts((prev) => {
       const next = [
@@ -1276,8 +1300,10 @@ export default function App() {
           id: pId,
           x,
           y,
-          text: `+${formatCompactNumber(actualClickLife)}`,
-          type: "click",
+          text: isCrit 
+            ? `+${formatCompactNumber(actualClickLife)} CRIT! ✨` 
+            : `+${formatCompactNumber(actualClickLife)}`,
+          type: isCrit ? "crit-click" : "click",
           createdAt: Date.now(),
         },
       ];
@@ -1355,6 +1381,30 @@ export default function App() {
       constellationId,
       starsCost,
       moonsCost,
+    });
+  };
+
+  const handleCraftItem = (recipeId: string) => {
+    playUpgrade();
+    workerRef.current?.postMessage({
+      type: "CRAFT_ITEM",
+      recipeId,
+    });
+  };
+
+  const handleUseCraftedItem = (itemId: string) => {
+    playPop();
+    workerRef.current?.postMessage({
+      type: "USE_CRAFTED_ITEM",
+      itemId,
+    });
+  };
+
+  const handleSelectZodiac = (zodiacId: string) => {
+    playPop();
+    workerRef.current?.postMessage({
+      type: "SET_ZODIAC",
+      zodiacId,
     });
   };
 
@@ -1649,6 +1699,8 @@ export default function App() {
             activeAccessory={activeAccessory}
             activeMoonSkin={activeMoonSkin}
             isLowMemory={isLowMemory}
+            activeZodiacId={activeZodiacId}
+            onOpenZodiacModal={() => setShowZodiacModal(true)}
           />
 
           {/* Subtitle technical decoration lines */}
@@ -1660,7 +1712,7 @@ export default function App() {
         {/* Beautiful Tactile Floating Buttons to open their corresponding modal window */}
         <ActionButtons
           onShowAnimals={() => setShowAnimalsModal(true)}
-          onShowConstellations={() => setShowConstellationsModal(true)}
+          onShowCrafting={() => setShowCraftingModal(true)}
           onShowStars={() => setShowStarsModal(true)}
           onShowUpgrades={() => setShowUpgradesModal(true)}
           onShowAchievements={() => setShowAchievementsModal(true)}
@@ -1761,15 +1813,21 @@ export default function App() {
         onMergeMoons={handleMergeMoons}
         prestigeCount={prestigeCount}
         maxMoons={maxMoons}
-      />
-
-      <ConstellationsModal
-        isOpen={showConstellationsModal}
-        onClose={() => setShowConstellationsModal(false)}
-        starsCount={starsCount}
-        moonsCount={moonsCount}
         constellations={constellations}
         onInvestConstellation={handleInvestConstellation}
+      />
+
+      <CraftingModal
+        isOpen={showCraftingModal}
+        onClose={() => setShowCraftingModal(false)}
+        isNight={isNightStyle}
+        life={life}
+        starsCount={starsCount}
+        moonsCount={moonsCount}
+        glitterDust={glitterDust}
+        shootingStarsCount={shootingStarsCount}
+        craftedItems={craftedItems}
+        onCraftItem={handleCraftItem}
         formatCompactNumber={formatCompactNumber}
       />
 
@@ -1921,6 +1979,7 @@ export default function App() {
         isOpen={showInventoryModal}
         onClose={() => setShowInventoryModal(false)}
         isNight={isNightStyle}
+        zodiac={activeZodiacId}
         shootingStarsCount={shootingStarsCount}
         unlockedCosmetics={unlockedCosmetics}
         activeStarColor={activeStarColor}
@@ -1934,6 +1993,16 @@ export default function App() {
         cosmeticRarityLevels={cosmeticRarityLevels}
         onUnlockCosmeticDirect={handleUnlockCosmeticDirect}
         onUpgradeCosmeticRarity={handleUpgradeCosmeticRarity}
+        craftedItems={craftedItems}
+        onUseCraftedItem={handleUseCraftedItem}
+        onSelectZodiac={handleSelectZodiac}
+      />
+
+      <ZodiacModal
+        isOpen={showZodiacModal}
+        onClose={() => setShowZodiacModal(false)}
+        isNight={isNightStyle}
+        activeZodiacId={activeZodiacId || "katze"}
       />
 
       <LeaderboardModal

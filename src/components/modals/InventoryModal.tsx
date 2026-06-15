@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Sparkles, Star, ShieldAlert, Check, Lock, Backpack } from "lucide-react";
 import { COSMETIC_ITEMS, CosmeticItem, RARITY_STYLES } from "../../data/cosmetics";
+import { CRAFTING_RECIPES } from "../../data/recipes";
+import { ZODIACS } from "../../data/zodiacs";
 
 interface InventoryModalProps {
   isOpen: boolean;
@@ -22,6 +24,12 @@ interface InventoryModalProps {
   cosmeticRarityLevels: Record<string, string>;
   onUnlockCosmeticDirect: (cosmeticId: string, cost: number) => void;
   onUpgradeCosmeticRarity: (cosmeticId: string, nextRarity: string, cost: number) => void;
+
+  // Crafted items
+  craftedItems?: Record<string, number>;
+  onUseCraftedItem?: (itemId: string) => void;
+  zodiac?: string;
+  onSelectZodiac?: (zodiacId: string) => void;
 }
 
 export const InventoryModal: React.FC<InventoryModalProps> = ({
@@ -41,8 +49,12 @@ export const InventoryModal: React.FC<InventoryModalProps> = ({
   cosmeticRarityLevels,
   onUnlockCosmeticDirect,
   onUpgradeCosmeticRarity,
+  craftedItems = {},
+  onUseCraftedItem,
+  zodiac,
+  onSelectZodiac,
 }) => {
-  const [activeTab, setActiveTab] = useState<"star_color" | "planet_accessory" | "frame_style" | "moon_skin">("star_color");
+  const [activeTab, setActiveTab] = useState<string>("star_color");
   const [openingState, setOpeningState] = useState<"idle" | "shaking" | "revealed">("idle");
   const [revealedItem, setRevealedItem] = useState<CosmeticItem | null>(null);
   const [isRevealDuplicate, setIsRevealDuplicate] = useState(false);
@@ -57,21 +69,31 @@ export const InventoryModal: React.FC<InventoryModalProps> = ({
   };
 
   const getDirectPurchaseCost = (rarity: string) => {
+    let cost = 15;
     switch (rarity) {
-      case "legendary": return 300;
-      case "epic": return 100;
-      case "rare": return 40;
-      default: return 15;
+      case "legendary": cost = 300; break;
+      case "epic": cost = 100; break;
+      case "rare": cost = 40; break;
+      default: cost = 15;
     }
+    if (zodiac === "einhorn") {
+      cost = Math.ceil(cost * 0.80);
+    }
+    return cost;
   };
 
   const getRarityUpgradeDetails = (currentRarity: string) => {
+    let details = { nextRarity: "rare", cost: 20, name: "Selten" };
     switch (currentRarity) {
-      case "common": return { nextRarity: "rare", cost: 20, name: "Selten" };
-      case "rare": return { nextRarity: "epic", cost: 50, name: "Episch" };
-      case "epic": return { nextRarity: "legendary", cost: 120, name: "Legendär" };
+      case "common": details = { nextRarity: "rare", cost: 20, name: "Selten" }; break;
+      case "rare": details = { nextRarity: "epic", cost: 50, name: "Episch" }; break;
+      case "epic": details = { nextRarity: "legendary", cost: 120, name: "Legendär" }; break;
       default: return null;
     }
+    if (zodiac === "einhorn") {
+      details.cost = Math.ceil(details.cost * 0.80);
+    }
+    return details;
   };
 
   // Weighted roll for cosmetics
@@ -140,9 +162,10 @@ export const InventoryModal: React.FC<InventoryModalProps> = ({
     { id: "planet_accessory", label: "👒 Planet-Hüte" },
     { id: "frame_style", label: "🖼️ Fensterrahmen" },
     { id: "moon_skin", label: "🌙 Mond-Skins" },
+    { id: "crafted", label: "🔮 Kreationen" },
   ] as const;
 
-  const currentItems = COSMETIC_ITEMS.filter((i) => i.type === activeTab);
+  const currentItems = activeTab === "crafted" ? [] : COSMETIC_ITEMS.filter((i) => i.type === activeTab);
   const sortedItems = [...currentItems].sort((a, b) => {
     const aUnlocked = unlockedCosmetics.includes(a.id);
     const bUnlocked = unlockedCosmetics.includes(b.id);
@@ -581,239 +604,287 @@ export const InventoryModal: React.FC<InventoryModalProps> = ({
             ))}
           </div>
 
-          {/* GRID OF COSMETICS */}
-          <div className="grid grid-cols-2 gap-3.5 mt-1 sm:grid-cols-2 md:grid-cols-3">
-            {/* Hardcoded Default items */}
-            {activeTab === "star_color" && (
-              <div
-                onClick={() => onApplyCosmetic("default", "star_color")}
-                className={`p-3.5 rounded-2.5xl border-2 transition-all flex flex-col items-center text-center justify-between cursor-pointer ${
-                  activeStarColor === "default"
-                    ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
-                    : isNight ? "bg-[#181335]/45 border-[#caa5fe]/20 hover:bg-[#1f1945]/60" : "bg-white border-amber-200 hover:bg-amber-50"
-                }`}
-              >
-                <div className="text-3xl filter drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)] select-none">🎨</div>
-                <div className="mt-2 text-center">
-                  <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-[#fff]" : "text-slate-800"}`}>
-                    Standard-Gelb
-                  </h6>
-                  <span className="text-[9px] font-mono text-gray-400 block mt-0.5 uppercase">Kostenlos</span>
-                </div>
-                <div className="mt-3.5 w-full">
-                  {activeStarColor === "default" ? (
-                    <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1">
-                      <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
-                    </span>
-                  ) : (
-                    <span className={`text-[9px] uppercase font-bold ${isNight ? "text-purple-300" : "text-amber-800"}`}>Aktivieren</span>
-                  )}
-                </div>
-              </div>
-            )}
+          {/* GRID OF COSMETICS OR CRAFTED ITEMS */}
+          {activeTab === "crafted" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-1">
+              {CRAFTING_RECIPES.filter((r) => r.category === "consumables").map((recipe) => {
+                const item = recipe.result;
+                const qty = craftedItems?.[item.id] || 0;
+                const canActivate = qty > 0;
+                return (
+                  <div
+                    key={item.id}
+                    className={`p-3.5 border-2 rounded-2.5xl flex flex-col justify-between text-center relative overflow-hidden min-h-[145px] transition-all bg-[#14122d]/45 ${
+                      qty > 0 
+                        ? isNight ? "border-[#caa5fe]/50 bg-[#1d194c]/50" : "border-amber-450 bg-amber-100/40 text-slate-800"
+                        : "opacity-45 border-gray-650/10 cursor-not-allowed select-none"
+                    }`}
+                  >
+                    <div className="flex flex-col items-center">
+                      <span className="text-3xl select-none filter drop-shadow-md mb-1.5">{item.emoji}</span>
+                      <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-white" : "text-slate-800"}`}>
+                        {item.name}
+                      </h6>
+                      <p className={`text-[10px] sm:text-[10.5px] text-[#a599d1] mt-1 leading-normal max-w-xs ${!isNight && "text-slate-600"}`}>
+                        {item.description}
+                      </p>
+                    </div>
 
-            {activeTab === "planet_accessory" && (
-              <div
-                onClick={() => onApplyCosmetic("none", "planet_accessory")}
-                className={`p-3.5 rounded-2.5xl border-2 transition-all flex flex-col items-center text-center justify-between cursor-pointer ${
-                  activeAccessory === "none"
-                    ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
-                    : isNight ? "bg-[#181335]/45 border-[#caa5fe]/20 hover:bg-[#1f1945]/60" : "bg-white border-amber-200 hover:bg-amber-50"
-                }`}
-              >
-                <div className="text-3xl select-none">❌</div>
-                <div className="mt-2 text-center">
-                  <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-[#fff]" : "text-slate-800"}`}>
-                    Kein Hut
-                  </h6>
-                  <span className="text-[9px] font-mono text-gray-400 block mt-0.5 uppercase">Nackt</span>
-                </div>
-                <div className="mt-3.5 w-full">
-                  {activeAccessory === "none" ? (
-                    <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1">
-                      <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
-                    </span>
-                  ) : (
-                    <span className={`text-[9px] uppercase font-bold ${isNight ? "text-purple-300" : "text-amber-800"}`}>Aktivieren</span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {activeTab === "frame_style" && (
-              <div
-                onClick={() => onApplyCosmetic("default", "frame_style")}
-                className={`p-3.5 rounded-2.5xl border-2 transition-all flex flex-col items-center text-center justify-between cursor-pointer ${
-                  activeFrame === "default"
-                    ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
-                    : isNight ? "bg-[#181335]/45 border-[#caa5fe]/20 hover:bg-[#1f1945]/60" : "bg-white border-amber-200 hover:bg-amber-50"
-                }`}
-              >
-                <div className="text-3xl select-none">🖼️</div>
-                <div className="mt-2 text-center">
-                  <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-[#fff]" : "text-slate-800"}`}>
-                    Standard-Rahmen
-                  </h6>
-                  <span className="text-[9px] font-mono text-gray-400 block mt-0.5 uppercase">Klassisch</span>
-                </div>
-                <div className="mt-3.5 w-full">
-                  {activeFrame === "default" ? (
-                    <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1">
-                      <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
-                    </span>
-                  ) : (
-                    <span className={`text-[9px] uppercase font-bold ${isNight ? "text-purple-300" : "text-amber-800"}`}>Aktivieren</span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {activeTab === "moon_skin" && (
-              <div
-                onClick={() => onApplyCosmetic("default", "moon_skin")}
-                className={`p-3.5 rounded-2.5xl border-2 transition-all flex flex-col items-center text-center justify-between cursor-pointer ${
-                  activeMoonSkin === "default"
-                    ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
-                    : isNight ? "bg-[#181335]/45 border-[#caa5fe]/20 hover:bg-[#1f1945]/60" : "bg-white border-amber-200 hover:bg-amber-50"
-                }`}
-              >
-                <div className="text-3xl select-none">🌙</div>
-                <div className="mt-2 text-center">
-                  <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-[#fff]" : "text-slate-800"}`}>
-                    Standard-Mond
-                  </h6>
-                  <span className="text-[9px] font-mono text-gray-400 block mt-0.5 uppercase">Klassisch</span>
-                </div>
-                <div className="mt-3.5 w-full">
-                  {activeMoonSkin === "default" ? (
-                    <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1">
-                      <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
-                    </span>
-                  ) : (
-                    <span className={`text-[9px] uppercase font-bold ${isNight ? "text-purple-300" : "text-amber-800"}`}>Aktivieren</span>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {sortedItems.map((cosmetic) => {
-              const isUnlocked = unlockedCosmetics.includes(cosmetic.id);
-              const hasWishUpgrade = purchasedUpgrades.includes("upg-glitter-wish");
-              const hasRarityUpgrade = purchasedUpgrades.includes("upg-glitter-rarity");
-              
-              // Overwrite rarity if upgraded
-              const currentRarity = cosmeticRarityLevels?.[cosmetic.id] || cosmetic.rarity;
-              const rarityStyle = RARITY_STYLES[currentRarity] || RARITY_STYLES[cosmetic.rarity];
-              
-              const upgradeDetails = getRarityUpgradeDetails(currentRarity);
-
-              // Determine if active
-              let isActive = false;
-              if (activeTab === "star_color") isActive = activeStarColor === cosmetic.value;
-              else if (activeTab === "planet_accessory") isActive = activeAccessory === cosmetic.value;
-              else if (activeTab === "frame_style") isActive = activeFrame === cosmetic.value;
-              else if (activeTab === "moon_skin") isActive = activeMoonSkin === cosmetic.value;
-
-              return (
+                    <div className="mt-3.5 space-y-2">
+                      <div className="text-[10.5px] font-mono leading-none text-purple-300">
+                        Besitz: <strong className="text-white font-extrabold bg-[#1d173c] px-2 py-0.5 rounded-md border border-purple-400/20">{qty}x</strong>
+                      </div>
+                      
+                      <button
+                        onClick={() => canActivate && onUseCraftedItem?.(item.id)}
+                        disabled={!canActivate}
+                        className={`w-full py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-white transition-all ${
+                          canActivate
+                            ? "bg-gradient-to-r from-emerald-505 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-md cursor-pointer active:scale-[0.98] border-2 border-green-400"
+                            : "bg-slate-800/80 border border-[#b4a9cc]/10 text-slate-500 cursor-not-allowed select-none"
+                        }`}
+                      >
+                        {canActivate ? "Aktivieren ✨" : "Keine Exemplare"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3.5 mt-1 sm:grid-cols-2 md:grid-cols-3">
+              {/* Hardcoded Default items */}
+              {activeTab === "star_color" && (
                 <div
-                  key={cosmetic.id}
-                  onClick={() => isUnlocked && onApplyCosmetic(cosmetic.value, cosmetic.type)}
-                  className={`p-3 border-2 rounded-2.5xl flex flex-col items-center justify-between text-center relative overflow-hidden min-h-[145px] transition-all ${
-                    isActive
+                  onClick={() => onApplyCosmetic("default", "star_color")}
+                  className={`p-3.5 rounded-2.5xl border-2 transition-all flex flex-col items-center text-center justify-between cursor-pointer ${
+                    activeStarColor === "default"
                       ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
-                      : isUnlocked
-                        ? isNight ? "bg-[#211a4a]/40 border-purple-500/20 hover:bg-[#201d43]/80 cursor-pointer" : "bg-white border-amber-200 hover:bg-amber-50/50 cursor-pointer"
-                        : hasWishUpgrade
-                          ? isNight ? "bg-[#1c183a]/90 border-pink-500/40 opacity-95 cursor-default" : "bg-pink-50/90 hover:bg-pink-100 border-pink-300 opacity-95 cursor-default"
-                          : "bg-[#14122d]/40 border-gray-600/10 opacity-45 cursor-not-allowed select-none"
+                      : isNight ? "bg-[#181335]/45 border-[#caa5fe]/20 hover:bg-[#1f1945]/60" : "bg-white border-amber-200 hover:bg-amber-50"
                   }`}
                 >
-                  {/* Lock symbol if not unlocked */}
-                  {!isUnlocked && !hasWishUpgrade && (
-                    <div className="absolute right-2 top-2 w-4 h-4 rounded-full bg-slate-900/40 flex items-center justify-center">
-                      <Lock className="w-2.5 h-2.5 text-gray-400" />
-                    </div>
-                  )}
-
-                  {/* Rarity Upgrade Chevron Button */}
-                  {isUnlocked && hasRarityUpgrade && upgradeDetails && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (glitterDust >= upgradeDetails.cost) {
-                          onUpgradeCosmeticRarity(cosmetic.id, upgradeDetails.nextRarity, upgradeDetails.cost);
-                        }
-                      }}
-                      disabled={glitterDust < upgradeDetails.cost}
-                      className={`absolute top-1.5 right-1.5 p-1 px-1.5 rounded-lg text-[8px] font-sans font-black z-15 transition-all text-white flex items-center gap-0.5 border ${
-                        glitterDust >= upgradeDetails.cost
-                          ? "bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 border-pink-400 shadow-md scale-105 active:scale-95 cursor-pointer"
-                          : "bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed"
-                      }`}
-                      title={`Upgrade zu ${upgradeDetails.name} (+5% global LPS Boost) für ${upgradeDetails.cost} ✨`}
-                    >
-                      ▲ {upgradeDetails.cost}
-                    </button>
-                  )}
-
-                  <div className="text-3xl select-none filter drop-shadow-md">
-                    {cosmetic.emoji}
-                  </div>
-
-                  <div className="mt-1 flex flex-col items-center gap-0.5">
-                    <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-white" : "text-slate-800"}`}>
-                      {cosmetic.germanName}
+                  <div className="text-3xl filter drop-shadow-[0_1px_4px_rgba(0,0,0,0.2)] select-none">🎨</div>
+                  <div className="mt-2 text-center">
+                    <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-[#fff]" : "text-slate-800"}`}>
+                      Standard-Gelb
                     </h6>
-                    
-                    <div className="flex flex-col items-center">
-                      <span className={`text-[8.5px] font-mono border px-1.5 py-0.2 rounded-full inline-block scale-90 ${rarityStyle.bg} ${rarityStyle.text} ${rarityStyle.border}`}>
-                        {rarityStyle.name}
+                    <span className="text-[9px] font-mono text-gray-400 block mt-0.5 uppercase">Kostenlos</span>
+                  </div>
+                  <div className="mt-3.5 w-full">
+                    {activeStarColor === "default" ? (
+                      <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
                       </span>
-                      {cosmeticRarityLevels?.[cosmetic.id] && (
-                        <span className="text-[7px] font-bold text-amber-300 tracking-wider uppercase mt-0.5">
-                          ✨ Aufgewertet ✨
+                    ) : (
+                      <span className={`text-[9px] uppercase font-bold ${isNight ? "text-purple-300" : "text-amber-800"}`}>Aktivieren</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "planet_accessory" && (
+                <div
+                  onClick={() => onApplyCosmetic("none", "planet_accessory")}
+                  className={`p-3.5 rounded-2.5xl border-2 transition-all flex flex-col items-center text-center justify-between cursor-pointer ${
+                    activeAccessory === "none"
+                      ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
+                      : isNight ? "bg-[#181335]/45 border-[#caa5fe]/20 hover:bg-[#1f1945]/60" : "bg-white border-amber-200 hover:bg-amber-50"
+                  }`}
+                >
+                  <div className="text-3xl select-none">❌</div>
+                  <div className="mt-2 text-center">
+                    <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-[#fff]" : "text-slate-800"}`}>
+                      Kein Hut
+                    </h6>
+                    <span className="text-[9px] font-mono text-gray-400 block mt-0.5 uppercase">Nackt</span>
+                  </div>
+                  <div className="mt-3.5 w-full">
+                    {activeAccessory === "none" ? (
+                      <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
+                      </span>
+                    ) : (
+                      <span className={`text-[9px] uppercase font-bold ${isNight ? "text-purple-300" : "text-amber-805"}`}>Aktivieren</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "frame_style" && (
+                <div
+                  onClick={() => onApplyCosmetic("default", "frame_style")}
+                  className={`p-3.5 rounded-2.5xl border-2 transition-all flex flex-col items-center text-center justify-between cursor-pointer ${
+                    activeFrame === "default"
+                      ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
+                      : isNight ? "bg-[#181335]/45 border-[#caa5fe]/20 hover:bg-[#1f1945]/60" : "bg-white border-amber-200 hover:bg-amber-50"
+                  }`}
+                >
+                  <div className="text-3xl select-none">🖼️</div>
+                  <div className="mt-2 text-center">
+                    <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-[#fff]" : "text-slate-800"}`}>
+                      Standard-Rahmen
+                    </h6>
+                    <span className="text-[9px] font-mono text-gray-400 block mt-0.5 uppercase">Klassisch</span>
+                  </div>
+                  <div className="mt-3.5 w-full">
+                    {activeFrame === "default" ? (
+                      <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
+                      </span>
+                    ) : (
+                      <span className={`text-[9px] uppercase font-bold ${isNight ? "text-purple-300" : "text-amber-808"}`}>Aktivieren</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "moon_skin" && (
+                <div
+                  onClick={() => onApplyCosmetic("default", "moon_skin")}
+                  className={`p-3.5 rounded-2.5xl border-2 transition-all flex flex-col items-center text-center justify-between cursor-pointer ${
+                    activeMoonSkin === "default"
+                      ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
+                      : isNight ? "bg-[#181335]/45 border-[#caa5fe]/20 hover:bg-[#1f1945]/60" : "bg-white border-amber-200 hover:bg-amber-50"
+                  }`}
+                >
+                  <div className="text-3xl select-none">🌙</div>
+                  <div className="mt-2 text-center">
+                    <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-[#fff]" : "text-slate-800"}`}>
+                      Standard-Mond
+                    </h6>
+                    <span className="text-[9px] font-mono text-gray-400 block mt-0.5 uppercase">Klassisch</span>
+                  </div>
+                  <div className="mt-3.5 w-full">
+                    {activeMoonSkin === "default" ? (
+                      <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
+                      </span>
+                    ) : (
+                      <span className={`text-[9px] uppercase font-bold ${isNight ? "text-purple-300" : "text-amber-804"}`}>Aktivieren</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {sortedItems.map((cosmetic) => {
+                const isUnlocked = unlockedCosmetics.includes(cosmetic.id);
+                const hasWishUpgrade = purchasedUpgrades.includes("upg-glitter-wish");
+                const hasRarityUpgrade = purchasedUpgrades.includes("upg-glitter-rarity");
+                
+                // Overwrite rarity if upgraded
+                const currentRarity = cosmeticRarityLevels?.[cosmetic.id] || cosmetic.rarity;
+                const rarityStyle = RARITY_STYLES[currentRarity] || RARITY_STYLES[cosmetic.rarity];
+                
+                const upgradeDetails = getRarityUpgradeDetails(currentRarity);
+
+                // Determine if active
+                let isActive = false;
+                if (activeTab === "star_color") isActive = activeStarColor === cosmetic.value;
+                else if (activeTab === "planet_accessory") isActive = activeAccessory === cosmetic.value;
+                else if (activeTab === "frame_style") isActive = activeFrame === cosmetic.value;
+                else if (activeTab === "moon_skin") isActive = activeMoonSkin === cosmetic.value;
+
+                return (
+                  <div
+                    key={cosmetic.id}
+                    onClick={() => isUnlocked && onApplyCosmetic(cosmetic.value, cosmetic.type)}
+                    className={`p-3 border-2 rounded-2.5xl flex flex-col items-center justify-between text-center relative overflow-hidden min-h-[145px] transition-all ${
+                      isActive
+                        ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
+                        : isUnlocked
+                          ? isNight ? "bg-[#211a4a]/40 border-purple-500/20 hover:bg-[#201d43]/80 cursor-pointer" : "bg-white border-amber-200 hover:bg-amber-50/50 cursor-pointer"
+                          : hasWishUpgrade
+                            ? isNight ? "bg-[#1c183a]/90 border-pink-500/40 opacity-95 cursor-default" : "bg-pink-50/90 hover:bg-pink-100 border-pink-300 opacity-95 cursor-default"
+                            : "bg-[#14122d]/40 border-gray-600/10 opacity-45 cursor-not-allowed select-none"
+                    }`}
+                  >
+                    {/* Lock symbol if not unlocked */}
+                    {!isUnlocked && !hasWishUpgrade && (
+                      <div className="absolute right-2 top-2 w-4 h-4 rounded-full bg-slate-900/40 flex items-center justify-center">
+                        <Lock className="w-2.5 h-2.5 text-gray-400" />
+                      </div>
+                    )}
+
+                    {/* Rarity Upgrade Chevron Button */}
+                    {isUnlocked && hasRarityUpgrade && upgradeDetails && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (glitterDust >= upgradeDetails.cost) {
+                            onUpgradeCosmeticRarity(cosmetic.id, upgradeDetails.nextRarity, upgradeDetails.cost);
+                          }
+                        }}
+                        disabled={glitterDust < upgradeDetails.cost}
+                        className={`absolute top-1.5 right-1.5 p-1 px-1.5 rounded-lg text-[8px] font-sans font-black z-15 transition-all text-white flex items-center gap-0.5 border ${
+                          glitterDust >= upgradeDetails.cost
+                            ? "bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 border-pink-400 shadow-md scale-105 active:scale-95 cursor-pointer"
+                            : "bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed"
+                        }`}
+                        title={`Upgrade zu ${upgradeDetails.name} (+5% global LPS Boost) für ${upgradeDetails.cost} ✨`}
+                      >
+                        ▲ {upgradeDetails.cost}
+                      </button>
+                    )}
+
+                    <div className="text-3xl select-none filter drop-shadow-md">
+                      {cosmetic.emoji}
+                    </div>
+
+                    <div className="mt-1 flex flex-col items-center gap-0.5">
+                      <h6 className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-white" : "text-slate-800"}`}>
+                        {cosmetic.germanName}
+                      </h6>
+                      
+                      <div className="flex flex-col items-center">
+                        <span className={`text-[8.5px] font-mono border px-1.5 py-0.2 rounded-full inline-block scale-90 ${rarityStyle.bg} ${rarityStyle.text} ${rarityStyle.border}`}>
+                          {rarityStyle.name}
+                        </span>
+                        {cosmeticRarityLevels?.[cosmetic.id] && (
+                          <span className="text-[7px] font-bold text-amber-300 tracking-wider uppercase mt-0.5">
+                            ✨ Aufgewertet ✨
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-2 w-full select-none">
+                      {isActive ? (
+                        <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1 leading-none">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
+                        </span>
+                      ) : isUnlocked ? (
+                        <span className={`text-[9.5px] uppercase font-bold leading-none ${isNight ? "text-purple-300" : "text-amber-802"}`}>
+                          Ausrüsten
+                        </span>
+                      ) : hasWishUpgrade ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const cost = getDirectPurchaseCost(cosmetic.rarity);
+                            if (glitterDust >= cost) {
+                              onUnlockCosmeticDirect(cosmetic.id, cost);
+                            }
+                          }}
+                          disabled={glitterDust < getDirectPurchaseCost(cosmetic.rarity)}
+                          className={`w-full py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider text-white transition-all ${
+                            glitterDust >= getDirectPurchaseCost(cosmetic.rarity)
+                              ? "bg-gradient-to-r from-pink-500 to-amber-500 hover:from-pink-600 hover:to-amber-600 shadow-md cursor-pointer active:scale-95"
+                              : "bg-slate-800/80 border border-[#b4a9cc]/10 text-slate-500 cursor-not-allowed"
+                          }`}
+                        >
+                          Kaufen: {getDirectPurchaseCost(cosmetic.rarity)} ✨
+                        </button>
+                      ) : (
+                        <span className="text-[8px] uppercase font-mono text-gray-400 font-bold block leading-none">
+                          Gesperrt
                         </span>
                       )}
                     </div>
                   </div>
-
-                  <div className="mt-2 w-full select-none">
-                    {isActive ? (
-                      <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1 leading-none">
-                        <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
-                      </span>
-                    ) : isUnlocked ? (
-                      <span className={`text-[9.5px] uppercase font-bold leading-none ${isNight ? "text-purple-300" : "text-amber-800"}`}>
-                        Ausrüsten
-                      </span>
-                    ) : hasWishUpgrade ? (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const cost = getDirectPurchaseCost(cosmetic.rarity);
-                          if (glitterDust >= cost) {
-                            onUnlockCosmeticDirect(cosmetic.id, cost);
-                          }
-                        }}
-                        disabled={glitterDust < getDirectPurchaseCost(cosmetic.rarity)}
-                        className={`w-full py-1.5 rounded-xl text-[9px] font-black uppercase tracking-wider text-white transition-all ${
-                          glitterDust >= getDirectPurchaseCost(cosmetic.rarity)
-                            ? "bg-gradient-to-r from-pink-500 to-amber-500 hover:from-pink-600 hover:to-amber-600 shadow-md cursor-pointer active:scale-95"
-                            : "bg-slate-800/80 border border-[#b4a9cc]/10 text-slate-500 cursor-not-allowed"
-                        }`}
-                      >
-                        Kaufen: {getDirectPurchaseCost(cosmetic.rarity)} ✨
-                      </button>
-                    ) : (
-                      <span className="text-[8px] uppercase font-mono text-gray-400 font-bold block leading-none">
-                        Gesperrt
-                      </span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </motion.div>
     </div>

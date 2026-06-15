@@ -1,5 +1,8 @@
 import { GameState, Animal, Upgrade } from "./types";
 import { INITIAL_ANIMALS, calculateCost } from "./data";
+import { COSMETIC_ITEMS } from "./data/cosmetics";
+import { CRAFTING_RECIPES } from "./data/recipes";
+import { ZODIACS } from "./data/zodiacs";
 
 // Static level bounds matching App.tsx
 const EXP_PER_LEVEL = [0, 1500, 5000, 18000, 60000, 220000, 850000, 3200000, 12000000, 45000000];
@@ -31,6 +34,8 @@ interface WorkerState {
   glitterDust: number;
   shootingStarsCount: number;
   blackHoleSize?: number;
+  craftedItems?: Record<string, number>;
+  zodiac?: string;
 }
 
 // Default initial state
@@ -58,10 +63,20 @@ let state: WorkerState = {
   glitterDust: 0,
   shootingStarsCount: 0,
   blackHoleSize: 1,
+  craftedItems: {},
+  zodiac: "katze",
 };
 
 // Timers refs
 let gameTimerId: any = null;
+
+// Roll helper to guarantee never calling the same zodiac twice in a row
+function rollNewZodiac(currentId?: string): string {
+  const eligible = currentId ? ZODIACS.filter(z => z.id !== currentId) : ZODIACS;
+  if (eligible.length === 0) return ZODIACS[0].id;
+  const picked = eligible[Math.floor(Math.random() * eligible.length)];
+  return picked.id;
+}
 let secondaryTimerId: any = null;
 let starTimerId: any = null;
 let cycleTimerId: any = null;
@@ -124,6 +139,11 @@ function getLpsAndStats() {
   } else if (ghostSetComplete) {
     // Ghost set gives 2.5x click power during night periods
     clickPower = Math.floor(clickPower * 2.5);
+  }
+
+  // Fuchs zodiac flat increase (+40% click power)
+  if (state.zodiac === "fuchs") {
+    clickPower = Math.ceil(clickPower * 1.40);
   }
 
   // XP multiplier calculation based on Research upgrades
@@ -232,6 +252,14 @@ function getLpsAndStats() {
     xpEventMultiplier *= supernovaBoost;
   }
 
+  // Drache zodiac event boost (+40% to event multipliers)
+  if (activeEvent && state.zodiac === "drache") {
+    clickMultiplierForEvents = 1.0 + (clickMultiplierForEvents - 1.0) * 1.40;
+    starMultiplierForEvents = 1.0 + (starMultiplierForEvents - 1.0) * 1.40;
+    animalMultiplierForEvents = 1.0 + (animalMultiplierForEvents - 1.0) * 1.40;
+    xpEventMultiplier = 1.0 + (xpEventMultiplier - 1.0) * 1.40;
+  }
+
   // Calculate Star Autoclick Power
   let starPowerPerStar = 1.0;
   if (upgradesSpecs.starGlow) starPowerPerStar += 1.0;
@@ -262,6 +290,11 @@ function getLpsAndStats() {
     finalStarPowerPos *= 1.15;
   }
 
+  // Eule zodiac star boost (+30% stars LPS)
+  if (state.zodiac === "eule") {
+    finalStarPowerPos *= 1.30;
+  }
+
   const totalStarsLps = starsCount * finalStarPowerPos;
 
   // Calculate Animal LPS
@@ -285,6 +318,12 @@ function getLpsAndStats() {
     lps *= prestigeMultiplier;
     // Apply Kuschel-Sternbild Animal LPS bonus (+10% per level)
     lps *= (1.0 + constellKuschelLevel * 0.10);
+
+    // Biene zodiac animal boost (+35% animal production)
+    if (state.zodiac === "biene") {
+      lps *= 1.35;
+    }
+
     animalLpsMap[def.id] = lps;
     totalAnimalsLps += lps;
   });
@@ -320,9 +359,15 @@ function getLpsAndStats() {
   }
   totalLps *= rarityUpgradeMultiplier;
 
-  // Apply Moon global multiplier (+150% total LPS per Moon)
+  // Apply Moon global multiplier (+150% total LPS per Moon, or +225% if Mond zodiac)
   if (state.moonsCount && state.moonsCount > 0) {
-    totalLps *= (1.0 + state.moonsCount * 1.50);
+    const moonMultiplier = state.zodiac === "mond" ? 2.25 : 1.50;
+    totalLps *= (1.0 + state.moonsCount * moonMultiplier);
+  }
+
+  // Schildkröte zodiac total passive boost (+20% total passive LPS)
+  if (state.zodiac === "schildkroete") {
+    totalLps *= 1.20;
   }
 
   // Aggregate quantities
@@ -358,6 +403,7 @@ function getLpsAndStats() {
     prestigeCount: state.prestigeCount || 0,
     prestigeMultiplier,
     moonsCount: state.moonsCount || 0,
+    zodiac: state.zodiac,
   };
 }
 
@@ -564,6 +610,7 @@ function broadcastStateUpdate(forceRecalculateAchievements = false) {
       glitterDust: state.glitterDust || 0,
       shootingStarsCount: state.shootingStarsCount || 0,
       blackHoleSize: state.blackHoleSize || 1,
+      craftedItems: state.craftedItems || {},
     },
     calculations: {
       ...calculations,
@@ -729,6 +776,9 @@ addEventListener("message", (e) => {
           ...data.savedState,
         };
       }
+      if (!state.zodiac) {
+        state.zodiac = rollNewZodiac();
+      }
       startTimers();
       broadcastStateUpdate();
       break;
@@ -736,7 +786,14 @@ addEventListener("message", (e) => {
     case "CLICK": {
       state.clicksCount += 1;
       const stats = getLpsAndStats();
-      const actualClickLife = stats.clickPower * stats.clickMultiplierForEvents;
+
+      const isKatze = state.zodiac === "katze";
+      const critChance = isKatze ? 0.20 : 0.05;
+      const isCrit = Math.random() < critChance;
+      const critMult = isKatze ? 7 : 3;
+      const clickVal = isCrit ? (stats.clickPower * critMult) : stats.clickPower;
+
+      const actualClickLife = clickVal * stats.clickMultiplierForEvents;
       const actualClickXP = 1.0 * stats.xpMultiplier * stats.xpEventMultiplier;
 
       state.life += actualClickLife;
@@ -748,7 +805,9 @@ addEventListener("message", (e) => {
         const dustRand = Math.random() * 100;
         const dustChance = state.activeEvent === "aurora" ? 15.0 : state.activeEvent === "supernova" ? 15.0 : 10.0;
         if (dustRand < dustChance) {
-          const amount = state.activeEvent === "supernova" ? 5 : 2;
+          const isPhoenix = state.zodiac === "phoenix";
+          const baseAmount = state.activeEvent === "supernova" ? 5 : 2;
+          const amount = Math.ceil(baseAmount * (isPhoenix ? 1.50 : 1.0));
           state.glitterDust = (state.glitterDust || 0) + amount;
           postMessage({
             type: "COSMETIC_FOUND",
@@ -846,6 +905,277 @@ addEventListener("message", (e) => {
       broadcastStateUpdate(true);
       break;
     }
+    case "CRAFT_ITEM": {
+      const { recipeId } = data;
+      const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);
+      if (!recipe) break;
+
+      const { life: reqLife, stars: reqStars, moons: reqMoons, glitter: reqGlitter, lootboxes: reqLootboxes, items: reqItems } = recipe.ingredients;
+
+      // Check affordability
+      let canCraft = true;
+      if (reqLife && state.life < reqLife) canCraft = false;
+      if (reqStars && state.starsCount < reqStars) canCraft = false;
+      if (reqMoons && state.moonsCount < reqMoons) canCraft = false;
+      if (reqGlitter && state.glitterDust < reqGlitter) canCraft = false;
+      if (reqLootboxes && state.shootingStarsCount < reqLootboxes) canCraft = false;
+
+      if (reqItems) {
+        if (!state.craftedItems) state.craftedItems = {};
+        for (const [itemId, qty] of Object.entries(reqItems)) {
+          const owned = state.craftedItems[itemId] || 0;
+          if (owned < qty) {
+            canCraft = false;
+            break;
+          }
+        }
+      }
+
+      if (canCraft) {
+        // Subtract resources
+        if (reqLife) state.life -= reqLife;
+        if (reqStars) state.starsCount -= reqStars;
+        if (reqMoons) state.moonsCount -= reqMoons;
+        if (reqGlitter) state.glitterDust -= reqGlitter;
+        if (reqLootboxes) state.shootingStarsCount -= reqLootboxes;
+
+        if (reqItems) {
+          for (const [itemId, qty] of Object.entries(reqItems)) {
+            state.craftedItems[itemId] = (state.craftedItems[itemId] || 0) - qty;
+          }
+        }
+
+        // Add crafted item
+        if (!state.craftedItems) state.craftedItems = {};
+        const resultId = recipe.result.id;
+        state.craftedItems[resultId] = (state.craftedItems[resultId] || 0) + recipe.result.quantity;
+
+        postMessage({
+          type: "COSMETIC_FOUND",
+          text: `Erfolgreich hergestellt: ${recipe.result.quantity}x ${recipe.result.name} ${recipe.result.emoji}! 🔨`,
+        });
+
+        broadcastStateUpdate(true);
+      }
+      break;
+    }
+    case "USE_CRAFTED_ITEM": {
+      const { itemId } = data;
+      if (!state.craftedItems) state.craftedItems = {};
+      const qty = state.craftedItems[itemId] || 0;
+      if (qty <= 0) break;
+
+      // Deduct item
+      state.craftedItems[itemId] = qty - 1;
+
+      // Handle item effects
+      if (itemId === "use_silver_schnuppe") {
+        state.shootingStarsCount = (state.shootingStarsCount || 0) + 6;
+        postMessage({ type: "COSMETIC_FOUND", text: "Silberne Schnuppe aktiviert: +6 Lootboxen erhalten! 🌠" });
+      }
+      else if (itemId === "use_deko_box") {
+        const allCosmetics = COSMETIC_ITEMS.map((c) => c.id);
+        const locked = allCosmetics.filter((id) => !state.unlockedCosmetics.includes(id));
+        if (locked.length > 0) {
+          const rolled = locked[Math.floor(Math.random() * locked.length)];
+          state.unlockedCosmetics.push(rolled);
+          const cosmeticObj = COSMETIC_ITEMS.find((c) => c.id === rolled);
+          postMessage({
+            type: "COSMETIC_FOUND",
+            text: `Freigeschaltet: ${cosmeticObj?.germanName || rolled} ${cosmeticObj?.emoji || ""}! 🎁`,
+          });
+        } else {
+          state.glitterDust = (state.glitterDust || 0) + 35;
+          postMessage({
+            type: "COSMETIC_FOUND",
+            text: `Recht des Besitzers: +35 Glitzerstaub erstattet! ✨`,
+          });
+        }
+      }
+      else if (itemId === "use_moon_blessing") {
+        state.glitterDust = (state.glitterDust || 0) + 120;
+        state.life += 25000000;
+        state.totalLifeEarned += 25000000;
+        state.starsCount += 5;
+        postMessage({ type: "COSMETIC_FOUND", text: "Mondsegen gewirkt: +120 Glitzerstaub, +25M Leben, +5 Sterne! 🌙" });
+      }
+      else if (itemId === "use_gold_schnuppe") {
+        state.shootingStarsCount = (state.shootingStarsCount || 0) + 15;
+        state.glitterDust = (state.glitterDust || 0) + 200;
+        postMessage({ type: "COSMETIC_FOUND", text: "Goldene Schnuppe verglüht: +15 Lootboxen & +200 Glitzerstaub! 💫" });
+      }
+      else if (itemId === "use_trig_supernova") {
+        state.activeEvent = "supernova";
+        state.eventTimeRemaining = 120;
+        state.activeEventDecision = null;
+        postMessage({ type: "COSMETIC_FOUND", text: "Supernova-Event ausgelöst! Schau gen Himmel! 💥" });
+      }
+      else if (itemId === "use_trig_aurora") {
+        state.activeEvent = "aurora";
+        state.eventTimeRemaining = 120;
+        state.activeEventDecision = null;
+        postMessage({ type: "COSMETIC_FOUND", text: "Aurora-Event ausgelöst! Der Himmel ergrünt! 🌌" });
+      }
+      else if (itemId === "use_trig_meteor") {
+        state.activeEvent = "meteors";
+        state.eventTimeRemaining = 120;
+        state.activeEventDecision = null;
+        postMessage({ type: "COSMETIC_FOUND", text: "Meteoritenschauer herbeigerufen! ☄️" });
+      }
+      else if (itemId === "use_trig_stars") {
+        state.activeEvent = "shooting_stars";
+        state.eventTimeRemaining = 120;
+        state.activeEventDecision = null;
+        postMessage({ type: "COSMETIC_FOUND", text: "Mondnacht-Sternschnuppen-Schauer bricht los! 🌠" });
+      }
+      else if (itemId === "use_trig_blackhole") {
+        state.activeEvent = "black_hole";
+        state.eventTimeRemaining = 120;
+        state.activeEventDecision = null;
+        postMessage({ type: "COSMETIC_FOUND", text: "Ein Schwarzes Loch krümmt die lokale Matrix! 🕳️" });
+      }
+      else if (itemId === "use_prisma_boxes") {
+        state.shootingStarsCount = (state.shootingStarsCount || 0) + 3;
+        postMessage({ type: "COSMETIC_FOUND", text: "Prisma zersplittert: +3 Lootboxen erhalten! 💎" });
+      }
+      else if (itemId === "use_prestige_amulet") {
+        state.prestigeCount = (state.prestigeCount || 0) + 1;
+        postMessage({ type: "COSMETIC_FOUND", text: "Dimensionssprung! Prestige +1 erhalten, ganz ohne Ressourcenverlust! 👑" });
+      }
+      else if (itemId === "use_giga_life") {
+        state.life += 150000000;
+        state.totalLifeEarned += 150000000;
+        postMessage({ type: "COSMETIC_FOUND", text: "Lebensessenz explodiert: +150.000.000 Leben hinzugewonnen! 🧪" });
+      }
+      else if (itemId === "use_peach_bless") {
+        state.life += 5000000;
+        state.totalLifeEarned += 5000000;
+        state.starsCount += 15;
+        postMessage({ type: "COSMETIC_FOUND", text: "Kirschblüten-Segen verströmt: +5M Leben, +15 Sterne! 🌸" });
+      }
+      else if (itemId === "use_animal_cookies") {
+        let spawned = 0;
+        for (const animalId of Object.keys(state.purchasedAnimals)) {
+          if (state.purchasedAnimals[animalId] > 0) {
+            state.purchasedAnimals[animalId] += 1;
+            spawned += 1;
+          }
+        }
+        postMessage({ type: "COSMETIC_FOUND", text: `Premium-Snack verspeist: +1 von all deinen ${spawned} Tierarten! 🍪` });
+      }
+      else if (itemId === "use_nebula_coffer") {
+        state.shootingStarsCount = (state.shootingStarsCount || 0) + 2;
+        state.life += 120000;
+        state.totalLifeEarned += 120000;
+        postMessage({ type: "COSMETIC_FOUND", text: "Nebelbeutel geöffnet: +2 Lootboxen und +120.000 Leben! ☁️" });
+      }
+      else if (itemId === "use_star_shards") {
+        state.starsCount += 12;
+        postMessage({ type: "COSMETIC_FOUND", text: "Kiste gesprengt: +12 funkelnde Sterne gerufen! ⭐" });
+      }
+      else if (itemId === "use_glitter_fountain") {
+        state.glitterDust = (state.glitterDust || 0) + 85;
+        postMessage({ type: "COSMETIC_FOUND", text: "Brunnen sprudelt: +85 Glitzerstaub geschöpft! ✨" });
+      }
+      else if (itemId === "use_xp_capsule") {
+        addPlanetExp(15000);
+        postMessage({ type: "COSMETIC_FOUND", text: "Planeten-EP Kapsel verdaut: +15.000 Erfahrungspunkte! 💊" });
+      }
+      else if (itemId === "use_solar_flare_box") {
+        state.life += 30000000;
+        state.totalLifeEarned += 30000000;
+        state.shootingStarsCount = (state.shootingStarsCount || 0) + 4;
+        postMessage({ type: "COSMETIC_FOUND", text: "Solarer Ausbruch: +30M Leben, +4 Lootboxen! 💥" });
+      }
+      else if (itemId === "use_grav_shifter") {
+        state.starsCount += 30;
+        postMessage({ type: "COSMETIC_FOUND", text: "Schwerkraft verzerrt: +30 kreisende Sterne gerufen! 🌀" });
+      }
+      else if (itemId === "use_time_booster") {
+        const stats = getLpsAndStats();
+        const earnings = stats.totalLps * 7200;
+        state.life += earnings;
+        state.totalLifeEarned += earnings;
+        postMessage({ type: "COSMETIC_FOUND", text: `Tempus-Segen gewirkt: +${formatCompactNumber(earnings)} Leben (2 Stunden Ertrag)! ⏳` });
+      }
+      else if (itemId === "use_luck_amulet") {
+        const epicLegend = COSMETIC_ITEMS.filter((c) => c.rarity === "epic" || c.rarity === "legendary");
+        const epLocked = epicLegend.filter((c) => !state.unlockedCosmetics.includes(c.id));
+        if (epLocked.length > 0) {
+          const rolled = epLocked[Math.floor(Math.random() * epLocked.length)];
+          state.unlockedCosmetics.push(rolled.id);
+          postMessage({
+            type: "COSMETIC_FOUND",
+            text: `Glückliche Fügung: ${rolled.germanName} ${rolled.emoji} erhalten! 🧿`,
+          });
+        } else {
+          state.glitterDust = (state.glitterDust || 0) + 100;
+          postMessage({
+            type: "COSMETIC_FOUND",
+            text: `Vollendeter Geschmack: +100 Glitzerstaub ✨ bar erstattet!`,
+          });
+        }
+      }
+      else if (itemId === "use_starlight_elixir") {
+        state.life += 1000000;
+        state.totalLifeEarned += 1000000;
+        state.starsCount += 5;
+        postMessage({ type: "COSMETIC_FOUND", text: "Trank getrunken: +1.000.000 Leben, +5 Sterne! 🍹" });
+      }
+      else if (itemId === "use_moon_dust_bag") {
+        state.life += 30000;
+        state.totalLifeEarned += 30000;
+        state.glitterDust = (state.glitterDust || 0) + 15;
+        postMessage({ type: "COSMETIC_FOUND", text: "Mondbeutel geleert: +30.000 Leben und +15 Glitzerstaub! 💰" });
+      }
+      else if (itemId === "use_core_drill") {
+        state.life += 50050000;
+        state.totalLifeEarned += 50050000;
+        state.shootingStarsCount = (state.shootingStarsCount || 0) + 3;
+        postMessage({ type: "COSMETIC_FOUND", text: "Erdkern gespalten: +50M Leben, +3 Lootboxen! 🌋" });
+      }
+      else if (itemId === "use_glitter_bomb") {
+        state.glitterDust = (state.glitterDust || 0) + 50;
+        postMessage({ type: "COSMETIC_FOUND", text: "Glitzerbombe hochgegangen: +50 Glitzerstaub ✨! 💣" });
+      }
+      else if (itemId === "use_phoenix_feather") {
+        state.life += 10000000;
+        state.totalLifeEarned += 10000000;
+        state.glitterDust = (state.glitterDust || 0) + 25;
+        postMessage({ type: "COSMETIC_FOUND", text: "Asche der Wiedergeburt: +10.000.000 Leben, +25 Glitzerstaub! 🪶" });
+      }
+      else if (itemId === "use_cosmic_compass") {
+        state.shootingStarsCount = (state.shootingStarsCount || 0) + 8;
+        postMessage({ type: "COSMETIC_FOUND", text: "Kompass eingenordet: +8 Lootboxen (Sternschnuppen) verbürgt! 🧭" });
+      }
+      else if (itemId === "use_gravity_tea") {
+        state.starsCount += 15;
+        state.life += 15000000;
+        state.totalLifeEarned += 15000000;
+        postMessage({ type: "COSMETIC_FOUND", text: "Tee geschlürft: +15 Sterne, +15.000.000 Leben gepumpt! 🍵" });
+      }
+      else if (itemId === "use_wormhole_drive") {
+        state.shootingStarsCount = (state.shootingStarsCount || 0) + 12;
+        state.glitterDust = (state.glitterDust || 0) + 50;
+        postMessage({ type: "COSMETIC_FOUND", text: "Wurmloch-Treiber: +12 Lootboxen und +50 Glitzerstaub! ⚙️" });
+      }
+      else if (itemId === "use_nebula_honey") {
+        state.life += 2500000;
+        state.totalLifeEarned += 2500000;
+        state.starsCount += 10;
+        postMessage({ type: "COSMETIC_FOUND", text: "Sirup geschleckt: +2.500.000 Leben, +10 Sterne! 🍯" });
+      }
+      else if (itemId === "use_chrono_pendant") {
+        const stats = getLpsAndStats();
+        const earnings = stats.totalLps * 5 * 3600;
+        state.life += earnings;
+        state.totalLifeEarned += earnings;
+        postMessage({ type: "COSMETIC_FOUND", text: `Zeitsprung (5 Stunden): Sagenhafte +${formatCompactNumber(earnings)} Leben erhalten! ⏱️` });
+      }
+
+      broadcastStateUpdate(true);
+      break;
+    }
     case "RESET": {
       state = {
         life: 0,
@@ -876,6 +1206,7 @@ addEventListener("message", (e) => {
       break;
     }
     case "PRESTIGE": {
+      const oldZodiac = state.zodiac;
       state.prestigeCount = (state.prestigeCount || 0) + 1;
       state.life = 0;
       state.totalLifeEarned = 0;
@@ -888,6 +1219,7 @@ addEventListener("message", (e) => {
       state.starClicksTriggered = 0;
       state.moonsCount = 0;
       state.constellations = {};
+      state.zodiac = rollNewZodiac(oldZodiac);
       broadcastStateUpdate(true);
       break;
     }
@@ -917,12 +1249,19 @@ addEventListener("message", (e) => {
       if (upgrades.includes("upg-moon-limit-5")) maxMoons++;
       if (upgrades.includes("upg-moon-limit-6")) maxMoons++;
       if (upgrades.includes("upg-moon-limit-7")) maxMoons++;
+      if (state.zodiac === "mond") maxMoons++;
 
       if (state.starsCount >= 50 && (state.moonsCount || 0) < maxMoons) {
         state.starsCount -= 50;
         state.moonsCount = (state.moonsCount || 0) + 1;
         broadcastStateUpdate(true);
       }
+      break;
+    }
+    case "SET_ZODIAC": {
+      const { zodiacId } = data;
+      state.zodiac = zodiacId;
+      broadcastStateUpdate(true);
       break;
     }
     case "SET_NIGHT_CYCLE_FORCE": {
@@ -933,7 +1272,8 @@ addEventListener("message", (e) => {
     }
     case "ADD_GLITTER_DUST": {
       const { amount } = data;
-      state.glitterDust = (state.glitterDust || 0) + Number(amount);
+      const phoenixMultiplier = state.zodiac === "phoenix" ? 1.50 : 1.0;
+      state.glitterDust = (state.glitterDust || 0) + Math.ceil(Number(amount) * phoenixMultiplier);
       broadcastStateUpdate(true);
       break;
     }
@@ -1136,6 +1476,7 @@ addEventListener("message", (e) => {
             if (upgrades.includes("upg-moon-limit-5")) maxMoons++;
             if (upgrades.includes("upg-moon-limit-6")) maxMoons++;
             if (upgrades.includes("upg-moon-limit-7")) maxMoons++;
+            if (state.zodiac === "mond") maxMoons++;
 
             if ((state.moonsCount || 0) < maxMoons) {
               state.moonsCount = (state.moonsCount || 0) + 1;
