@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "motion/react";
 import { Sparkles, Award, RotateCcw, HelpCircle, Flame, Check } from "lucide-react";
+import { getPrestigeRequirement } from "../../data";
 
 interface PrestigeModalProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ export const PrestigeModal: React.FC<PrestigeModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const PRESTIGE_REQUIREMENT = 500000000; // 500 Million
+  const PRESTIGE_REQUIREMENT = getPrestigeRequirement(prestigeCount);
   const canPrestige = life >= PRESTIGE_REQUIREMENT;
   const progressPercent = Math.min(100, (life / PRESTIGE_REQUIREMENT) * 100);
 
@@ -92,7 +93,7 @@ export const PrestigeModal: React.FC<PrestigeModalProps> = ({
                 <span className="text-amber-400">✦</span>
                 <p>
                   Du kannst das Prestige durchführen, sobald du mindestens 
-                  <strong className="text-amber-400"> 500.00M (500 Millionen) Leben </strong> besitzt.
+                  <strong className="text-amber-400"> {formatCompactNumber(PRESTIGE_REQUIREMENT)} Leben </strong> besitzt. Mit jedem Aufstieg wird diese Anforderung höher.
                 </p>
               </div>
               <div className="flex gap-2">
@@ -117,11 +118,11 @@ export const PrestigeModal: React.FC<PrestigeModalProps> = ({
             </div>
           </div>
 
-          {/* Progress Tracker toward requirement (500M life) */}
+          {/* Progress Tracker toward requirement */}
           <div className="space-y-1.5">
             <div className="flex justify-between items-center text-[10px] font-black uppercase font-mono tracking-wider">
               <span className={isNight ? "text-purple-300" : "text-amber-800"}>Weg zum Prestige-Aufstieg</span>
-              <span className="text-amber-400">{formatCompactNumber(life)} / 500.00M</span>
+              <span className="text-amber-400">{formatCompactNumber(life)} / {formatCompactNumber(PRESTIGE_REQUIREMENT)}</span>
             </div>
             {/* Custom high contrast life bar */}
             <div className="w-full h-3 bg-slate-900/40 rounded-full overflow-hidden border border-purple-500/10 relative">
@@ -161,7 +162,7 @@ export const PrestigeModal: React.FC<PrestigeModalProps> = ({
               disabled
               className="w-full py-3 rounded-2xl bg-slate-850/40 border border-slate-700/30 text-gray-400 font-sans font-black text-xs uppercase tracking-widest cursor-not-allowed select-none text-center"
             >
-              Kriterium nicht erfüllt (Benötigt 500.00M Leben)
+              Kriterium nicht erfüllt (Benötigt {formatCompactNumber(PRESTIGE_REQUIREMENT)} Leben)
             </button>
           )}
 

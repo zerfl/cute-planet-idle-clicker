@@ -5,7 +5,7 @@ import { CRAFTING_RECIPES } from "./data/recipes";
 import { ZODIACS } from "./data/zodiacs";
 
 // Static level bounds matching App.tsx
-const EXP_PER_LEVEL = [0, 1500, 5000, 18000, 60000, 220000, 850000, 3200000, 12000000, 45000000];
+const EXP_PER_LEVEL = [0, 1500, 5000, 18000, 60000, 220000, 850000, 3200000, 12000000, 45000000, 160000000, 550000000, 1800000000, 6000000000, 20000000000, 65000000000, 200000000000, 600000000000, 1800000000000, 5000000000000];
 
 // ROMAN NUMERAL LIST for Achievements
 const ROMAN_NUMERALS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV"];
@@ -36,6 +36,7 @@ interface WorkerState {
   blackHoleSize?: number;
   craftedItems?: Record<string, number>;
   zodiac?: string;
+  galaxyShards: number;
 }
 
 // Default initial state
@@ -65,6 +66,7 @@ let state: WorkerState = {
   blackHoleSize: 1,
   craftedItems: {},
   zodiac: "katze",
+  galaxyShards: 0,
 };
 
 // Timers refs
@@ -380,7 +382,7 @@ function getLpsAndStats() {
   if (nextIdx < EXP_PER_LEVEL.length) {
     planetExpNeeded = EXP_PER_LEVEL[nextIdx];
   } else {
-    planetExpNeeded = 45000000 + (state.planetLevel - 9) * 20000000;
+    planetExpNeeded = 5000000000000 + (state.planetLevel - 19) * 2000000000000;
   }
 
   return {
@@ -547,7 +549,7 @@ function addPlanetExp(amount: number) {
   let leveledUp = false;
 
   while (true) {
-    const expBound = EXP_PER_LEVEL[currentLevel] || (45000000 + (currentLevel - 9) * 20000000);
+    const expBound = EXP_PER_LEVEL[currentLevel] || (5000000000000 + (currentLevel - 19) * 2000000000000);
     if (currentExp >= expBound) {
       currentExp -= expBound;
       currentLevel += 1;
@@ -612,6 +614,7 @@ function broadcastStateUpdate(forceRecalculateAchievements = false) {
       blackHoleSize: state.blackHoleSize || 1,
       craftedItems: state.craftedItems || {},
       zodiac: state.zodiac || "katze",
+      galaxyShards: state.galaxyShards || 0,
     },
     calculations: {
       ...calculations,
@@ -890,6 +893,13 @@ addEventListener("message", (e) => {
       state.purchasedAnimals.frog = (state.purchasedAnimals.frog || 0) + 1;
       state.prestigeCount = (state.prestigeCount || 0) + 5;
       
+      // Grant exactly 1 whole planet level
+      state.planetLevel += 1;
+      postMessage({
+        type: "LEVEL_UP",
+        level: state.planetLevel,
+      });
+
       broadcastStateUpdate(true);
       break;
     }
@@ -1287,12 +1297,16 @@ addEventListener("message", (e) => {
         blackHoleSize: 1,
         craftedItems: {},
         zodiac: "katze",
+        galaxyShards: 0,
       };
       broadcastStateUpdate(true);
       break;
     }
     case "PRESTIGE": {
       const oldZodiac = state.zodiac;
+      if (state.planetLevel >= 20) {
+        state.galaxyShards = (state.galaxyShards || 0) + 1;
+      }
       state.prestigeCount = (state.prestigeCount || 0) + 1;
       state.life = 0;
       state.totalLifeEarned = 0;

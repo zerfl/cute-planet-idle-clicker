@@ -73,4 +73,5 @@ export interface GameState {
   glitterDust?: number;
   blackHoleSize?: number;
   zodiac?: string;
+  galaxyShards?: number;
 }

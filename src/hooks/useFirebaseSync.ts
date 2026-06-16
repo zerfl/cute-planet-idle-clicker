@@ -30,6 +30,7 @@ export interface CloudSaveData {
   glitterDust?: number;
   cosmeticRarityLevels?: Record<string, string>;
   blackHoleSize?: number;
+  galaxyShards?: number;
   createdAt?: any; // Timestamp or string
   updatedAt?: any; // Timestamp or string
 }
@@ -161,6 +162,7 @@ export function useFirebaseSync() {
         glitterDust: Number(localSave.glitterDust || 0),
         cosmeticRarityLevels: localSave.cosmeticRarityLevels || {},
         blackHoleSize: Number(localSave.blackHoleSize || 1),
+        galaxyShards: Number(localSave.galaxyShards || 0),
         createdAt: resolvedCreatedAt,
         updatedAt: creationTime,
       };
@@ -289,6 +291,7 @@ export function useFirebaseSync() {
         glitterDust: Number((state as any).glitterDust || 0),
         cosmeticRarityLevels: (state as any).cosmeticRarityLevels || {},
         blackHoleSize: Number((state as any).blackHoleSize || 1),
+        galaxyShards: Number((state as any).galaxyShards || 0),
         createdAt: resolvedCreatedAt,
         updatedAt: serverTimestamp(),
       };

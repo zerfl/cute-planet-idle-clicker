@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 import { Animal, FloatingText, GameState, Upgrade } from "./types";
-import { INITIAL_ANIMALS, calculateCost, formatCompactNumber } from "./data";
+import { INITIAL_ANIMALS, calculateCost, formatCompactNumber, getPrestigeRequirement } from "./data";
 import { Planet } from "./components/Planet";
 import {
   playPop,
@@ -43,6 +43,7 @@ import { Cloud, Trophy } from "lucide-react";
 import { calculateOfflineLps } from "./utils/offline";
 import { generateMissionsForSet } from "./data/missions";
 import { TutorialModal } from "./components/modals/TutorialModal";
+import { GalaxyVoyageModal } from "./components/modals/GalaxyVoyageModal";
 
 // Modularized UI Components
 import { CosmicHeader } from "./components/CosmicHeader";
@@ -52,10 +53,10 @@ import { EventBackgrounds } from "./components/EventBackgrounds";
 import { CosmicHUD } from "./components/CosmicHUD";
 import { ActiveEventBanner } from "./components/ActiveEventBanner";
 import { DayNightIndicator } from "./components/DayNightIndicator";
-import { ActionButtons } from "./components/ActionButtons";
+import { ActionButtons } from "./data/ActionButtons";
 
 // Static level bounds (significantly increased to slow down progression)
-const EXP_PER_LEVEL = [0, 1500, 5000, 18000, 60000, 220000, 850000, 3200000, 12000000, 45000000];
+const EXP_PER_LEVEL = [0, 1500, 5000, 18000, 60000, 220000, 850000, 3200000, 12000000, 45000000, 160000000, 550000000, 1800000000, 6000000000, 20000000000, 65000000000, 200000000000, 600000000000, 1800000000000, 5000000000000];
 
 const isObjEqual = (a: Record<string, any> | undefined, b: Record<string, any> | undefined): boolean => {
   if (!a || !b) return a === b;
@@ -204,6 +205,7 @@ export default function App() {
   const [missionsCooldownEnd, setMissionsCooldownEnd] = useState<number | null>(null);
   const [activeZodiacId, setActiveZodiacId] = useState<string>("katze");
   const [prestigeCount, setPrestigeCount] = useState<number>(0);
+  const [galaxyShards, setGalaxyShards] = useState<number>(0);
   const [blackHoleSize, setBlackHoleSize] = useState<number>(1);
   const [blackHoleResult, setBlackHoleResult] = useState<{
     show: boolean;
@@ -558,6 +560,7 @@ export default function App() {
         if (data.cosmeticRarityLevels) setCosmeticRarityLevels(data.cosmeticRarityLevels);
         if (data.blackHoleSize !== undefined) setBlackHoleSize(data.blackHoleSize || 1);
         if (data.zodiac !== undefined) setActiveZodiacId(data.zodiac);
+        if (data.galaxyShards !== undefined) setGalaxyShards(data.galaxyShards || 0);
       }
     };
     window.addEventListener("firebase-load-state", handleFirebaseLoad);
@@ -596,6 +599,7 @@ export default function App() {
         if (savedStateObj.glitterDust !== undefined) setGlitterDust(savedStateObj.glitterDust);
         if (savedStateObj.cosmeticRarityLevels) setCosmeticRarityLevels(savedStateObj.cosmeticRarityLevels);
         setActiveZodiacId(savedStateObj.zodiac || "katze");
+        if (savedStateObj.galaxyShards !== undefined) setGalaxyShards(savedStateObj.galaxyShards || 0);
       }
     } catch (e) {
       console.error("Failed to parse initial save for Web Worker:", e);
@@ -631,6 +635,7 @@ export default function App() {
           setActiveEvent(ws.activeEvent);
           setEventTimeRemaining(ws.eventTimeRemaining);
           setPrestigeCount(ws.prestigeCount || 0);
+          if (ws.galaxyShards !== undefined) setGalaxyShards(ws.galaxyShards || 0);
           if (ws.blackHoleSize !== undefined) setBlackHoleSize(ws.blackHoleSize || 1);
           
           setConstellations((prevOrder) => isObjEqual(prevOrder, ws.constellations) ? prevOrder : (ws.constellations || {}));
@@ -924,6 +929,11 @@ export default function App() {
     const targetCode = "uguu";
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Guard all hotkeys/cheats while Galaxy Voyage is active
+      if (planetLevel >= 20) {
+        return;
+      }
+
       const tagName = (e.target as HTMLElement)?.tagName?.toUpperCase();
       if (tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT") {
         return;
@@ -978,7 +988,7 @@ export default function App() {
               id: textId + 1,
               x: 10,
               y: 60,
-              text: "✨ Uguu-Magie erweckt: +5 Prestige! 👑 ✨",
+              text: "✨ Uguu-Magie erweckt: +1 Planeten-Level & +5 Prestige! 👑 ✨",
               type: "level",
               createdAt: Date.now(),
             },
@@ -1039,6 +1049,7 @@ export default function App() {
       claimedMissionIds,
       missionsCooldownEnd,
       prestigeCount,
+      galaxyShards,
       offlineSeconds,
       offlineLpsRate,
       offlineEarnedLife,
@@ -1072,6 +1083,7 @@ export default function App() {
     claimedMissionIds,
     missionsCooldownEnd,
     prestigeCount,
+    galaxyShards,
     blackHoleSize,
     offlineSeconds,
     offlineLpsRate,
@@ -1111,6 +1123,7 @@ export default function App() {
           claimedMissionIds: s.claimedMissionIds,
           missionsCooldownEnd: s.missionsCooldownEnd,
           prestigeCount: s.prestigeCount,
+          galaxyShards: s.galaxyShards,
           offlineSeconds: s.offlineSeconds,
           offlineLpsRate: s.offlineLpsRate,
           offlineEarnedLife: s.offlineEarnedLife,
@@ -1173,6 +1186,7 @@ export default function App() {
           claimedMissionIds: s.claimedMissionIds,
           missionsCooldownEnd: s.missionsCooldownEnd,
           prestigeCount: s.prestigeCount,
+          galaxyShards: s.galaxyShards,
           offlineSeconds: s.offlineSeconds,
           offlineLpsRate: s.offlineLpsRate,
           offlineEarnedLife: s.offlineEarnedLife,
@@ -1508,6 +1522,11 @@ export default function App() {
 
   // Cosmic Prestige reset mechanism
   const handleConfirmPrestige = () => {
+    // Guard against premature triggers, unless doing a Galaxy Voyage (planetLevel >= 20)
+    if (planetLevel < 20 && life < getPrestigeRequirement(prestigeCount)) {
+      return;
+    }
+
     // Satisfying sound effect
     playLevelUp();
 
@@ -1543,12 +1562,63 @@ export default function App() {
     return parts.join(" ");
   };
 
+  if (!isLoaded) {
+    return (
+      <div className="fixed inset-0 bg-[#0e0c1f] flex flex-col items-center justify-center text-[#ffeef4] z-50 overflow-hidden select-none">
+        {/* Soft elegant ambient background nebula */}
+        <div className="absolute inset-0 bg-radial-gradient from-[#22174d]/40 via-transparent to-transparent opacity-80 pointer-events-none" />
+        
+        {/* Animated planet logo outline in pastel glow */}
+        <div className="relative mb-8">
+          <motion.div
+            animate={{
+              rotate: 360,
+              scale: [1, 1.05, 1],
+            }}
+            transition={{
+              rotate: { repeat: Infinity, duration: 15, ease: "linear" },
+              scale: { repeat: Infinity, duration: 3, ease: "easeInOut" }
+            }}
+            className="w-24 h-24 rounded-full border-4 border-dashed border-[#caa5fe]/50 flex items-center justify-center relative shadow-[0_0_40px_rgba(202,165,254,0.15)]"
+          >
+            <span className="text-4xl">🪐</span>
+          </motion.div>
+          
+          {/* Circling cosmic particle */}
+          <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+            className="absolute inset-0"
+          >
+            <div className="absolute -top-1 left-1/2 -ml-2.5 w-5 h-5 rounded-full bg-[#ff9db8] border-2 border-[#100d23] shadow-[0_0_12px_#ff9db8]" />
+          </motion.div>
+        </div>
+
+        {/* Loading text typography with beautiful tracking and sizes */}
+        <h2 className="font-sans font-black uppercase tracking-[0.25em] text-sm text-[#caa5fe] leading-none mb-2">
+          Pastell-Kosmos
+        </h2>
+        <div className="flex items-center gap-1.5 text-xs text-[#ab9fd2] font-semibold font-mono">
+          <span>Sterne werden geordnet</span>
+          <span className="flex gap-0.5">
+            <motion.span animate={{ opacity: [1, 0.2, 1] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0 }} className="w-1.5 h-1.5 bg-[#caa5fe] rounded-full" />
+            <motion.span animate={{ opacity: [1, 0.2, 1] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.3 }} className="w-1.5 h-1.5 bg-[#caa5fe] rounded-full" />
+            <motion.span animate={{ opacity: [1, 0.2, 1] }} transition={{ repeat: Infinity, duration: 1.2, delay: 0.6 }} className="w-1.5 h-1.5 bg-[#caa5fe] rounded-full" />
+          </span>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`min-h-screen relative overflow-hidden transition-all duration-1000 ease-in-out flex flex-col font-sans scroll-smooth ${
-      isNightStyle 
-        ? "bg-gradient-to-b from-[#100d23] via-[#1b1535] to-[#0b0818] text-[#ffeef4] selection:bg-[#ff9db8] selection:text-[#100d23]" 
-        : ""
-    }`}>
+    <>
+      <div className={`min-h-screen relative overflow-hidden transition-all duration-1000 ease-in-out flex flex-col font-sans scroll-smooth ${
+        isNightStyle 
+          ? "bg-gradient-to-b from-[#100d23] via-[#1b1535] to-[#0b0818] text-[#ffeef4] selection:bg-[#ff9db8] selection:text-[#100d23]" 
+          : ""
+      } ${
+        planetLevel >= 20 ? "pointer-events-none select-none blur-md" : ""
+      }`}>
       
       {/* Scattered Ambient Background Animals (floating freely over the entire cosmos background) */}
       <BackgroundCompanions companions={backgroundCompanions} />
@@ -1561,6 +1631,7 @@ export default function App() {
         isNightStyle={isNightStyle}
         showTutorial={showTutorial}
         life={life}
+        galaxyShards={galaxyShards}
         isMutedState={isMutedState}
         user={user}
         handleToggleMute={handleToggleMute}
@@ -1894,6 +1965,13 @@ export default function App() {
         )}
       </AnimatePresence>
 
-    </div>
+      </div>
+
+      <GalaxyVoyageModal
+        isOpen={planetLevel >= 20}
+        prestigeCount={prestigeCount}
+        onConfirmVoyage={handleConfirmPrestige}
+      />
+    </>
   );
 }

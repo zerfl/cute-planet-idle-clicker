@@ -14,6 +14,7 @@ interface CosmicHeaderProps {
   isNightStyle: boolean;
   showTutorial: boolean;
   life: number;
+  galaxyShards: number;
   isMutedState: boolean;
   user: any;
   handleToggleMute: () => void;
@@ -29,6 +30,7 @@ export const CosmicHeader: React.FC<CosmicHeaderProps> = React.memo(({
   isNightStyle,
   showTutorial,
   life,
+  galaxyShards,
   isMutedState,
   user,
   handleToggleMute,
@@ -80,6 +82,16 @@ export const CosmicHeader: React.FC<CosmicHeaderProps> = React.memo(({
               {formatCompactNumber(life)} 💖
             </span>
           </div>
+
+          {/* Galaxy Shards (Galaxie-Splitter) summary */}
+          {galaxyShards > 0 && (
+            <div className={`px-4 py-1.5 rounded-xl flex flex-col items-end shadow-sm border-2 border-fuchsia-400 bg-[#1e1438] text-fuchsia-250 animate-pulse`}>
+              <span className="text-[9px] uppercase font-mono font-black tracking-wider leading-none text-fuchsia-300">Galaxie-Splitter</span>
+              <span className="font-mono text-xs sm:text-sm font-black mt-0.5 text-[#f5d0fe]" title={galaxyShards.toLocaleString("de-DE")}>
+                {galaxyShards} 🌌
+              </span>
+            </div>
+          )}
 
           {/* Quiet Mute Switch */}
           <button

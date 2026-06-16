@@ -740,3 +740,13 @@ export function formatCompactNumber(num: number): string {
   }
   return num.toString();
 }
+
+/**
+ * Dynamically calculates the prestige requirement based on current prestige count.
+ * Scales by 2.5x with each prestige in order to prevent consecutively abusing prestige
+ * and key users longer in their loops.
+ */
+export function getPrestigeRequirement(prestigeCount: number): number {
+  return 500000000 * Math.pow(2.5, prestigeCount);
+}
+

@@ -1,6 +1,6 @@
 import React from "react";
 import { Heart, TrendingUp, Star as StarIcon, Award } from "lucide-react";
-import { formatCompactNumber } from "../data";
+import { formatCompactNumber, getPrestigeRequirement } from "../data";
 
 interface CosmicHUDProps {
   isNightStyle: boolean;
@@ -19,6 +19,8 @@ export const CosmicHUD: React.FC<CosmicHUDProps> = React.memo(({
   prestigeCount,
   onShowPrestige,
 }) => {
+  const PRESTIGE_REQUIREMENT = getPrestigeRequirement(prestigeCount);
+
   return (
     <section className={`w-full max-w-2xl flex flex-row items-center justify-around gap-2 px-3.5 py-1.5 rounded-2xl border-2 transition-all duration-500 shadow-sm ${
       isNightStyle ? "bg-[#130f2c]/85 border-[#caa5fe]/40 text-[#ffeef4]" : ""
@@ -55,18 +57,18 @@ export const CosmicHUD: React.FC<CosmicHUDProps> = React.memo(({
         onClick={onShowPrestige}
         id="hud-prestige-btn"
         className={`flex items-center gap-1 sm:gap-1.5 text-xs font-semibold py-1 px-2.5 rounded-xl border transition-all ${
-          life >= 500000000
+          life >= PRESTIGE_REQUIREMENT
             ? "bg-amber-400/25 text-amber-300 border-amber-400/60 animate-pulse hover:bg-amber-400/35 cursor-pointer hover:scale-105 active:scale-95"
             : "opacity-40 text-slate-500 border-slate-700 bg-slate-800/10 cursor-not-allowed select-none"
         }`}
         title={
-          life >= 500000000
+          life >= PRESTIGE_REQUIREMENT
             ? "Prestige ist BEREIT! Klicke zum Aufsteigen! ✨"
-            : `Prestige gesperrt (Benötigt 500.00M Leben. Aktuell: ${formatCompactNumber(life)})`
+            : `Prestige gesperrt (Benötigt ${formatCompactNumber(PRESTIGE_REQUIREMENT)} Leben. Aktuell: ${formatCompactNumber(life)})`
         }
       >
-        <Award className={`w-3.5 h-3.5 shrink-0 ${life >= 500000000 ? "text-amber-300 fill-amber-300/10" : "text-slate-500"}`} />
-        <span className={`text-[10px] hidden md:inline ${life >= 500000000 ? "text-amber-200" : "text-slate-500"}`}>Prestige:</span>
+        <Award className={`w-3.5 h-3.5 shrink-0 ${life >= PRESTIGE_REQUIREMENT ? "text-amber-300 fill-amber-300/10" : "text-slate-500"}`} />
+        <span className={`text-[10px] hidden md:inline ${life >= PRESTIGE_REQUIREMENT ? "text-amber-200" : "text-slate-500"}`}>Prestige:</span>
         <span className="font-mono text-[10px] sm:text-[11px] font-black">
           {prestigeCount > 0 ? `Lv. ${prestigeCount}` : "Aufstieg"}
         </span>
