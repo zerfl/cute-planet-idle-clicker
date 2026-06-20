@@ -244,39 +244,39 @@ export const CRAFTING_RECIPES: Recipe[] = [
   },
   {
     id: "rec_trigger_supernova",
-    name: "Supernova-Katalysator",
-    emoji: "🔥",
+    name: "Helio-Sturm-Katalysator",
+    emoji: "🌟",
     category: "consumables",
     description: "Entzünde die instabilen Kerne für ein künstliches Superevent.",
     ingredients: { items: { "mat_supernova_core": 3, "mat_stardust": 10 } },
-    result: { id: "use_trig_supernova", name: "Supernova-Katastrophe (Event)", emoji: "🔥", description: "Löst sofort das kosmische Event 'Goldene Supernova' am Himmel aus!", quantity: 1 }
+    result: { id: "use_trig_supernova", name: "Helio-Sturm-Instigierung (Event)", emoji: "🌟", description: "Löst sofort das kosmische Event 'Energetischer Helio-Sturm' am Himmel aus!", quantity: 1 }
   },
   {
     id: "rec_trigger_aurora",
-    name: "Polarlicht-Emitter",
-    emoji: "🔮",
+    name: "Nebelwolken-Emitter",
+    emoji: "☁️",
     category: "consumables",
-    description: "Lade eine Plasma-Spule mit Aurora-Partikeln auf.",
+    description: "Lade eine Plasma-Spule mit Nebelwolken-Essenzen auf.",
     ingredients: { items: { "mat_aurora_particle": 3, "mat_stardust": 10 } },
-    result: { id: "use_trig_aurora", name: "Polarlicht-Vaporisator (Event)", emoji: "🔮", description: "Löst sofort das kosmische Event 'Aurora Borealis' am Himmel aus!", quantity: 1 }
+    result: { id: "use_trig_aurora", name: "Nebelwolken-Vaporisator (Event)", emoji: "☁️", description: "Löst sofort das kosmische Event 'Interstellare Nebelwolke' am Himmel aus!", quantity: 1 }
   },
   {
     id: "rec_trigger_meteor",
     name: "Kometen-Fokus-Linse",
     emoji: "☄️",
     category: "consumables",
-    description: "Fokussiere die Anziehungskraft auf herabfliegende Meteoroid-Gürtel.",
+    description: "Fokussiere die Anziehungskraft auf herabfliegende Kometen-Schweife.",
     ingredients: { items: { "mat_meteor_splitter": 3, "mat_stardust": 10 } },
-    result: { id: "use_trig_meteor", name: "Meteoriten-Fokus-Linse (Event)", emoji: "☄️", description: "Löst sofort das kosmische Event 'Meteoritenschauer' am Himmel aus!", quantity: 1 }
+    result: { id: "use_trig_meteor", name: "Kometenschweif-Fokus-Linse (Event)", emoji: "☄️", description: "Löst sofort das kosmische Event 'Eisiger Kometenschweif' am Himmel aus!", quantity: 1 }
   },
   {
     id: "rec_trigger_stars",
-    name: "Sternenregen-Zünder",
-    emoji: "💫",
+    name: "Sternenwiegen-Inhibitor",
+    emoji: "🍼",
     category: "consumables",
-    description: "Führe reine Sternen-Essenzen zusammen, um den Himmel tanzen zu lassen.",
+    description: "Führe reine Sternen-Essenzen zusammen, um die Sternenwiege zu zünden.",
     ingredients: { items: { "mat_pure_essence": 3, "mat_stardust": 10 } },
-    result: { id: "use_trig_stars", name: "Sternenregen-Zünder (Event)", emoji: "💫", description: "Löst sofort ein 'Mondnacht-Sternschnuppen' Event am Himmel aus!", quantity: 1 }
+    result: { id: "use_trig_stars", name: "Sternenwiege-Zünder (Event)", emoji: "🍼", description: "Löst sofort das kosmische Event 'Kosmische Sternenwiege' am Himmel aus!", quantity: 1 }
   },
   {
     id: "rec_trigger_blackhole",

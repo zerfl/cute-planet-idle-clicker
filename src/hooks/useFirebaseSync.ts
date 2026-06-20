@@ -35,6 +35,7 @@ export interface CloudSaveData {
   slummerGlassLevel?: number;
   catalystLevel?: number;
   doubleStellarLevel?: number;
+  planetTask?: any;
   createdAt?: any; // Timestamp or string
   updatedAt?: any; // Timestamp or string
 }
@@ -179,6 +180,7 @@ export function useFirebaseSync() {
         slummerGlassLevel: Number(localSave.slummerGlassLevel || 1),
         catalystLevel: Number(localSave.catalystLevel || 0),
         doubleStellarLevel: Number(localSave.doubleStellarLevel || 0),
+        planetTask: localSave.planetTask || null,
         createdAt: resolvedCreatedAt,
         updatedAt: creationTime,
       };
@@ -315,6 +317,7 @@ export function useFirebaseSync() {
         slummerGlassLevel: Number((state as any).slummerGlassLevel || 1),
         catalystLevel: Number((state as any).catalystLevel || 0),
         doubleStellarLevel: Number((state as any).doubleStellarLevel || 0),
+        planetTask: (state as any).planetTask || null,
         createdAt: resolvedCreatedAt,
         updatedAt: serverTimestamp(),
       };

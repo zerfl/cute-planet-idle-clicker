@@ -48,6 +48,17 @@ export interface FloatingText {
   createdAt?: number;
 }
 
+export interface PlanetTask {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  progress: number;
+  target: number;
+  targetAnimalId?: string;
+  isCumulative?: boolean;
+}
+
 export interface GameState {
   life: number;
   totalLifeEarned: number;
@@ -59,6 +70,7 @@ export interface GameState {
   planetLevel: number;
   planetExp: number;
   planetExpNeeded: number;
+  planetTask?: PlanetTask;
   unlockedCosmetics?: string[];
   activeStarColor?: string;
   activeAccessory?: string;
@@ -78,4 +90,28 @@ export interface GameState {
   slummerGlassLevel?: number;
   catalystLevel?: number;
   doubleStellarLevel?: number;
+  activeEvent?: string | null;
+  activeEventDecision?: string | null;
+  eventTimeRemaining?: number;
+  activeEventDetails?: ActiveCosmicEvent | null;
 }
+
+export interface CosmicEventOption {
+  id: string;
+  name: string;
+  description: string;
+  effectType: string;
+  bonusLife?: number;
+  bonusStars?: number;
+  bonusDust?: number;
+  bonusMoons?: number;
+}
+
+export interface ActiveCosmicEvent {
+  id: string;
+  name: string;
+  description: string;
+  emoji: string;
+  options: CosmicEventOption[];
+}
+

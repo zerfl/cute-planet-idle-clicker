@@ -14,8 +14,8 @@ export const EventBackgrounds: React.FC<EventBackgroundsProps> = React.memo(({
 
   return (
     <>
-      {activeEvent === "meteors" && (
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {(activeEvent === "meteors" || activeEvent === "comet_tail") && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" id="bg-effect-comet-tail">
           {[...Array(isLowMemory ? 3 : 12)].map((_, i) => (
             <motion.div
               key={i}
@@ -38,8 +38,8 @@ export const EventBackgrounds: React.FC<EventBackgroundsProps> = React.memo(({
         </div>
       )}
 
-      {activeEvent === "aurora" && !isLowMemory && (
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-gradient-to-t from-teal-500/10 via-purple-500/10 to-transparent">
+      {(activeEvent === "aurora" || activeEvent === "nebula_cloud") && !isLowMemory && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-gradient-to-t from-teal-500/10 via-purple-500/10 to-transparent" id="bg-effect-nebula-cloud">
           <motion.div
             animate={{
               backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
@@ -56,8 +56,8 @@ export const EventBackgrounds: React.FC<EventBackgroundsProps> = React.memo(({
         </div>
       )}
 
-      {activeEvent === "shooting_stars" && (
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+      {(activeEvent === "shooting_stars" || activeEvent === "stella_nursery") && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" id="bg-effect-stella-nursery">
           {[...Array(isLowMemory ? 3 : 12)].map((_, i) => (
             <motion.div
               key={i}
@@ -79,8 +79,8 @@ export const EventBackgrounds: React.FC<EventBackgroundsProps> = React.memo(({
         </div>
       )}
 
-      {activeEvent === "supernova" && (
-        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center">
+      {(activeEvent === "supernova" || activeEvent === "hyper_star") && (
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden flex items-center justify-center" id="bg-effect-hyper-star">
           {[...Array(isLowMemory ? 2 : 6)].map((_, i) => (
             <motion.div
               key={i}

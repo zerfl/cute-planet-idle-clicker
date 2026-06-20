@@ -17,7 +17,7 @@ import {
   Music,
 } from "lucide-react";
 
-import { Animal, FloatingText, GameState, Upgrade } from "./types";
+import { Animal, FloatingText, GameState, Upgrade, PlanetTask, ActiveCosmicEvent } from "./types";
 import { INITIAL_ANIMALS, calculateCost, formatCompactNumber, getPrestigeRequirement } from "./data";
 import { Planet } from "./components/Planet";
 import {
@@ -89,6 +89,7 @@ export default function App() {
   const [purchasedUpgrades, setPurchasedUpgrades] = useState<string[]>([]);
   const [planetLevel, setPlanetLevel] = useState<number>(1);
   const [planetExp, setPlanetExp] = useState<number>(0);
+  const [planetTask, setPlanetTask] = useState<PlanetTask | undefined>(undefined);
   const [clicksCount, setClicksCount] = useState<number>(0);
   const [starClicksTriggered, setStarClicksTriggered] = useState<number>(0);
   const [secondsPlayed, setSecondsPlayed] = useState<number>(0);
@@ -332,6 +333,7 @@ export default function App() {
       setShootingStarsCount((prev) => {
         const nextCount = prev + actualReward;
         workerRef.current?.postMessage({ type: "UPDATE_SHOOTING_STARS", count: nextCount });
+        workerRef.current?.postMessage({ type: "MISSION_CLAIMED" });
         return nextCount;
       });
 
@@ -583,6 +585,7 @@ export default function App() {
           setPurchasedUpgrades((prev) => isArrEqual(prev, ws.purchasedUpgrades) ? prev : ws.purchasedUpgrades);
           setPlanetLevel(ws.planetLevel);
           setPlanetExp(ws.planetExp);
+          setPlanetTask(ws.planetTask);
           setClicksCount(ws.clicksCount);
           setStarClicksTriggered(ws.starClicksTriggered);
           setSecondsPlayed(ws.secondsPlayed);
@@ -603,6 +606,7 @@ export default function App() {
           if (ws.glitterDust !== undefined) setGlitterDust(ws.glitterDust);
           if (ws.cosmeticRarityLevels) setCosmeticRarityLevels((prev) => isObjEqual(prev, ws.cosmeticRarityLevels) ? prev : ws.cosmeticRarityLevels);
           if (ws.activeEventDecision !== undefined) setActiveEventDecision(ws.activeEventDecision);
+          if (ws.activeEventDetails !== undefined) setActiveEventDetails(ws.activeEventDetails);
           if (ws.unlockedCosmetics !== undefined) setUnlockedCosmetics((prev) => isArrEqual(prev, ws.unlockedCosmetics) ? prev : ws.unlockedCosmetics);
           if (ws.shootingStarsCount !== undefined) setShootingStarsCount(ws.shootingStarsCount);
           if (ws.zodiac !== undefined) setActiveZodiacId(ws.zodiac || "katze");
@@ -829,11 +833,12 @@ export default function App() {
   const [achievementSearch, setAchievementSearch] = useState<string>("");
 
   // Cosmic Event System States
-  const [activeEvent, setActiveEvent] = useState<"meteors" | "aurora" | "shooting_stars" | "supernova" | "black_hole" | null>(null);
-  const [activeEventDecision, setActiveEventDecision] = useState<"sammeln" | "erforschen" | "zerlegen" | "ignorieren" | null>(null);
+  const [activeEvent, setActiveEvent] = useState<string | null>(null);
+  const [activeEventDecision, setActiveEventDecision] = useState<string | null>(null);
+  const [activeEventDetails, setActiveEventDetails] = useState<ActiveCosmicEvent | null>(null);
   const [eventTimeRemaining, setEventTimeRemaining] = useState<number>(120);
 
-  const handleSelectEventDecision = useCallback((decision: "sammeln" | "erforschen" | "zerlegen" | "ignorieren") => {
+  const handleSelectEventDecision = useCallback((decision: string) => {
     workerRef.current?.postMessage({
       type: "SET_EVENT_DECISION",
       decision,
@@ -1588,6 +1593,7 @@ export default function App() {
         <ActiveEventBanner
           activeEvent={activeEvent}
           activeEventDecision={activeEventDecision}
+          activeEventDetails={activeEventDetails}
           eventTimeRemaining={eventTimeRemaining}
           onSelectDecision={handleSelectEventDecision}
           life={life}
@@ -1614,6 +1620,7 @@ export default function App() {
               level={planetLevel}
               planetExp={planetExp}
               planetExpNeeded={planetExpNeeded}
+              planetTask={planetTask}
               starsCount={starsCount}
               moonsCount={moonsCount || 0}
               starPowerMultiplier={starPowerPerStar}

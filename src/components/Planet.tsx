@@ -3,11 +3,13 @@ import { motion } from "motion/react";
 import { Star, Moon } from "lucide-react";
 import { ZODIACS } from "../data/zodiacs";
 import { PlanetAccessory } from "./PlanetAccessory";
+import { PlanetTask } from "../types";
 
 interface PlanetProps {
   level: number;
   planetExp: number;
   planetExpNeeded: number;
+  planetTask?: PlanetTask;
   starsCount: number;
   starPowerMultiplier: number;
   onPlanetClick: (e: React.MouseEvent<HTMLDivElement>) => void;
@@ -463,6 +465,7 @@ export const Planet: React.FC<PlanetProps> = React.memo(({
   level,
   planetExp,
   planetExpNeeded,
+  planetTask,
   starsCount,
   starPowerMultiplier,
   onPlanetClick,
@@ -670,27 +673,36 @@ export const Planet: React.FC<PlanetProps> = React.memo(({
           {theme.subName}
         </p>
 
-        {/* Level EXP Progress bar */}
-        <div className="w-full mt-3">
-          <div className="flex justify-between items-center text-[10px] font-mono mb-1.5 transition-colors duration-500">
-            <span className={`uppercase font-bold tracking-wider ${
-              isNight ? "text-cosmic-accent-muted" : "text-amber-800"
-            }`}>Evolution</span>
-            <span className={isNight ? "text-cosmic-text" : "text-amber-950"}>
-              {Math.floor(planetExp)} / {planetExpNeeded} EXP
+        {/* Planet level task container instead of legacy EXP bar */}
+        <div className="w-full mt-3 flex flex-col">
+          <div className="flex justify-between items-center text-[10px] font-mono mb-1 transition-colors duration-500">
+            <span className={`uppercase font-black text-xs tracking-wider flex items-center gap-1 ${
+              isNight ? "text-cosmic-pink" : "text-amber-805"
+            }`}>
+              🎯 LEVELAUFGABE
+            </span>
+            <span className={`font-black text-xs ${isNight ? "text-violet-200" : "text-amber-950"}`}>
+              {planetTask ? `${planetTask.progress} / ${planetTask.target}` : "0 / 0"}
             </span>
           </div>
-          <div className={`w-full h-3.5 border-2 rounded-full overflow-hidden p-[1px] transition-colors duration-500 ${
+          
+          <p className={`font-sans text-xs font-semibold mb-2 mt-0.5 transition-colors leading-relaxed ${
+            isNight ? "text-purple-200" : "text-slate-800"
+          }`}>
+            {planetTask ? planetTask.description : "Galaktische Aufgabe wird generiert..."}
+          </p>
+
+          <div className={`w-full h-4 border-2 rounded-full overflow-hidden p-[1px] transition-colors duration-500 ${
             isNight ? "border-cosmic-accent/45 bg-[#090715]" : "border-amber-305 bg-amber-50"
           }`}>
             <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${Math.min(100, (planetExp / planetExpNeeded) * 100)}%` }}
-              transition={{ type: "tween", duration: 0.3 }}
+              initial={{ width: 1 }}
+              animate={{ width: `${planetTask ? Math.min(100, (planetTask.progress / planetTask.target) * 100) : 0}%` }}
+              transition={{ type: "spring", stiffness: 80, damping: 15 }}
               className={`h-full rounded-full border-r ${
                 isNight 
-                  ? "bg-gradient-to-r from-cosmic-accent to-cosmic-pink border-cosmic-bg" 
-                  : "bg-gradient-to-r from-yellow-405 to-amber-500 border-amber-950"
+                  ? "bg-gradient-to-r from-cosmic-accent via-violet-400 to-cosmic-pink border-cosmic-bg" 
+                  : "bg-gradient-to-r from-yellow-300 to-amber-500 border-amber-950"
               }`}
             />
           </div>

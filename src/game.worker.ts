@@ -1,10 +1,13 @@
-import { GameState, Animal, Upgrade } from "./types";
+import { GameState, Animal, Upgrade, PlanetTask, CosmicEventOption, ActiveCosmicEvent } from "./types";
 import { INITIAL_ANIMALS, calculateCost } from "./data";
 import { COSMETIC_ITEMS } from "./data/cosmetics";
 import { CRAFTING_RECIPES } from "./data/recipes";
 import { resolve, RECIPE_BY_RESULT, getItem } from "./data/craftingGraph";
 import { ZODIACS } from "./data/zodiacs";
 import { computeLevelUpResult, expForLevel, EXP_PER_LEVEL } from "./game/engine";
+import { rollTaskForLevel } from "./game/planetTasks";
+import { COSMIC_EVENTS_POOL } from "./data/cosmicEvents";
+
 
 // ROMAN NUMERAL LIST for Achievements
 const ROMAN_NUMERALS = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV"];
@@ -17,13 +20,16 @@ interface WorkerState {
   purchasedUpgrades: string[];
   planetLevel: number;
   planetExp: number;
+  planetTask?: PlanetTask;
   clicksCount: number;
   starClicksTriggered: number;
   secondsPlayed: number;
   isNight: boolean;
   cycleProgress: number;
-  activeEvent: "meteors" | "aurora" | "shooting_stars" | "supernova" | "black_hole" | null;
-  activeEventDecision: "sammeln" | "erforschen" | "zerlegen" | "ignorieren" | null;
+  activeEvent: string | null;
+  activeEventDecision: string | null;
+  activeEventDetails?: ActiveCosmicEvent | null;
+  activeEventInstantClaimed?: boolean;
   eventTimeRemaining: number;
   prestigeCount: number;
   moonsCount: number;
@@ -51,6 +57,7 @@ let state: WorkerState = {
   purchasedUpgrades: [],
   planetLevel: 1,
   planetExp: 0,
+  planetTask: undefined,
   clicksCount: 0,
   starClicksTriggered: 0,
   secondsPlayed: 0,
@@ -58,6 +65,8 @@ let state: WorkerState = {
   cycleProgress: 0,
   activeEvent: null,
   activeEventDecision: null,
+  activeEventDetails: null,
+  activeEventInstantClaimed: false,
   eventTimeRemaining: 120,
   prestigeCount: 0,
   moonsCount: 0,
@@ -189,71 +198,85 @@ function getLpsAndStats() {
 
   // Event multipliers computations
   let clickMultiplierForEvents = 1.0;
-  if (activeEvent === "meteors") {
-    let baseClickAdd = 4.0;
-    if (decision === "sammeln") {
-      baseClickAdd = 8.0; // Meteors Collect mode -> mehr Leben! (+800%)
-    } else if (decision === "ignorieren") {
-      baseClickAdd = 1.5; // Meteors Ignore mode -> smaller bonus
-    }
-    clickMultiplierForEvents += baseClickAdd;
-    if (purchasedUpgrades.includes("upg-event-meteor")) {
-      clickMultiplierForEvents += (decision === "sammeln" ? 8.0 : decision === "ignorieren" ? 2.0 : 5.0);
-    }
-  }
-
   let starMultiplierForEvents = 1.0;
-  if (activeEvent === "aurora") {
-    let baseStarAdd = 2.0;
-    if (decision === "sammeln") {
-      baseStarAdd = 5.5; // Star collect mode -> mehr Leben (Sterne)! (+550%)
-    } else if (decision === "ignorieren") {
-      baseStarAdd = 0.8; // Smaller bonus
-    }
-    starMultiplierForEvents += baseStarAdd;
-    if (purchasedUpgrades.includes("upg-event-aurora")) {
-      starMultiplierForEvents += (decision === "sammeln" ? 5.0 : decision === "ignorieren" ? 1.0 : 3.0);
-    }
-  }
-
   let animalMultiplierForEvents = 1.0;
-  if (activeEvent === "shooting_stars") {
-    let baseAnimalAdd = 2.0;
-    if (decision === "sammeln") {
-      baseAnimalAdd = 5.5; // Animal warm cuddle -> mehr Leben (Tiere)! (+550%)
-    } else if (decision === "ignorieren") {
-      baseAnimalAdd = 0.8;
-    }
-    animalMultiplierForEvents += baseAnimalAdd;
-    if (purchasedUpgrades.includes("upg-animal-synergy-1")) {
-      animalMultiplierForEvents += (decision === "sammeln" ? 2.0 : decision === "ignorieren" ? 0.4 : 1.0);
-    }
-  }
-
+  let lpsMultiplierForEvents = 1.0;
   let xpEventMultiplier = 1.0;
-  if (activeEvent === "supernova") {
-    let baseXpMult = 3.0;
-    if (decision === "erforschen") {
-      baseXpMult = 6.0; // Research mode -> mehr XP (+500% / 6x XP)
-    } else if (decision === "ignorieren") {
-      baseXpMult = 1.5;
+
+  if (activeEvent && activeEvent !== "black_hole" && state.activeEventDetails && decision) {
+    if (decision === "ignorieren") {
+      // Ignorieren grants a small global passive contribution to acknowledge the patience (+20% LPS)
+      lpsMultiplierForEvents *= 1.20;
+    } else {
+      const selectedOpt = state.activeEventDetails.options.find(o => o.id === decision);
+      if (selectedOpt) {
+        const eff = selectedOpt.effectType;
+        if (eff === "lps_boost_4x") {
+          lpsMultiplierForEvents *= 4.0;
+        } else if (eff === "lps_boost_5x") {
+          lpsMultiplierForEvents *= 5.0;
+        } else if (eff === "lps_boost_6x") {
+          lpsMultiplierForEvents *= 6.0;
+        } else if (eff === "lps_boost_2x") {
+          lpsMultiplierForEvents *= 2.0;
+        } else if (eff === "lps_boost_4.5x") {
+          lpsMultiplierForEvents *= 4.5;
+        } else if (eff === "lps_boost_5.5x") {
+          lpsMultiplierForEvents *= 5.5;
+        } else if (eff === "click_boost_5x") {
+          clickMultiplierForEvents *= 5.0;
+        } else if (eff === "click_boost_6x") {
+          clickMultiplierForEvents *= 6.0;
+        } else if (eff === "click_boost_8x") {
+          clickMultiplierForEvents *= 8.0;
+        } else if (eff === "click_boost_4.5x") {
+          clickMultiplierForEvents *= 4.5;
+        } else if (eff === "click_boost_4x") {
+          clickMultiplierForEvents *= 4.0;
+        } else if (eff === "click_boost_5.5x") {
+          clickMultiplierForEvents *= 5.5;
+        } else if (eff === "click_boost_7x") {
+          clickMultiplierForEvents *= 7.0;
+        } else if (eff === "star_boost_4.5x") {
+          starMultiplierForEvents *= 4.5;
+        } else if (eff === "star_boost_6x") {
+          starMultiplierForEvents *= 6.0;
+        } else if (eff === "star_boost_5x") {
+          starMultiplierForEvents *= 5.0;
+        } else if (eff === "star_boost_4x") {
+          starMultiplierForEvents *= 4.0;
+        } else if (eff === "star_boost_5.5x") {
+          starMultiplierForEvents *= 5.5;
+        } else if (eff === "animal_boost_5x") {
+          animalMultiplierForEvents *= 5.0;
+        } else if (eff === "animal_boost_4.5x") {
+          animalMultiplierForEvents *= 4.5;
+        } else if (eff === "animal_boost_5.5x") {
+          animalMultiplierForEvents *= 5.5;
+        } else if (eff === "collision_combo") {
+          lpsMultiplierForEvents *= 5.0;
+          clickMultiplierForEvents *= 3.0;
+        }
+      }
     }
-    xpEventMultiplier *= baseXpMult;
-    if (purchasedUpgrades.includes("upg-event-supernova")) {
-      xpEventMultiplier *= (decision === "erforschen" ? 3.0 : decision === "ignorieren" ? 1.2 : 2.0);
+
+    // Apply upgrade modifiers if applicable (rewarding previous research upgrades!)
+    if (purchasedUpgrades.includes("upg-event-meteor") && clickMultiplierForEvents > 1.0) {
+      clickMultiplierForEvents *= 1.5;
     }
-  } else if (activeEvent === "meteors") {
-    let baseXpMult = 2.0;
-    if (decision === "erforschen") {
-      baseXpMult = 4.5; // Research mode -> mehr XP!
-    } else if (decision === "ignorieren") {
-      baseXpMult = 1.2;
+    if (purchasedUpgrades.includes("upg-event-aurora") && starMultiplierForEvents > 1.0) {
+      starMultiplierForEvents *= 1.5;
     }
-    xpEventMultiplier *= baseXpMult;
-  } else if (activeEvent === "aurora" && decision === "erforschen") {
-    xpEventMultiplier *= 3.0; // Aurora photography -> more XP!
-  } else if (activeEvent === "shooting_stars" && decision === "erforschen") {
-    xpEventMultiplier *= 3.0; // Star drop logging -> more XP!
+    if (purchasedUpgrades.includes("upg-animal-synergy-1") && animalMultiplierForEvents > 1.0) {
+      animalMultiplierForEvents *= 1.5;
+    }
+    if (purchasedUpgrades.includes("upg-event-supernova") && lpsMultiplierForEvents > 1.0) {
+      lpsMultiplierForEvents *= 1.5;
+    }
+  } else if (activeEvent === "black_hole") {
+    if (decision === "ignorieren") {
+      lpsMultiplierForEvents *= 1.1;
+    }
   }
 
   // Constellation Supernova Power Boosts (+20% per level)
@@ -349,7 +372,7 @@ function getLpsAndStats() {
   const flatMoonLps = (state.moonsCount || 0) * 15000 * prestigeMultiplier;
 
   // Aggregate Life Per Second (LPS)
-  let totalLps = (totalAnimalsLps * animalMultiplierForEvents) + (totalStarsLps * starMultiplierForEvents) + flatMoonLps;
+  let totalLps = ((totalAnimalsLps * animalMultiplierForEvents) + (totalStarsLps * starMultiplierForEvents) + flatMoonLps) * lpsMultiplierForEvents;
   
   // Cosmic Catalyst global booster (+15% passive LPS per level)
   const catalystLvl = state.catalystLevel || 0;
@@ -559,22 +582,96 @@ function generateAchievements() {
   return list;
 }
 
-// Check and trigger planet level ups.
-// Uses the pure computeLevelUpResult from engine.ts — safe for large batched XP
-// amounts (e.g. catch-up after a long tab-out). Emits at most ONE LEVEL_UP
-// message per call (with the final level), avoiding main-thread message floods.
-function addPlanetExp(amount: number) {
-  const catalystLvl = state.catalystLevel || 0;
-  const finalAmount = amount * (1.0 + catalystLvl * 0.15);
-  const r = computeLevelUpResult(state.planetLevel, state.planetExp, finalAmount, state.prestigeCount || 0);
-  state.planetExp = r.newExp;
-  if (r.levelsGained > 0) {
-    state.planetLevel = r.newLevel;
+// --- Task-Based Progressive Leveling System ---
+let secondsNoClick = 0;
+let lastCheckedGlitter = 0;
+let lastCheckedStars = 0;
+let isSyncing = false;
+
+function checkPlanetLevelUp() {
+  if (!state.planetTask) return;
+  if (state.planetTask.progress >= state.planetTask.target) {
+    state.planetLevel += 1;
+    state.planetTask = rollTaskForLevel(state.planetLevel, state.prestigeCount || 0, INITIAL_ANIMALS);
+    secondsNoClick = 0;
+
+    // Reset baseline indicators for the new task so we don't carry over delta progress
+    lastCheckedGlitter = state.glitterDust || 0;
+    lastCheckedStars = state.starsCount || 0;
+
     postMessage({
       type: "LEVEL_UP",
-      level: r.newLevel,
+      level: state.planetLevel,
     });
+
+    // Synchronize cumulative tasks under the new level/task if applicable
+    syncCumulativeTasks();
+    broadcastStateUpdate(true);
   }
+}
+
+function updateTaskProgress(type: string, amount: number, isSet: boolean = false, extraId?: string) {
+  if (!state.planetTask) {
+    state.planetTask = rollTaskForLevel(state.planetLevel, state.prestigeCount || 0, INITIAL_ANIMALS);
+  }
+  const task = state.planetTask;
+  if (!task) return;
+
+  if (task.type === type) {
+    if (type === "buy_animal" && extraId && task.targetAnimalId !== extraId) {
+      return;
+    }
+    if (isSet) {
+      task.progress = amount;
+    } else {
+      task.progress += amount;
+    }
+
+    if (task.progress > task.target) {
+      task.progress = task.target;
+    }
+    if (task.progress < 0) {
+      task.progress = 0;
+    }
+
+    checkPlanetLevelUp();
+  }
+}
+
+function syncCumulativeTasks() {
+  if (!state.planetTask) {
+    state.planetTask = rollTaskForLevel(state.planetLevel, state.prestigeCount || 0, INITIAL_ANIMALS);
+  }
+  const task = state.planetTask;
+  if (!task || !task.isCumulative) return;
+
+  if (task.type === "animals_count") {
+    const total = Object.values(state.purchasedAnimals).reduce((a, b) => a + b, 0);
+    task.progress = Math.min(task.target, total);
+    checkPlanetLevelUp();
+  } else if (task.type === "buy_animal") {
+    const owned = state.purchasedAnimals[task.targetAnimalId || ""] || 0;
+    task.progress = Math.min(task.target, owned);
+    checkPlanetLevelUp();
+  }
+}
+
+function syncIncrementalDeltas() {
+  const currentGlitter = state.glitterDust || 0;
+  if (currentGlitter > lastCheckedGlitter) {
+    updateTaskProgress("glitter_dust", currentGlitter - lastCheckedGlitter);
+  }
+  lastCheckedGlitter = currentGlitter;
+
+  const currentStars = state.starsCount || 0;
+  if (currentStars > lastCheckedStars) {
+    updateTaskProgress("collect_stars", currentStars - lastCheckedStars);
+  }
+  lastCheckedStars = currentStars;
+}
+
+function addPlanetExp(amount: number) {
+  // Silent legacy no-op since leveling is now entirely task-driven
 }
 
 let cachedAchievementsObj: any[] = [];
@@ -583,6 +680,13 @@ let lastAchievementsCalcTime = 0;
 // State Broadcaster
 // cachedStats: pre-computed getLpsAndStats() from the calling tick (avoids a second call)
 function broadcastStateUpdate(forceRecalculateAchievements = false, cachedStats?: ReturnType<typeof getLpsAndStats>) {
+  if (!isSyncing) {
+    isSyncing = true;
+    syncCumulativeTasks();
+    syncIncrementalDeltas();
+    isSyncing = false;
+  }
+
   const calculations = cachedStats ?? getLpsAndStats();
 
   // Throttle achievements calculation to once every 1250ms unless forced by a buy/click event
@@ -606,6 +710,7 @@ function broadcastStateUpdate(forceRecalculateAchievements = false, cachedStats?
       purchasedUpgrades: state.purchasedUpgrades,
       planetLevel: state.planetLevel,
       planetExp: state.planetExp,
+      planetTask: state.planetTask,
       clicksCount: state.clicksCount,
       starClicksTriggered: state.starClicksTriggered,
       secondsPlayed: state.secondsPlayed,
@@ -613,6 +718,8 @@ function broadcastStateUpdate(forceRecalculateAchievements = false, cachedStats?
       cycleProgress: state.cycleProgress,
       activeEvent: state.activeEvent,
       activeEventDecision: state.activeEventDecision || null,
+      activeEventDetails: state.activeEventDetails || null,
+      activeEventInstantClaimed: state.activeEventInstantClaimed || false,
       eventTimeRemaining: state.eventTimeRemaining,
       prestigeCount: state.prestigeCount,
       moonsCount: state.moonsCount || 0,
@@ -641,6 +748,49 @@ function broadcastStateUpdate(forceRecalculateAchievements = false, cachedStats?
   postMessage(msg);
 }
 
+function setupActiveEvent(eventId: string) {
+  let finalEventId = eventId;
+  if (eventId === "meteors") {
+    finalEventId = "comet_tail";
+  } else if (eventId === "aurora") {
+    finalEventId = "nebula_cloud";
+  } else if (eventId === "shooting_stars") {
+    finalEventId = "stella_nursery";
+  } else if (eventId === "supernova") {
+    finalEventId = "hyper_star";
+  }
+
+  state.activeEvent = finalEventId;
+  state.activeEventDecision = "ignorieren";
+  state.activeEventInstantClaimed = false;
+
+  if (finalEventId === "black_hole") {
+    state.activeEventDetails = null;
+    return;
+  }
+
+  const eventData = COSMIC_EVENTS_POOL.find((ev) => ev.id === finalEventId) || COSMIC_EVENTS_POOL[0];
+  const shuffledOpts = [...eventData.options].sort(() => Math.random() - 0.5);
+  const selectedOpts = shuffledOpts.slice(0, 3);
+
+  state.activeEventDetails = {
+    id: eventData.id,
+    name: eventData.name,
+    description: eventData.description,
+    emoji: eventData.emoji,
+    options: selectedOpts.map((opt) => ({
+      id: opt.id,
+      name: opt.name,
+      description: opt.description,
+      effectType: opt.effectType,
+      bonusLife: opt.bonusLife,
+      bonusStars: opt.bonusStars,
+      bonusDust: opt.bonusDust,
+      bonusMoons: opt.bonusMoons,
+    })),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Worker Loop initializations
 // ---------------------------------------------------------------------------
@@ -661,6 +811,8 @@ function startTimers() {
   // 2. Seconds played ticker (every 1000ms)
   secondaryTimerId = setInterval(() => {
     state.secondsPlayed += 1;
+    secondsNoClick += 1;
+    updateTaskProgress("no_click_produce", secondsNoClick, true);
   }, 1000);
 
   // 3. Planet Cycle progress ticker (every 250ms)
@@ -722,13 +874,13 @@ function startTimers() {
     if (state.eventTimeRemaining <= 0) {
       if (state.activeEvent === null) {
         // Start random event
-        const eventPool: ("meteors" | "aurora" | "shooting_stars" | "supernova" | "black_hole")[] = ["meteors", "aurora", "shooting_stars", "supernova"];
+        const eventPool: string[] = COSMIC_EVENTS_POOL.map((ev) => ev.id);
         if ((state.prestigeCount || 0) >= 5) {
           eventPool.push("black_hole");
         }
         const chosen = eventPool[Math.floor(Math.random() * eventPool.length)];
-        state.activeEvent = chosen;
-        state.activeEventDecision = "ignorieren";
+        
+        setupActiveEvent(chosen);
 
         let duration = 120;
         if (state.purchasedUpgrades.includes("upg-event-duration")) {
@@ -752,8 +904,13 @@ function startTimers() {
         });
       } else {
         // End current event
+        if (state.activeEventDecision && state.activeEventDecision !== "ignorieren") {
+          updateTaskProgress("events_won", 1);
+        }
         state.activeEvent = null;
         state.activeEventDecision = null;
+        state.activeEventDetails = null;
+        state.activeEventInstantClaimed = false;
 
         let waitDuration = 120;
         if (state.purchasedUpgrades.includes("upg-event-frequency")) {
@@ -797,6 +954,11 @@ addEventListener("message", (e) => {
           ...data.savedState,
         };
       }
+      if (!state.planetTask) {
+        state.planetTask = rollTaskForLevel(state.planetLevel, state.prestigeCount || 0, INITIAL_ANIMALS);
+      }
+      lastCheckedGlitter = state.glitterDust || 0;
+      lastCheckedStars = state.starsCount || 0;
       if (!state.zodiac) {
         state.zodiac = rollNewZodiac();
       }
@@ -806,6 +968,8 @@ addEventListener("message", (e) => {
     }
     case "CLICK": {
       state.clicksCount += 1;
+      secondsNoClick = 0;
+      updateTaskProgress("clicks", 1);
       const stats = getLpsAndStats();
 
       const isKatze = state.zodiac === "katze";
@@ -821,19 +985,38 @@ addEventListener("message", (e) => {
       state.life += actualClickLife;
       state.totalLifeEarned += actualClickLife;
 
-      // 🌌 EVENT DECISION: "zerlegen" (Dismantle/Scan) DROP CHANCE
+      // 🌌 EVENT DECISION: Dynamic or legacy Glitter Dust dropping
+      let targetChance = 0;
+      let targetAmount = 0;
+
+      if (state.activeEvent && state.activeEventDetails && state.activeEventDecision) {
+        const selectedOpt = state.activeEventDetails.options.find(o => o.id === state.activeEventDecision);
+        if (selectedOpt) {
+          if (selectedOpt.effectType === "glitter_click_2") {
+            targetChance = 20.0;
+            targetAmount = 2;
+          } else if (selectedOpt.effectType === "glitter_click_3") {
+            targetChance = 15.0;
+            targetAmount = 3;
+          }
+        }
+      }
+
+      // Legacy fallback in case of legacy trigger names
       if (state.activeEvent && state.activeEventDecision === "zerlegen") {
-        // Only rolls for Glitzerstaub! No lootboxes/shooting star drops.
+        targetChance = state.activeEvent === "aurora" ? 15.0 : state.activeEvent === "supernova" ? 15.0 : 10.0;
+        targetAmount = state.activeEvent === "supernova" ? 5 : 2;
+      }
+
+      if (targetChance > 0) {
         const dustRand = Math.random() * 100;
-        const dustChance = state.activeEvent === "aurora" ? 15.0 : state.activeEvent === "supernova" ? 15.0 : 10.0;
-        if (dustRand < dustChance) {
+        if (dustRand < targetChance) {
           const isPhoenix = state.zodiac === "phoenix";
-          const baseAmount = state.activeEvent === "supernova" ? 5 : 2;
-          const amount = Math.ceil(baseAmount * (isPhoenix ? 1.50 : 1.0));
+          const amount = Math.ceil(targetAmount * (isPhoenix ? 1.50 : 1.0));
           state.glitterDust = (state.glitterDust || 0) + amount;
           postMessage({
             type: "COSMETIC_FOUND",
-            text: `+${amount} Glitzerstaub ✨ (Zerlegt)`,
+            text: `+${amount} Glitzerstaub ✨ (Ereignis)`,
           });
         }
       }
@@ -925,8 +1108,7 @@ addEventListener("message", (e) => {
     }
     case "FORCE_TRIGGER_EVENT": {
       const { event } = data;
-      state.activeEvent = event;
-      state.activeEventDecision = "ignorieren";
+      setupActiveEvent(event);
       let duration = 120;
       if (state.purchasedUpgrades.includes("upg-event-duration")) {
         duration += 60;
@@ -983,6 +1165,8 @@ addEventListener("message", (e) => {
         const totalQty = recipe.result.quantity * count;
         state.craftedItems[resultId] = (state.craftedItems[resultId] || 0) + totalQty;
 
+        updateTaskProgress("crafting", count);
+
         postMessage({
           type: "COSMETIC_FOUND",
           text: `Erfolgreich hergestellt: ${totalQty}x ${recipe.result.name} ${recipe.result.emoji}! 🔨`,
@@ -1026,6 +1210,12 @@ addEventListener("message", (e) => {
         }
         state.craftedItems[step.id] = (state.craftedItems[step.id] || 0) + step.produces;
       }
+
+      let totalCraftOps = 0;
+      for (const step of planR) {
+        totalCraftOps += step.ops;
+      }
+      updateTaskProgress("crafting", totalCraftOps);
 
       const targetItemInfo = getItem(targetItemId);
       postMessage({
@@ -1107,35 +1297,31 @@ addEventListener("message", (e) => {
           glitterGained += 200;
         }
         else if (itemId === "use_trig_supernova") {
-          state.activeEvent = "supernova";
+          setupActiveEvent("hyper_star");
           state.eventTimeRemaining = 120;
-          state.activeEventDecision = null;
-          if (!eventsTriggered.includes("Goldene Supernova 💥")) {
-            eventsTriggered.push("Goldene Supernova 💥");
+          if (!eventsTriggered.includes("Energetischer Helio-Sturm 💥")) {
+            eventsTriggered.push("Energetischer Helio-Sturm 💥");
           }
         }
         else if (itemId === "use_trig_aurora") {
-          state.activeEvent = "aurora";
+          setupActiveEvent("nebula_cloud");
           state.eventTimeRemaining = 120;
-          state.activeEventDecision = null;
-          if (!eventsTriggered.includes("Aurora Borealis 🌌")) {
-            eventsTriggered.push("Aurora Borealis 🌌");
+          if (!eventsTriggered.includes("Interstellare Nebelwolke ☁️")) {
+            eventsTriggered.push("Interstellare Nebelwolke ☁️");
           }
         }
         else if (itemId === "use_trig_meteor") {
-          state.activeEvent = "meteors";
+          setupActiveEvent("comet_tail");
           state.eventTimeRemaining = 120;
-          state.activeEventDecision = null;
-          if (!eventsTriggered.includes("Meteoritenschauer ☄️")) {
-            eventsTriggered.push("Meteoritenschauer ☄️");
+          if (!eventsTriggered.includes("Eisiger Kometenschweif ☄️")) {
+            eventsTriggered.push("Eisiger Kometenschweif ☄️");
           }
         }
         else if (itemId === "use_trig_stars") {
-          state.activeEvent = "shooting_stars";
+          setupActiveEvent("stella_nursery");
           state.eventTimeRemaining = 120;
-          state.activeEventDecision = null;
-          if (!eventsTriggered.includes("Mondnacht-Sternschnuppen 🌠")) {
-            eventsTriggered.push("Mondnacht-Sternschnuppen 🌠");
+          if (!eventsTriggered.includes("Kosmische Sternenwiege 🍼")) {
+            eventsTriggered.push("Kosmische Sternenwiege 🍼");
           }
         }
         else if (itemId === "use_trig_blackhole") {
@@ -1460,6 +1646,7 @@ addEventListener("message", (e) => {
       if (state.starsCount >= 50 && (state.moonsCount || 0) < maxMoons) {
         state.starsCount -= 50;
         state.moonsCount = (state.moonsCount || 0) + 1;
+        updateTaskProgress("merge_moons", 1);
         broadcastStateUpdate(true);
       }
       break;
@@ -1540,7 +1727,91 @@ addEventListener("message", (e) => {
     case "SET_EVENT_DECISION": {
       const { decision } = data;
       const previous = state.activeEventDecision;
+      
+      // Prevent switching or claiming if they already claimed an instant reward for this event!
+      if (state.activeEventInstantClaimed) {
+        // Already claimed, do not allow changing decision to standard or another instant reward.
+        break;
+      }
+
       state.activeEventDecision = decision;
+
+      if (state.activeEvent && state.activeEventDetails && decision && decision !== "ignorieren") {
+        const option = state.activeEventDetails.options.find(o => o.id === decision);
+        if (option && !state.activeEventInstantClaimed) {
+          const eff = option.effectType;
+          let rewardDesc = "";
+          let claimed = false;
+          
+          if (eff === "instant_stars" && option.bonusStars !== undefined) {
+            const amount = option.bonusStars;
+            state.starsCount += amount;
+            rewardDesc = `+${amount} ⭐ Sterne erhalten!`;
+            claimed = true;
+          } else if (eff === "instant_dust" && option.bonusDust !== undefined) {
+            const amount = option.bonusDust;
+            state.glitterDust += amount;
+            rewardDesc = `+${amount} ✨ Glitzerstaub erhalten!`;
+            claimed = true;
+          } else if (eff === "instant_moons" && option.bonusMoons !== undefined) {
+            const amount = option.bonusMoons;
+            state.moonsCount = (state.moonsCount || 0) + amount;
+            rewardDesc = `+${amount} 🌙 Mond(e) erhalten!`;
+            claimed = true;
+          } else if (eff === "instant_life" && option.bonusLife !== undefined) {
+            const amount = option.bonusLife;
+            state.life += amount;
+            state.totalLifeEarned += amount;
+            rewardDesc = `+${formatCompactNumber(amount)} Lebenskraft erhalten!`;
+            claimed = true;
+          } else if (eff === "instant_hybrid" && option.bonusDust !== undefined && option.bonusStars !== undefined) {
+            state.starsCount += option.bonusStars;
+            state.glitterDust += option.bonusDust;
+            rewardDesc = `+${option.bonusStars} ⭐ Sterne und +${option.bonusDust} ✨ Glitzerstaub erhalten!`;
+            claimed = true;
+          } else if (eff.startsWith("instant_stars_")) {
+            const amount = parseInt(eff.replace("instant_stars_", ""), 10) || 10;
+            state.starsCount += amount;
+            rewardDesc = `+${amount} ⭐ Sterne erhalten!`;
+            claimed = true;
+          } else if (eff.startsWith("instant_dust_")) {
+            const amount = parseInt(eff.replace("instant_dust_", ""), 10) || 5;
+            state.glitterDust += amount;
+            rewardDesc = `+${amount} ✨ Glitzerstaub erhalten!`;
+            claimed = true;
+          } else if (eff.startsWith("instant_moons_")) {
+            const amount = parseInt(eff.replace("instant_moons_", ""), 10) || 1;
+            state.moonsCount = (state.moonsCount || 0) + amount;
+            rewardDesc = `+${amount} 🌙 Mond(e) erhalten!`;
+            claimed = true;
+          } else if (eff.startsWith("instant_life_")) {
+            const minStr = eff.replace("instant_life_", "").replace("m", "");
+            const minutes = parseInt(minStr, 10) || 5;
+            const currentLps = getLpsAndStats().totalLps;
+            const rewardLife = currentLps * minutes * 60;
+            state.life += rewardLife;
+            state.totalLifeEarned += rewardLife;
+            rewardDesc = `+${formatCompactNumber(rewardLife)} Lebenskraft erhalten (Produktion von ${minutes}m)!`;
+            claimed = true;
+          } else if (eff === "instant_hybrid_dust_stars") {
+            state.starsCount += 50;
+            state.glitterDust += 20;
+            rewardDesc = `+50 ⭐ Sterne und +20 ✨ Glitzerstaub erhalten!`;
+            claimed = true;
+          }
+          
+          if (claimed) {
+            state.activeEventInstantClaimed = true;
+            // Shorten the remaining time so the event closes fast after an instant reward!
+            state.eventTimeRemaining = Math.min(5, state.eventTimeRemaining);
+            postMessage({
+              type: "COSMETIC_FOUND",
+              text: `${rewardDesc} 🎉`,
+            });
+          }
+        }
+      }
+
       if (decision === "ignorieren" && previous !== "ignorieren") {
         state.eventTimeRemaining += 60;
       } else if (decision !== "ignorieren" && previous === "ignorieren") {
@@ -1552,6 +1823,10 @@ addEventListener("message", (e) => {
     case "UPDATE_SHOOTING_STARS": {
       state.shootingStarsCount = data.count;
       broadcastStateUpdate();
+      break;
+    }
+    case "MISSION_CLAIMED": {
+      updateTaskProgress("missions_completed", 1);
       break;
     }
     case "BLACK_HOLE_GAMBLE": {
@@ -1649,10 +1924,9 @@ addEventListener("message", (e) => {
             type = "good";
             titleGerman = "Akkretions-Ausbruch 💥";
             // Note: Since the black hole collapses, starting a supernova replaces it immediately
-            state.activeEvent = "supernova";
-            state.activeEventDecision = "ignorieren";
+            setupActiveEvent("hyper_star");
             state.eventTimeRemaining = 180;
-            textGerman = "Das Schwarze Loch destabilisiert sich und bricht in einer Supernova aus! Ein 180-sekündiges kosmisches Event hat sofort begonnen!";
+            textGerman = "Das Schwarze Loch destabilisiert sich und bricht in einem Hyperriesen-Ausbruch aus! Ein 180-sekündiges kosmisches Event hat sofort begonnen!";
             break;
           }
           case 4: { // SCHWARZES LOCH WIRD GRÖSSER
