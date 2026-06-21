@@ -370,13 +370,10 @@ export function handleWorkerAction(
       }
       state.prestigeCount = (state.prestigeCount || 0) + 1;
 
-      state.glitchBenchmarks = {
-        prestigeTarget: (state.prestigeCount || 0) + 10,
-        stardustTarget: (state.craftedItems?.["mat_stardust"] || 0) + 150,
-        shardsTarget: (state.galaxyShards || 0) + (state.spentGalaxyShards || 0) + 10,
-        phoenixTarget: (state.purchasedAnimals?.["phoenix"] || 0) + 5,
-        glitterTarget: (state.glitterDust || 0) + 150,
-      };
+      // NOTE: a normal prestige must NOT touch glitchBenchmarks. Recomputing the
+      // targets to "current amount + margin" on every prestige kept them forever
+      // ahead of the player, so the glitch galaxy could never trigger. Benchmarks
+      // are seeded once (default) and only escalated on REPAIR_GLITCH_GALAXY.
 
       Object.assign(state, {
         life: 0,
