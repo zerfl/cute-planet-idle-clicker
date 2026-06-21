@@ -61,6 +61,8 @@ import { EventBackgrounds } from "./components/EventBackgrounds";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { CosmicFooter } from "./components/CosmicFooter";
 import { useAudioSettings } from "./hooks/useAudioSettings";
+import { useDisplayPreferences } from "./hooks/useDisplayPreferences";
+import { useFloatingTexts } from "./hooks/useFloatingTexts";
 import { CosmicOverlays } from "./components/CosmicOverlays";
 import { InteractiveCosmos } from "./components/InteractiveCosmos";
 
@@ -118,52 +120,13 @@ export default function App() {
   const [showStarsModal, setShowStarsModal] = useState<boolean>(false);
   const [showStatsModal, setShowStatsModal] = useState<boolean>(false);
   const [showMusicSettingsModal, setShowMusicSettingsModal] = useState<boolean>(false);
-  const [floatingTexts, setFloatingTexts] = useState<FloatingText[]>([]);
-  const nextParticleId = useRef<number>(1);
   const offlineCheckedRef = useRef<boolean>(false);
 
-  // Performance (Low-Memory Mode) state
-  const [isLowMemory, setIsLowMemory] = useState<boolean>(() => {
-    return localStorage.getItem("cute_planet_low_memory") === "true";
-  });
+  // Display / performance preferences (low-memory toggle + reduced motion)
+  const { isLowMemory, setIsLowMemory, disableAnimations } = useDisplayPreferences();
 
-  useEffect(() => {
-    localStorage.setItem("cute_planet_low_memory", isLowMemory.toString());
-  }, [isLowMemory]);
-
-  // Centralized cleanup loop for floating texts to eliminate heavy setTimeout cascade overhead
-  useEffect(() => {
-    const sweepInterval = setInterval(() => {
-      setFloatingTexts((prev) => {
-        if (prev.length === 0) return prev;
-        const now = Date.now();
-        const next = prev.filter((p) => {
-          const age = now - (p.createdAt || 0);
-          const limit = p.type === "level" ? 4000 : 1200;
-          return age < limit;
-        });
-        if (next.length === prev.length) return prev;
-        return next;
-      });
-    }, 200);
-    return () => clearInterval(sweepInterval);
-  }, []);
-
-  // Check for prefers-reduced-motion media query
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const listener = (e: MediaQueryListEvent) => {
-      setPrefersReducedMotion(e.matches);
-    };
-    mediaQuery.addEventListener("change", listener);
-    return () => mediaQuery.removeEventListener("change", listener);
-  }, []);
-
-  const disableAnimations = isLowMemory || prefersReducedMotion;
+  // Floating "+N" reward particles (state + lifecycle owned by the hook)
+  const { floatingTexts, setFloatingTexts, nextParticleId } = useFloatingTexts();
 
   // Cloud Sync Modal state
   const [showCloudSyncModal, setShowCloudSyncModal] = useState<boolean>(false);
