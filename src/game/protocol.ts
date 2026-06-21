@@ -58,6 +58,7 @@ export interface WorkerGameState {
   unlockedGlitchGalaxy?: boolean;
   spentGalaxyShards?: number;
   glitchBenchmarks?: GlitchBenchmarks;
+  glitchCooldown?: boolean;
 }
 
 export interface GlitchBenchmarks {
@@ -108,6 +109,7 @@ export interface WorkerStatePayload {
   unlockedGlitchGalaxy: boolean;
   spentGalaxyShards: number;
   glitchBenchmarks?: GlitchBenchmarks;
+  glitchCooldown: boolean;
 }
 
 /** Raw LPS/stats result from `getLpsAndStats` (without the achievements count). */

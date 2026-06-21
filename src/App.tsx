@@ -252,6 +252,7 @@ export default function App() {
   const [unlockedGlitchGalaxy, setUnlockedGlitchGalaxy] = useState<boolean>(false);
   const [spentGalaxyShards, setSpentGalaxyShards] = useState<number>(0);
   const [glitchBenchmarks, setGlitchBenchmarks] = useState<any>(undefined);
+  const [glitchCooldown, setGlitchCooldown] = useState<boolean>(false);
 
   const [openingResult, setOpeningResult] = useState<{
     itemId: string;
@@ -628,6 +629,8 @@ export default function App() {
           setSpentGalaxyShards(savedStateObj.spentGalaxyShards || 0);
         if (savedStateObj.glitchBenchmarks !== undefined)
           setGlitchBenchmarks(savedStateObj.glitchBenchmarks);
+        if (savedStateObj.glitchCooldown !== undefined)
+          setGlitchCooldown(savedStateObj.glitchCooldown);
       }
     } catch (e) {
       console.error("Failed to parse initial save for Web Worker:", e);
@@ -668,6 +671,7 @@ export default function App() {
       setUnlockedGlitchGalaxy,
       setSpentGalaxyShards,
       setGlitchBenchmarks,
+      setGlitchCooldown,
       setConstellations,
       setCraftedItems,
       setGlitterDust,
@@ -890,6 +894,7 @@ export default function App() {
       unlockedGlitchGalaxy,
       spentGalaxyShards,
       glitchBenchmarks,
+      glitchCooldown,
     };
   }, [
     isLoaded,
@@ -933,6 +938,7 @@ export default function App() {
     unlockedGlitchGalaxy,
     spentGalaxyShards,
     glitchBenchmarks,
+    glitchCooldown,
   ]);
 
   // Synchronize dynamic local saves and autosave intervals
@@ -986,6 +992,7 @@ export default function App() {
           unlockedGlitchGalaxy: s.unlockedGlitchGalaxy,
           spentGalaxyShards: s.spentGalaxyShards,
           glitchBenchmarks: s.glitchBenchmarks,
+          glitchCooldown: s.glitchCooldown,
           lastSavedAt: Date.now(),
         };
         localStorage.setItem(SAVE_KEY, JSON.stringify(withSaveVersion(stateToSave)));

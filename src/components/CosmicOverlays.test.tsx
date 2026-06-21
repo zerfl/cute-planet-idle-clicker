@@ -51,11 +51,25 @@ describe("CosmicOverlays — level 20 voyage trigger", () => {
     expect(screen.queryByRole("button", { name: /Galaxiereise Antreten/i })).toBeNull();
   });
 
-  it("still enters the glitch galaxy via the worker-driven purge overlay", async () => {
-    // The glitch event is owned by the worker (it sets glitchPending); the purge
-    // overlay path must remain intact.
+  it("offers glitch entry as a bottom button instead of an instant full-screen block", () => {
+    // When the worker sets glitchPending, the gate must show the bottom entry
+    // button (planet still visible) — NOT an immediate purge overlay, and NOT
+    // the normal voyage button.
+    setup({ glitchPending: true });
+
+    expect(screen.getByRole("button", { name: /GLITCH-SEKTOR BETRETEN/i })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /Galaxiereise Antreten/i })).toBeNull();
+    // The dramatic purge confirmation is hidden until the player opts in.
+    expect(screen.queryByRole("button", { name: /PURGE & BETRETEN/i })).toBeNull();
+  });
+
+  it("enters the glitch galaxy through the two-step confirmation popup", async () => {
+    // The glitch event is owned by the worker (it sets glitchPending). Clicking
+    // the bottom entry button opens the purge confirmation; confirming there
+    // enters the glitch galaxy.
     const props = setup({ glitchPending: true });
 
+    await userEvent.click(screen.getByRole("button", { name: /GLITCH-SEKTOR BETRETEN/i }));
     await userEvent.click(screen.getByRole("button", { name: /PURGE & BETRETEN/i }));
 
     expect(props.handleEnterGlitchGalaxy).toHaveBeenCalledTimes(1);

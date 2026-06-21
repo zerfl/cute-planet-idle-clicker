@@ -126,4 +126,54 @@ describe("handleWorkerAction", () => {
       expect(helpers.broadcastStateUpdate).not.toHaveBeenCalled();
     });
   });
+
+  describe("glitch galaxy repair + cooldown", () => {
+    it("REPAIR grants +2 shards, re-baselines benchmarks, and starts the cooldown", () => {
+      const state = makeState({
+        inGlitchGalaxy: true,
+        glitchPending: false,
+        planetLevel: 20,
+        galaxyShards: 4,
+        glitterDust: 100,
+        prestigeCount: 3,
+      });
+
+      dispatch({ type: "REPAIR_GLITCH_GALAXY" }, state);
+
+      expect(state.galaxyShards).toBe(6); // +2 splitters
+      expect(state.glitterDust).toBe(177); // +77 dust
+      expect(state.prestigeCount).toBe(4); // +1 prestige
+      expect(state.inGlitchGalaxy).toBe(false);
+      expect(state.glitchCooldown).toBe(true); // must do a normal voyage next
+      expect(state.planetLevel).toBe(1); // full prestige-style reset
+      // Benchmarks re-baselined to current totals + the default margins.
+      expect(state.glitchBenchmarks).toEqual({
+        prestigeTarget: 4 + 10,
+        stardustTarget: 0 + 150,
+        shardsTarget: 6 + 0 + 10,
+        phoenixTarget: 0 + 5,
+        glitterTarget: 177 + 150,
+      });
+    });
+
+    it("a normal PRESTIGE clears the cooldown", () => {
+      const state = makeState({ glitchCooldown: true, planetLevel: 20, prestigeCount: 4 });
+
+      dispatch({ type: "PRESTIGE" }, state);
+
+      expect(state.glitchCooldown).toBe(false);
+      expect(state.prestigeCount).toBe(5);
+    });
+
+    it("ENTER clears the pending flag and flips into glitch mode", () => {
+      const state = makeState({ glitchPending: true, planetLevel: 20 });
+
+      dispatch({ type: "ENTER_GLITCH_GALAXY" }, state);
+
+      expect(state.inGlitchGalaxy).toBe(true);
+      expect(state.glitchPending).toBe(false);
+      expect(state.unlockedGlitchGalaxy).toBe(true);
+      expect(state.planetLevel).toBe(1);
+    });
+  });
 });

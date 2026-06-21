@@ -38,6 +38,7 @@ export interface WorkerEventHandlers {
   setUnlockedGlitchGalaxy: Dispatch<SetStateAction<boolean>>;
   setSpentGalaxyShards: Dispatch<SetStateAction<number>>;
   setGlitchBenchmarks: Dispatch<SetStateAction<any>>;
+  setGlitchCooldown: Dispatch<SetStateAction<boolean>>;
   setConstellations: Dispatch<SetStateAction<Record<string, number>>>;
   setCraftedItems: Dispatch<SetStateAction<Record<string, number>>>;
   setGlitterDust: Dispatch<SetStateAction<number>>;
@@ -89,6 +90,7 @@ export function applyWorkerEvent(data: WorkerEvent, h: WorkerEventHandlers): voi
     setUnlockedGlitchGalaxy,
     setSpentGalaxyShards,
     setGlitchBenchmarks,
+    setGlitchCooldown,
     setConstellations,
     setCraftedItems,
     setGlitterDust,
@@ -148,6 +150,7 @@ export function applyWorkerEvent(data: WorkerEvent, h: WorkerEventHandlers): voi
       if (ws.unlockedGlitchGalaxy !== undefined) setUnlockedGlitchGalaxy(ws.unlockedGlitchGalaxy);
       if (ws.spentGalaxyShards !== undefined) setSpentGalaxyShards(ws.spentGalaxyShards || 0);
       if (ws.glitchBenchmarks !== undefined) setGlitchBenchmarks(ws.glitchBenchmarks);
+      if (ws.glitchCooldown !== undefined) setGlitchCooldown(ws.glitchCooldown);
 
       setConstellations((prevOrder) =>
         isObjEqual(prevOrder, ws.constellations) ? prevOrder : ws.constellations || {},

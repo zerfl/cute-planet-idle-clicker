@@ -304,6 +304,7 @@ export function handleWorkerAction(
         slummerGlassLevel: 1,
         catalystLevel: 0,
         doubleStellarLevel: 0,
+        glitchCooldown: false,
       });
       broadcastStateUpdate(true);
       break;
@@ -333,6 +334,10 @@ export function handleWorkerAction(
     case "REPAIR_GLITCH_GALAXY": {
       state.inGlitchGalaxy = false;
       state.glitchPending = false;
+      // Start the cooldown: the player must complete at least one normal galaxy
+      // voyage (PRESTIGE) before another glitch galaxy can trigger, so it never
+      // re-fires on the very next level 20.
+      state.glitchCooldown = true;
       state.galaxyShards = (state.galaxyShards || 0) + 2;
       state.glitterDust = (state.glitterDust || 0) + 77;
       state.prestigeCount = (state.prestigeCount || 0) + 1;
@@ -369,6 +374,8 @@ export function handleWorkerAction(
         state.galaxyShards = (state.galaxyShards || 0) + 1;
       }
       state.prestigeCount = (state.prestigeCount || 0) + 1;
+      // A completed normal galaxy voyage clears the post-repair glitch cooldown.
+      state.glitchCooldown = false;
 
       // NOTE: a normal prestige must NOT touch glitchBenchmarks. Recomputing the
       // targets to "current amount + margin" on every prestige kept them forever

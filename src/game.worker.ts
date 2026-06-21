@@ -71,6 +71,7 @@ let state: WorkerGameState = {
   glitchPending: false,
   unlockedGlitchGalaxy: false,
   spentGalaxyShards: 0,
+  glitchCooldown: false,
 };
 
 // Timers refs
@@ -88,6 +89,11 @@ function rollNewZodiac(currentId?: string): string {
 
 function checkGlitchGalaxyTrigger() {
   if (state.inGlitchGalaxy || state.glitchPending) return;
+
+  // Cooldown after repairing a glitch galaxy: the player must complete at least
+  // one normal galaxy voyage (PRESTIGE clears this flag) before another glitch
+  // galaxy can trigger. This guarantees it never fires on the very next level 20.
+  if (state.glitchCooldown) return;
 
   // The glitch galaxy is offered at the level-20 voyage gate, in place of a
   // normal galaxy voyage. Below level 20 there is no voyage to replace.
@@ -292,6 +298,8 @@ function broadcastStateUpdate(
       glitchPending: state.glitchPending || false,
       unlockedGlitchGalaxy: state.unlockedGlitchGalaxy || false,
       spentGalaxyShards: state.spentGalaxyShards || 0,
+      glitchBenchmarks: state.glitchBenchmarks,
+      glitchCooldown: state.glitchCooldown || false,
     },
     calculations: {
       ...calculations,

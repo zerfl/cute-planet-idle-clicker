@@ -23,56 +23,85 @@ export const CosmicOverlays: React.FC<CosmicOverlaysProps> = ({
   handleEnterGlitchGalaxy,
   handleRepairGlitchGalaxy,
 }) => {
+  // Local two-step entry: the bottom button opens this confirmation dialog
+  // instead of instantly blocking the whole screen (mirrors the normal voyage).
+  const [showGlitchEnterDialog, setShowGlitchEnterDialog] = React.useState(false);
+
+  // The bottom-anchored level-20 gate has three mutually exclusive states:
+  //  - glitchEntry   : a requirement is met → offer ENTERING the glitch galaxy
+  //  - inGlitchGalaxy: currently inside a glitch galaxy → offer REPAIRING it
+  //  - normal        : the regular galaxy voyage
+  const glitchEntry = glitchPending;
+  const glitchStyle = glitchPending || inGlitchGalaxy;
+
   return (
     <>
-      {/* Level 20: Block game interactions with a clean transparent click-absorbing overlay, and show the flashing button */}
+      {/* Level 20: Block game interactions with a clean transparent click-absorbing overlay, and show the flashing button.
+          The glitch galaxy is offered here too (when glitchPending) instead of an instant full-screen block, so the
+          planet stays visible and the player taps a bottom button — exactly like the normal galaxy voyage. */}
       {planetLevel >= 20 && (
         <div className="fixed inset-0 z-40 bg-black/5 pointer-events-auto flex flex-col items-center justify-end pb-24 sm:pb-32 leading-none">
           {/* Cute prompt box floating above the flashy button */}
           <div
             className={`mb-6 px-5 py-3.5 rounded-2xl text-center text-white max-w-sm shadow-2xl backdrop-blur-md animate-bounce border-2 ${
-              inGlitchGalaxy
-                ? "bg-black/95 border-cyan-500/70 shadow-[0_0_25px_rgba(6,182,212,0.4)]"
-                : "bg-[#120f26]/95 border-[#ffcbdc]/45"
+              glitchEntry
+                ? "bg-black/95 border-rose-500/70 shadow-[0_0_25px_rgba(244,63,94,0.4)]"
+                : inGlitchGalaxy
+                  ? "bg-black/95 border-cyan-500/70 shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+                  : "bg-[#120f26]/95 border-[#ffcbdc]/45"
             }`}
           >
             <span
-              className={`text-[10px] sm:text-xs font-mono font-black uppercase tracking-widest block mb-1 ${inGlitchGalaxy ? "text-cyan-400 glitch-chromatic-text" : "text-[#ffcbdc]"}`}
+              className={`text-[10px] sm:text-xs font-mono font-black uppercase tracking-widest block mb-1 ${glitchStyle ? (glitchEntry ? "text-rose-400 glitch-chromatic-text" : "text-cyan-400 glitch-chromatic-text") : "text-[#ffcbdc]"}`}
             >
-              {inGlitchGalaxy
-                ? "☄️ QUANTUM_REALITY LEVEL 20 COMPLETED ☄️"
-                : "🌠 Planet Level 20 Erreicht! 🌠"}
+              {glitchEntry
+                ? "⚠️ INSTABILER SEKTOR ERKANNT ⚠️"
+                : inGlitchGalaxy
+                  ? "☄️ QUANTUM_REALITY LEVEL 20 COMPLETED ☄️"
+                  : "🌠 Planet Level 20 Erreicht! 🌠"}
             </span>
             <p
-              className={`font-sans font-semibold text-xs leading-normal ${inGlitchGalaxy ? "text-rose-200" : "text-rose-100"}`}
+              className={`font-sans font-semibold text-xs leading-normal ${glitchStyle ? "text-rose-200" : "text-rose-100"}`}
             >
-              {inGlitchGalaxy
-                ? "Die systemweite Anomalie hat ihr Maximum erreicht! Initiiere das Quanten-Repair-Protokoll, um diese Galaxie zu heilen und fortzufahren."
-                : "Bewundere deinen vollendeten Planeten! Wenn du so weit bist, klicke auf die Schaltfläche unten, um deine kosmische Galaxiereise anzutreten."}
+              {glitchEntry
+                ? "Ein schwerwiegender Glitch hat deinen Sektor befallen! Du kannst die instabile Glitch-Galaxie betreten — klicke unten, um das Purge-Protokoll zu starten."
+                : inGlitchGalaxy
+                  ? "Die systemweite Anomalie hat ihr Maximum erreicht! Initiiere das Quanten-Repair-Protokoll, um diese Galaxie zu heilen und fortzufahren."
+                  : "Bewundere deinen vollendeten Planeten! Wenn du so weit bist, klicke auf die Schaltfläche unten, um deine kosmische Galaxiereise anzutreten."}
             </p>
           </div>
 
           <motion.button
             animate={
-              inGlitchGalaxy
+              glitchEntry
                 ? {
                     scale: [1, 1.05, 1],
                     boxShadow: [
-                      "0 0 15px rgba(6, 182, 212, 0.4)",
-                      "0 0 35px rgba(244, 63, 94, 0.8)",
-                      "0 0 15px rgba(6, 182, 212, 0.4)",
+                      "0 0 15px rgba(244, 63, 94, 0.4)",
+                      "0 0 35px rgba(6, 182, 212, 0.8)",
+                      "0 0 15px rgba(244, 63, 94, 0.4)",
                     ],
-                    borderColor: ["#06b6d4", "#f43f5e", "#06b6d4"],
+                    borderColor: ["#f43f5e", "#0aefd4", "#f43f5e"],
                   }
-                : {
-                    scale: [1, 1.05, 1],
-                    boxShadow: [
-                      "0 0 15px rgba(255, 120, 170, 0.4)",
-                      "0 0 35px rgba(255, 120, 170, 0.8)",
-                      "0 0 15px rgba(255, 120, 170, 0.4)",
-                    ],
-                    borderColor: ["#ffcbdc", "#cac5fe", "#ffcbdc"],
-                  }
+                : inGlitchGalaxy
+                  ? {
+                      scale: [1, 1.05, 1],
+                      boxShadow: [
+                        "0 0 15px rgba(6, 182, 212, 0.4)",
+                        "0 0 35px rgba(244, 63, 94, 0.8)",
+                        "0 0 15px rgba(6, 182, 212, 0.4)",
+                      ],
+                      borderColor: ["#06b6d4", "#f43f5e", "#06b6d4"],
+                    }
+                  : {
+                      scale: [1, 1.05, 1],
+                      boxShadow: [
+                        "0 0 15px rgba(255, 120, 170, 0.4)",
+                        "0 0 35px rgba(255, 120, 170, 0.8)",
+                        "0 0 15px rgba(255, 120, 170, 0.4)",
+                      ],
+                      borderColor: ["#ffcbdc", "#cac5fe", "#ffcbdc"],
+                    }
             }
             transition={{
               duration: 1.5,
@@ -83,65 +112,90 @@ export const CosmicOverlays: React.FC<CosmicOverlaysProps> = ({
             whileTap={{ scale: 0.93 }}
             onClick={() => {
               playUpgrade();
-              // Open the (forced) Galaxy Voyage confirmation modal. The pastel
-              // vs. glitch styling is driven by `inGlitchGalaxy` inside the modal.
+              // Glitch entry opens its own confirmation popup; otherwise open the
+              // (forced) Galaxy Voyage confirmation modal. The pastel vs. glitch
+              // styling is driven by `inGlitchGalaxy` inside the modal.
               // NOTE: `glitchPending` is owned by the worker (it broadcasts it on
               // every tick), so setting it locally here used to get instantly
               // overwritten back to false — the modal flashed open and closed.
-              setShowVoyageModal(true);
+              if (glitchEntry) {
+                setShowGlitchEnterDialog(true);
+              } else {
+                setShowVoyageModal(true);
+              }
             }}
             className={`px-8 py-4 rounded-3xl font-sans font-black text-sm uppercase tracking-[0.2em] border-4 cursor-pointer select-none pointer-events-auto shadow-2xl ${
-              inGlitchGalaxy
-                ? "bg-gradient-to-r from-cyan-500 via-rose-500 to-[#120f26] text-white"
-                : "bg-gradient-to-r from-cosmic-pink via-cosmic-accent to-cosmic-pink text-[#0b0818]"
+              glitchEntry
+                ? "bg-gradient-to-r from-red-600 via-fuchsia-600 to-[#120f26] text-white"
+                : inGlitchGalaxy
+                  ? "bg-gradient-to-r from-cyan-500 via-rose-500 to-[#120f26] text-white"
+                  : "bg-gradient-to-r from-cosmic-pink via-cosmic-accent to-cosmic-pink text-[#0b0818]"
             }`}
           >
-            {inGlitchGalaxy ? "SYSTEM REPAIR & TRAVEL 🛠️" : "Galaxiereise Antreten 🚀"}
+            {glitchEntry
+              ? "GLITCH-SEKTOR BETRETEN 🌌"
+              : inGlitchGalaxy
+                ? "SYSTEM REPAIR & TRAVEL 🛠️"
+                : "Galaxiereise Antreten 🚀"}
           </motion.button>
         </div>
       )}
 
-      {/* Glitch Pending overlay */}
-      {glitchPending && (
-        <div className="fixed inset-0 z-[100] bg-black/95 pointer-events-auto flex flex-col items-center justify-center p-4 select-none glitch-bg">
-          <div className="absolute inset-0 bg-scanlines opacity-20 pointer-events-none" />
-          <div className="relative max-w-md w-full rounded-2xl bg-black border-4 border-rose-500/80 p-6 text-center text-white shadow-[0_0_40px_rgba(239,68,68,0.5)]">
-            <span className="text-xs sm:text-sm font-mono font-black uppercase tracking-[0.2em] text-red-500 block mb-2 animate-pulse glitch-chromatic-text">
-              ⚠️ INTERNAL CRITICAL_ERROR DETECTED ⚠️
-            </span>
-            <h1 className="font-mono text-xl sm:text-2xl font-black text-rose-300 leading-none mb-4 uppercase tracking-wider glitch-text-anim">
-              GLI_TCH_G_ALAX_Y.EXE
-            </h1>
-            <p className="font-mono text-xs text-rose-100 leading-relaxed mb-6 border border-rose-500/30 p-3 bg-red-950/20 rounded-md">
-              Die Realität bricht zusammen! Ein schwerwiegender Glitch hat deinen Sektor befallen.
-              Standardoperationen sind eingefroren. Starte den Quantum-Purge, um die instabile
-              Galaxie zu infiltrieren.
-            </p>
-            <motion.button
-              animate={{
-                scale: [1, 1.03, 1],
-                borderColor: ["#f43f5e", "#0aefd4", "#f43f5e"],
-                boxShadow: [
-                  "0 0 10px rgba(244, 63, 94, 0.4)",
-                  "0 0 25px rgba(6, 182, 212, 0.8)",
-                  "0 0 10px rgba(244, 63, 94, 0.4)",
-                ],
-              }}
-              transition={{
-                duration: 1.2,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              whileHover={{ scale: 1.06 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleEnterGlitchGalaxy}
-              className="px-6 py-4 rounded-xl bg-gradient-to-r from-red-600 to-fuchsia-600 text-white font-mono font-black text-sm uppercase tracking-[0.15em] border-2 cursor-pointer select-none shadow-2xl w-full"
-            >
-              PURGE & BETRETEN 🌌
-            </motion.button>
+      {/* Glitch entry confirmation popup — opened by the bottom button above, so
+          the screen is never instantly blocked the moment a requirement is met. */}
+      <AnimatePresence>
+        {showGlitchEnterDialog && glitchPending && (
+          <div className="fixed inset-0 z-[100] bg-black/95 pointer-events-auto flex flex-col items-center justify-center p-4 select-none glitch-bg">
+            <div className="absolute inset-0 bg-scanlines opacity-20 pointer-events-none" />
+            <div className="relative max-w-md w-full rounded-2xl bg-black border-4 border-rose-500/80 p-6 text-center text-white shadow-[0_0_40px_rgba(239,68,68,0.5)]">
+              <span className="text-xs sm:text-sm font-mono font-black uppercase tracking-[0.2em] text-red-500 block mb-2 animate-pulse glitch-chromatic-text">
+                ⚠️ INTERNAL CRITICAL_ERROR DETECTED ⚠️
+              </span>
+              <h1 className="font-mono text-xl sm:text-2xl font-black text-rose-300 leading-none mb-4 uppercase tracking-wider glitch-text-anim">
+                GLI_TCH_G_ALAX_Y.EXE
+              </h1>
+              <p className="font-mono text-xs text-rose-100 leading-relaxed mb-6 border border-rose-500/30 p-3 bg-red-950/20 rounded-md">
+                Die Realität bricht zusammen! Ein schwerwiegender Glitch hat deinen Sektor befallen.
+                Standardoperationen sind eingefroren. Starte den Quantum-Purge, um die instabile
+                Galaxie zu infiltrieren.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={() => setShowGlitchEnterDialog(false)}
+                  className="px-5 py-4 rounded-xl border-2 border-rose-500/50 hover:border-rose-400 text-rose-300 font-mono font-black text-sm uppercase tracking-[0.15em] hover:bg-rose-950/30 transition-all cursor-pointer select-none active:scale-95"
+                >
+                  Abbrechen
+                </button>
+                <motion.button
+                  animate={{
+                    scale: [1, 1.03, 1],
+                    borderColor: ["#f43f5e", "#0aefd4", "#f43f5e"],
+                    boxShadow: [
+                      "0 0 10px rgba(244, 63, 94, 0.4)",
+                      "0 0 25px rgba(6, 182, 212, 0.8)",
+                      "0 0 10px rgba(244, 63, 94, 0.4)",
+                    ],
+                  }}
+                  transition={{
+                    duration: 1.2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  whileHover={{ scale: 1.06 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    handleEnterGlitchGalaxy();
+                    setShowGlitchEnterDialog(false);
+                  }}
+                  className="flex-1 px-6 py-4 rounded-xl bg-gradient-to-r from-red-600 to-fuchsia-600 text-white font-mono font-black text-sm uppercase tracking-[0.15em] border-2 cursor-pointer select-none shadow-2xl"
+                >
+                  PURGE & BETRETEN 🌌
+                </motion.button>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* Repair Glitch Galaxy confirmation modal */}
       <AnimatePresence>
