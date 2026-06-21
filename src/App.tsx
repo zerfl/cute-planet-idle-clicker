@@ -67,6 +67,7 @@ import { useFloatingTexts } from "./hooks/useFloatingTexts";
 import { useModalState } from "./hooks/useModalState";
 import { useWorkerVisibility } from "./hooks/useWorkerVisibility";
 import { useOfflineEarnings } from "./hooks/useOfflineEarnings";
+import { applyWorkerEvent, type WorkerEventHandlers } from "./game/applyWorkerEvent";
 import { CosmicOverlays } from "./components/CosmicOverlays";
 import { InteractiveCosmos } from "./components/InteractiveCosmos";
 
@@ -76,23 +77,6 @@ const EXP_PER_LEVEL = [
   1800000000, 6000000000, 20000000000, 65000000000, 200000000000, 600000000000, 1800000000000,
   5000000000000,
 ];
-
-const isObjEqual = (
-  a: Record<string, any> | undefined,
-  b: Record<string, any> | undefined,
-): boolean => {
-  if (!a || !b) return a === b;
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
-  if (keysA.length !== keysB.length) return false;
-  return keysA.every((k) => a[k] === b[k]);
-};
-
-const isArrEqual = (a: any[] | undefined, b: any[] | undefined): boolean => {
-  if (!a || !b) return a === b;
-  if (a.length !== b.length) return false;
-  return a.every((v, i) => v === b[i]);
-};
 
 export default function App() {
   // Loaded state guards
@@ -654,261 +638,57 @@ export default function App() {
       savedState: savedStateObj,
     });
 
-    // Handle messages coming back from Worker thread
-    worker.onmessage = (e) => {
-      const data = e.data;
-      if (!data || !data.type) return;
-
-      switch (data.type) {
-        case "STATE_UPDATE": {
-          const ws = data.state;
-          setLife(ws.life);
-          setTotalLifeEarned(ws.totalLifeEarned);
-          setStarsCount(ws.starsCount);
-          setMoonsCount(ws.moonsCount || 0);
-
-          setPurchasedAnimals((prev) =>
-            isObjEqual(prev, ws.purchasedAnimals) ? prev : ws.purchasedAnimals,
-          );
-          setPurchasedUpgrades((prev) =>
-            isArrEqual(prev, ws.purchasedUpgrades) ? prev : ws.purchasedUpgrades,
-          );
-          setPlanetLevel(ws.planetLevel);
-          setPlanetExp(ws.planetExp);
-          setPlanetTask(ws.planetTask);
-          setClicksCount(ws.clicksCount);
-          setStarClicksTriggered(ws.starClicksTriggered);
-          setSecondsPlayed(ws.secondsPlayed);
-          setIsNight(ws.isNight);
-          setCycleProgress(ws.cycleProgress);
-          setActiveEvent(ws.activeEvent);
-          setEventTimeRemaining(ws.eventTimeRemaining);
-          setPrestigeCount(ws.prestigeCount || 0);
-          if (ws.galaxyShards !== undefined) setGalaxyShards(ws.galaxyShards || 0);
-          if (ws.zodiacLevels !== undefined) setZodiacLevels(ws.zodiacLevels || {});
-          if (ws.slummerGlassLevel !== undefined) setSlummerGlassLevel(ws.slummerGlassLevel || 1);
-          if (ws.catalystLevel !== undefined) setCatalystLevel(ws.catalystLevel || 0);
-          if (ws.doubleStellarLevel !== undefined)
-            setDoubleStellarLevel(ws.doubleStellarLevel || 0);
-          if (ws.blackHoleSize !== undefined) setBlackHoleSize(ws.blackHoleSize || 1);
-          if (ws.inGlitchGalaxy !== undefined) setInGlitchGalaxy(ws.inGlitchGalaxy);
-          if (ws.glitchPending !== undefined) setGlitchPending(ws.glitchPending);
-          if (ws.unlockedGlitchGalaxy !== undefined)
-            setUnlockedGlitchGalaxy(ws.unlockedGlitchGalaxy);
-          if (ws.spentGalaxyShards !== undefined) setSpentGalaxyShards(ws.spentGalaxyShards || 0);
-          if (ws.glitchBenchmarks !== undefined) setGlitchBenchmarks(ws.glitchBenchmarks);
-
-          setConstellations((prevOrder) =>
-            isObjEqual(prevOrder, ws.constellations) ? prevOrder : ws.constellations || {},
-          );
-          setCraftedItems((prev) =>
-            isObjEqual(prev, ws.craftedItems) ? prev : ws.craftedItems || {},
-          );
-          if (ws.glitterDust !== undefined) setGlitterDust(ws.glitterDust);
-          if (ws.cosmeticRarityLevels)
-            setCosmeticRarityLevels((prev) =>
-              isObjEqual(prev, ws.cosmeticRarityLevels) ? prev : ws.cosmeticRarityLevels,
-            );
-          if (ws.activeEventDecision !== undefined) setActiveEventDecision(ws.activeEventDecision);
-          if (ws.activeEventDetails !== undefined) setActiveEventDetails(ws.activeEventDetails);
-          if (ws.unlockedCosmetics !== undefined)
-            setUnlockedCosmetics((prev) =>
-              isArrEqual(prev, ws.unlockedCosmetics) ? prev : ws.unlockedCosmetics,
-            );
-          if (ws.shootingStarsCount !== undefined) setShootingStarsCount(ws.shootingStarsCount);
-          if (ws.zodiac !== undefined) setActiveZodiacId(ws.zodiac || "katze");
-
-          setCalculations((prevCalculations: any) => {
-            if (
-              prevCalculations.totalLps === data.calculations.totalLps &&
-              prevCalculations.clickPower === data.calculations.clickPower &&
-              prevCalculations.totalAnimalsCount === data.calculations.totalAnimalsCount &&
-              prevCalculations.starPowerPerStar === data.calculations.starPowerPerStar &&
-              prevCalculations.totalStarsLps === data.calculations.totalStarsLps &&
-              prevCalculations.totalAnimalsLps === data.calculations.totalAnimalsLps &&
-              prevCalculations.researchedUpgradesCount === data.calculations.researchedUpgradesCount
-            ) {
-              return prevCalculations;
-            }
-            return data.calculations;
-          });
-
-          if (data.achievements !== undefined) {
-            setAchievements((prev) => {
-              const prevUnlocked = prev.filter((a) => a.unlocked).length;
-              const nextUnlocked = data.achievements.filter((a: any) => a.unlocked).length;
-              if (prevUnlocked === nextUnlocked && prev.length === data.achievements.length) {
-                return prev;
-              }
-              return data.achievements;
-            });
-          }
-
-          setIsLoaded(true);
-          break;
-        }
-        case "STAR_TRIGGER": {
-          playTick();
-
-          // Spawn star autoclick reward text
-          const container = document.getElementById("planet-container");
-          let rx = 100 + (Math.random() * 80 - 40);
-          let ry = 100 + (Math.random() * 80 - 40);
-
-          if (container) {
-            const rect = container.getBoundingClientRect();
-            rx = Math.floor(Math.random() * (rect.width - 40) + 20);
-            ry = Math.floor(Math.random() * (rect.height - 40) + 20);
-          }
-
-          const pId = nextParticleId.current++;
-          setFloatingTexts((prev) => {
-            const next = [
-              ...prev,
-              {
-                id: pId,
-                x: rx,
-                y: ry,
-                text: `+${formatCompactNumber(data.reward)} ✧`,
-                type: "star-click",
-                createdAt: Date.now(),
-              },
-            ];
-            if (next.length > 15) {
-              return next.slice(next.length - 15);
-            }
-            return next;
-          });
-          break;
-        }
-        case "MOON_TRIGGER": {
-          playTick();
-
-          const container = document.getElementById("planet-container");
-          let rx = 100 + (Math.random() * 80 - 40);
-          let ry = 100 + (Math.random() * 80 - 40);
-
-          if (container) {
-            const rect = container.getBoundingClientRect();
-            rx = Math.floor(Math.random() * (rect.width - 40) + 20);
-            ry = Math.floor(Math.random() * (rect.height - 40) + 20);
-          }
-
-          const pId = nextParticleId.current++;
-          setFloatingTexts((prev) => {
-            const next = [
-              ...prev,
-              {
-                id: pId,
-                x: rx,
-                y: ry,
-                text: `+${formatCompactNumber(data.reward)} 🌙`,
-                type: "moon-click",
-                createdAt: Date.now(),
-              },
-            ];
-            if (next.length > 25) {
-              return next.slice(next.length - 25);
-            }
-            return next;
-          });
-          break;
-        }
-        case "LEVEL_UP": {
-          playLevelUp();
-
-          // Spawn planet level evolution tag
-          const pId = nextParticleId.current++;
-          setFloatingTexts((ptList) => {
-            const next = [
-              ...ptList,
-              {
-                id: pId,
-                x: 80,
-                y: 30,
-                text: `PLANET EVOLUTION: Lv. ${data.level}! ✨`,
-                type: "level",
-                createdAt: Date.now(),
-              },
-            ];
-            if (next.length > 15) {
-              return next.slice(next.length - 15);
-            }
-            return next;
-          });
-          break;
-        }
-        case "EVENT_TRIGGER": {
-          if (data.active) {
-            playLevelUp();
-          } else {
-            playPop();
-          }
-          break;
-        }
-        case "COSMETIC_FOUND": {
-          playLevelUp();
-          const pId = nextParticleId.current++;
-          setFloatingTexts((prev) => {
-            const next = [
-              ...prev,
-              {
-                id: pId,
-                x: 100 + (Math.random() * 40 - 20),
-                y: 50 + (Math.random() * 40 - 20),
-                text: data.text,
-                type: "level",
-                createdAt: Date.now(),
-              },
-            ];
-            if (next.length > 15) {
-              return next.slice(next.length - 15);
-            }
-            return next;
-          });
-          break;
-        }
-        case "CRAFTED_ITEMS_OPENED": {
-          playLevelUp();
-          setOpeningResult({
-            itemId: data.itemId,
-            itemName: data.itemName,
-            itemEmoji: data.itemEmoji,
-            count: data.count,
-            rewards: data.rewards,
-          });
-          break;
-        }
-        case "BLACK_HOLE_GAMBLE_RESULT": {
-          if (data.success) {
-            if (data.outcomeType === "good") {
-              playLevelUp();
-            } else {
-              playPop();
-            }
-            setBlackHoleResult({
-              show: true,
-              title: data.title,
-              text: data.text,
-              success: true,
-              outcomeType: data.outcomeType,
-            });
-          } else {
-            playPop();
-            setBlackHoleResult({
-              show: true,
-              title: "Fehler beim Opfern ⚠️",
-              text: data.error || "Nicht genügend Ressourcen!",
-              success: false,
-              outcomeType: "bad",
-            });
-          }
-          break;
-        }
-        default:
-          break;
-      }
+    // Fan worker events out into React state (logic lives in applyWorkerEvent).
+    const workerEventHandlers: WorkerEventHandlers = {
+      setLife,
+      setTotalLifeEarned,
+      setStarsCount,
+      setMoonsCount,
+      setPurchasedAnimals,
+      setPurchasedUpgrades,
+      setPlanetLevel,
+      setPlanetExp,
+      setPlanetTask,
+      setClicksCount,
+      setStarClicksTriggered,
+      setSecondsPlayed,
+      setIsNight,
+      setCycleProgress,
+      setActiveEvent,
+      setEventTimeRemaining,
+      setPrestigeCount,
+      setGalaxyShards,
+      setZodiacLevels,
+      setSlummerGlassLevel,
+      setCatalystLevel,
+      setDoubleStellarLevel,
+      setBlackHoleSize,
+      setInGlitchGalaxy,
+      setGlitchPending,
+      setUnlockedGlitchGalaxy,
+      setSpentGalaxyShards,
+      setGlitchBenchmarks,
+      setConstellations,
+      setCraftedItems,
+      setGlitterDust,
+      setCosmeticRarityLevels,
+      setActiveEventDecision,
+      setActiveEventDetails,
+      setUnlockedCosmetics,
+      setShootingStarsCount,
+      setActiveZodiacId,
+      setCalculations,
+      setAchievements,
+      setIsLoaded,
+      setOpeningResult,
+      setBlackHoleResult,
+      playTick,
+      playPop,
+      playLevelUp,
+      setFloatingTexts,
+      nextParticleId,
     };
+    worker.onmessage = (e) => applyWorkerEvent(e.data, workerEventHandlers);
 
     // Clean up worker
     return () => {

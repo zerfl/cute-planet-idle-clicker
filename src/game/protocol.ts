@@ -107,6 +107,7 @@ export interface WorkerStatePayload {
   glitchPending: boolean;
   unlockedGlitchGalaxy: boolean;
   spentGalaxyShards: number;
+  glitchBenchmarks?: GlitchBenchmarks;
 }
 
 /** Raw LPS/stats result from `getLpsAndStats` (without the achievements count). */
@@ -227,15 +228,18 @@ export type WorkerEvent =
       count: number;
       rewards: CraftedItemRewards;
       text: string;
+      // Read by the UI's opening-result modal but not currently sent by the worker.
+      itemName?: string;
+      itemEmoji?: string;
     }
   | {
       type: "BLACK_HOLE_GAMBLE_RESULT";
-      success: true;
-      roll: number;
-      outcomeType: string;
-      title: string;
-      text: string;
-    }
-  | { type: "BLACK_HOLE_GAMBLE_RESULT"; success: false; error: string };
+      success: boolean;
+      roll?: number;
+      outcomeType?: string;
+      title?: string;
+      text?: string;
+      error?: string;
+    };
 
 export type WorkerEventType = WorkerEvent["type"];
