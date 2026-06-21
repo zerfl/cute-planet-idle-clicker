@@ -45,7 +45,7 @@ export function useFirebaseSync() {
   const [authLoading, setAuthLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
-  
+
   // Conflict state management
   const [cloudSaveFound, setCloudSaveFound] = useState<CloudSaveData | null>(null);
   const [showConflictDialog, setShowConflictDialog] = useState(false);
@@ -94,7 +94,7 @@ export function useFirebaseSync() {
         if (data.createdAt) {
           updateSaveCreatedAt(data.createdAt);
         }
-        
+
         // Auto check if we have a conflict or if we should auto load/save
         const localSaveStr = localStorage.getItem("cute_planet_save");
         if (localSaveStr) {
@@ -143,11 +143,11 @@ export function useFirebaseSync() {
       const localSave = JSON.parse(localSaveStr);
       setSyncing(true);
       const docRef = doc(db, "saves", uid);
-      
+
       // If we already have a cloud save found, preserve its createdAt to satisfy update rules, otherwise use serverTimestamp()
       const resolvedCreatedAt = cloudSaveFound?.createdAt || serverTimestamp();
       const creationTime = serverTimestamp();
-      
+
       const payload: CloudSaveData = {
         userId: uid,
         life: Number(localSave.life || 0),
@@ -168,7 +168,12 @@ export function useFirebaseSync() {
         shootingStarsCount: Number(localSave.shootingStarsCount || 0),
         missionSetNumber: Number(localSave.missionSetNumber || 1),
         claimedMissionIds: localSave.claimedMissionIds || [],
-        missionsCooldownEnd: localSave.missionsCooldownEnd !== undefined ? (localSave.missionsCooldownEnd ? Number(localSave.missionsCooldownEnd) : null) : null,
+        missionsCooldownEnd:
+          localSave.missionsCooldownEnd !== undefined
+            ? localSave.missionsCooldownEnd
+              ? Number(localSave.missionsCooldownEnd)
+              : null
+            : null,
         prestigeCount: Number(localSave.prestigeCount || 0),
         moonsCount: Number(localSave.moonsCount || 0),
         constellations: localSave.constellations || {},
@@ -186,11 +191,13 @@ export function useFirebaseSync() {
       };
 
       await setDoc(docRef, payload);
-      
+
       // Save to public leaderboard on Firestore
       try {
         const leaderboardRef = doc(db, "leaderboard", uid);
-        const displayName = userRef.current?.displayName || (userRef.current?.email ? userRef.current.email.split("@")[0] : "Anonymes Wesen");
+        const displayName =
+          userRef.current?.displayName ||
+          (userRef.current?.email ? userRef.current.email.split("@")[0] : "Anonymes Wesen");
         await setDoc(leaderboardRef, {
           userId: uid,
           userName: displayName,
@@ -201,7 +208,7 @@ export function useFirebaseSync() {
       } catch (lErr) {
         console.error("Leaderboard sync failed during initial save:", lErr);
       }
-      
+
       // Set local save state immediately so the UI is immediately high fidelity
       setCloudSaveFound(payload);
       setLastSynced(new Date());
@@ -305,7 +312,12 @@ export function useFirebaseSync() {
         shootingStarsCount: Number(state.shootingStarsCount || 0),
         missionSetNumber: Number(state.missionSetNumber || 1),
         claimedMissionIds: state.claimedMissionIds || [],
-        missionsCooldownEnd: state.missionsCooldownEnd !== undefined ? (state.missionsCooldownEnd ? Number(state.missionsCooldownEnd) : null) : null,
+        missionsCooldownEnd:
+          state.missionsCooldownEnd !== undefined
+            ? state.missionsCooldownEnd
+              ? Number(state.missionsCooldownEnd)
+              : null
+            : null,
         prestigeCount: Number(state.prestigeCount || 0),
         moonsCount: Number(state.moonsCount || 0),
         constellations: (state as any).constellations || {},
@@ -327,7 +339,9 @@ export function useFirebaseSync() {
       // Save to public leaderboard on Firestore
       try {
         const leaderboardRef = doc(db, "leaderboard", activeUser.uid);
-        const displayName = activeUser.displayName || (activeUser.email ? activeUser.email.split("@")[0] : "Anonymes Wesen");
+        const displayName =
+          activeUser.displayName ||
+          (activeUser.email ? activeUser.email.split("@")[0] : "Anonymes Wesen");
         await setDoc(leaderboardRef, {
           userId: activeUser.uid,
           userName: displayName,

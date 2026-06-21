@@ -309,8 +309,10 @@ export const STATIC_UPGRADES: Upgrade[] = [
     purchased: false,
     emoji: "📡",
     category: "special",
-    effectDescription: "Stars generate double passive life during Nebelwolken events (6x instead of 3x)",
-    germanEffectDescription: "Sterne brüten während Nebelwolken-Events 6x mehr passive Energie (statt 3x!)",
+    effectDescription:
+      "Stars generate double passive life during Nebelwolken events (6x instead of 3x)",
+    germanEffectDescription:
+      "Sterne brüten während Nebelwolken-Events 6x mehr passive Energie (statt 3x!)",
     effect: (s) => s,
   },
   {
@@ -346,7 +348,8 @@ export const STATIC_UPGRADES: Upgrade[] = [
     emoji: "🧲",
     category: "special",
     effectDescription: "Stars pull +100% additional life and evolution power from the vacuum",
-    germanEffectDescription: "Sterne saugen pro Sekunde dauerhaft +100% mehr Leben und Evolutionskraft an",
+    germanEffectDescription:
+      "Sterne saugen pro Sekunde dauerhaft +100% mehr Leben und Evolutionskraft an",
     effect: (s) => s,
   },
   {
@@ -358,7 +361,8 @@ export const STATIC_UPGRADES: Upgrade[] = [
     emoji: "🔋",
     category: "special",
     effectDescription: "Instantly awards +1,000 💖 life whenever a new cosmic event begins!",
-    germanEffectDescription: "Schenkt dir sofort +1.000 💖 Leben, sobald ein neues Ereignis startet!",
+    germanEffectDescription:
+      "Schenkt dir sofort +1.000 💖 Leben, sobald ein neues Ereignis startet!",
     effect: (s) => s,
   },
   {
@@ -381,8 +385,10 @@ export const STATIC_UPGRADES: Upgrade[] = [
     purchased: false,
     emoji: "🌌",
     category: "special",
-    effectDescription: "Drastic timelines! Direct manual and star click EXP is permanently tripled (3x)!",
-    germanEffectDescription: "Alle manuellen und Sternenklick-XP werden dauerhaft verdreifacht (3x)!",
+    effectDescription:
+      "Drastic timelines! Direct manual and star click EXP is permanently tripled (3x)!",
+    germanEffectDescription:
+      "Alle manuellen und Sternenklick-XP werden dauerhaft verdreifacht (3x)!",
     effect: (s) => s,
   },
   {
@@ -504,7 +510,8 @@ export const STATIC_UPGRADES: Upgrade[] = [
     emoji: "🧩",
     category: "special",
     effectDescription: "Unlocks set bonuses for collecting themed groups of cosmetics (+15% score)",
-    germanEffectDescription: "Aktiviert Set-Boni beim Sammeln kompletter Kosmetik-Sets (+15% Ertrag)",
+    germanEffectDescription:
+      "Aktiviert Set-Boni beim Sammeln kompletter Kosmetik-Sets (+15% Ertrag)",
     effect: (s) => s,
     costResource: "glitterDust",
   },
@@ -517,7 +524,8 @@ export const STATIC_UPGRADES: Upgrade[] = [
     emoji: "🧲",
     category: "special",
     effectDescription: "Increases Legendary drop rates of Shooting Star boxes (+50% weight)",
-    germanEffectDescription: "Erhöht die Chance auf legendäre kosmetische Beute aus Sternschnuppen-Boxen um +50%",
+    germanEffectDescription:
+      "Erhöht die Chance auf legendäre kosmetische Beute aus Sternschnuppen-Boxen um +50%",
     effect: (s) => s,
     costResource: "glitterDust",
   },

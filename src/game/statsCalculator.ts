@@ -22,11 +22,22 @@ export function getLpsAndStats(state: any) {
 
   if (hasSetBonusSet && state.unlockedCosmetics) {
     const list = state.unlockedCosmetics || [];
-    sakuraSetComplete = ["star_pink", "acc_flower_crown", "moon_sakura"].every(id => list.includes(id));
-    cyberSetComplete = ["star_cyber", "acc_space_glasses", "moon_cyber"].every(id => list.includes(id));
-    goldSetComplete = ["star_gold", "acc_star_crown", "moon_gold"].every(id => list.includes(id));
-    ghostSetComplete = ["star_ghostly", "frame_ghost", "moon_ghost"].every(id => list.includes(id));
-    butterflySetComplete = ["star_butterfly", "acc_butterfly_wings", "frame_butterfly", "moon_butterfly"].every(id => list.includes(id));
+    sakuraSetComplete = ["star_pink", "acc_flower_crown", "moon_sakura"].every((id) =>
+      list.includes(id),
+    );
+    cyberSetComplete = ["star_cyber", "acc_space_glasses", "moon_cyber"].every((id) =>
+      list.includes(id),
+    );
+    goldSetComplete = ["star_gold", "acc_star_crown", "moon_gold"].every((id) => list.includes(id));
+    ghostSetComplete = ["star_ghostly", "frame_ghost", "moon_ghost"].every((id) =>
+      list.includes(id),
+    );
+    butterflySetComplete = [
+      "star_butterfly",
+      "acc_butterfly_wings",
+      "frame_butterfly",
+      "moon_butterfly",
+    ].every((id) => list.includes(id));
   }
 
   // Upgrades specifications check
@@ -39,7 +50,7 @@ export function getLpsAndStats(state: any) {
     pandaBoost: purchasedUpgrades.includes("upg-panda-1"),
     unicornBoost: purchasedUpgrades.includes("upg-unicorn-1"),
     globalAnimalsBoost: purchasedUpgrades.includes("upg-global-1"),
-    
+
     starGlow: purchasedUpgrades.includes("upg-star-glow"),
     starPulse: purchasedUpgrades.includes("upg-star-pulse"),
     starSupercharger: purchasedUpgrades.includes("upg-star-supercharger"),
@@ -65,8 +76,8 @@ export function getLpsAndStats(state: any) {
 
   // Fuchs zodiac flat increase (+40% click power)
   if (state.zodiac === "fuchs") {
-    const lvl = (state.zodiacLevels?.fuchs) || 1;
-    const fuchsMultiplier = 1.40 + (lvl - 1) * 0.15;
+    const lvl = state.zodiacLevels?.fuchs || 1;
+    const fuchsMultiplier = 1.4 + (lvl - 1) * 0.15;
     clickPower = Math.ceil(clickPower * fuchsMultiplier);
   }
 
@@ -108,7 +119,7 @@ export function getLpsAndStats(state: any) {
   if (activeEvent && activeEvent !== "black_hole" && state.activeEventDetails && decision) {
     if (decision === "ignorieren") {
       // Ignorieren grants a small global passive contribution to acknowledge the patience (+20% LPS)
-      lpsMultiplierForEvents *= 1.20;
+      lpsMultiplierForEvents *= 1.2;
     } else {
       const selectedOpt = state.activeEventDetails.options.find((o: any) => o.id === decision);
       if (selectedOpt) {
@@ -182,7 +193,7 @@ export function getLpsAndStats(state: any) {
   }
 
   // Constellation Supernova Power Boosts (+20% per level)
-  const supernovaBoost = 1.0 + constellSupernovaLevel * 0.20;
+  const supernovaBoost = 1.0 + constellSupernovaLevel * 0.2;
   if (activeEvent) {
     clickMultiplierForEvents *= supernovaBoost;
     starMultiplierForEvents *= supernovaBoost;
@@ -192,8 +203,8 @@ export function getLpsAndStats(state: any) {
 
   // Drache zodiac event boost (+40% to event multipliers)
   if (activeEvent && state.zodiac === "drache") {
-    const lvl = (state.zodiacLevels?.drache) || 1;
-    const multiplier = 1.40 + (lvl - 1) * 0.15;
+    const lvl = state.zodiacLevels?.drache || 1;
+    const multiplier = 1.4 + (lvl - 1) * 0.15;
     clickMultiplierForEvents = 1.0 + (clickMultiplierForEvents - 1.0) * multiplier;
     starMultiplierForEvents = 1.0 + (starMultiplierForEvents - 1.0) * multiplier;
     animalMultiplierForEvents = 1.0 + (animalMultiplierForEvents - 1.0) * multiplier;
@@ -204,7 +215,7 @@ export function getLpsAndStats(state: any) {
   let starPowerPerStar = 1.0;
   if (upgradesSpecs.starGlow) starPowerPerStar += 1.0;
   if (upgradesSpecs.starPulse) starPowerPerStar += 5.0;
-  const clickBonus = (rawClickPower - 1) * 0.20;
+  const clickBonus = (rawClickPower - 1) * 0.2;
   starPowerPerStar += clickBonus;
   if (upgradesSpecs.starSupercharger) starPowerPerStar *= 2.0;
   if (isNight) {
@@ -213,7 +224,7 @@ export function getLpsAndStats(state: any) {
   }
 
   // Prestige Multiplier (10% bonus per Prestige level)
-  const prestigeMultiplier = 1 + (state.prestigeCount || 0) * 0.10;
+  const prestigeMultiplier = 1 + (state.prestigeCount || 0) * 0.1;
 
   // Apply prestige bonus to star power and manual click power
   starPowerPerStar *= prestigeMultiplier;
@@ -232,8 +243,8 @@ export function getLpsAndStats(state: any) {
 
   // Eule zodiac star boost (+30% stars LPS)
   if (state.zodiac === "eule") {
-    const lvl = (state.zodiacLevels?.eule) || 1;
-    finalStarPowerPos *= (1.30 + (lvl - 1) * 0.15);
+    const lvl = state.zodiacLevels?.eule || 1;
+    finalStarPowerPos *= 1.3 + (lvl - 1) * 0.15;
   }
 
   const totalStarsLps = starsCount * finalStarPowerPos;
@@ -241,7 +252,7 @@ export function getLpsAndStats(state: any) {
   // Calculate Animal LPS
   let totalAnimalsLps = 0;
   const animalLpsMap: Record<string, number> = {};
-  
+
   INITIAL_ANIMALS.forEach((def) => {
     let multiplier = 1.0;
     if (def.id === "bunny" && upgradesSpecs.bunnyBoost) multiplier *= 2.0;
@@ -258,12 +269,12 @@ export function getLpsAndStats(state: any) {
     // Apply prestige bonus to the animal LPS
     lps *= prestigeMultiplier;
     // Apply Kuschel-Sternbild Animal LPS bonus (+10% per level)
-    lps *= (1.0 + constellKuschelLevel * 0.10);
+    lps *= 1.0 + constellKuschelLevel * 0.1;
 
     // Biene zodiac animal boost (+35% animal production)
     if (state.zodiac === "biene") {
-      const lvl = (state.zodiacLevels?.biene) || 1;
-      lps *= (1.35 + (lvl - 1) * 0.15);
+      const lvl = state.zodiacLevels?.biene || 1;
+      lps *= 1.35 + (lvl - 1) * 0.15;
     }
 
     animalLpsMap[def.id] = lps;
@@ -274,14 +285,18 @@ export function getLpsAndStats(state: any) {
   const flatMoonLps = (state.moonsCount || 0) * 15000 * prestigeMultiplier;
 
   // Aggregate Life Per Second (LPS)
-  let totalLps = ((totalAnimalsLps * animalMultiplierForEvents) + (totalStarsLps * starMultiplierForEvents) + flatMoonLps) * lpsMultiplierForEvents;
-  
+  let totalLps =
+    (totalAnimalsLps * animalMultiplierForEvents +
+      totalStarsLps * starMultiplierForEvents +
+      flatMoonLps) *
+    lpsMultiplierForEvents;
+
   // Cosmic Catalyst global booster (+15% passive LPS per level)
   const catalystLvl = state.catalystLevel || 0;
-  totalLps *= (1.0 + catalystLvl * 0.15);
+  totalLps *= 1.0 + catalystLvl * 0.15;
 
   if (purchasedUpgrades.includes("upg-nexus-core")) {
-    totalLps *= 1.40;
+    totalLps *= 1.4;
   }
 
   // Gold Set complete (+5% alles!)
@@ -308,15 +323,15 @@ export function getLpsAndStats(state: any) {
 
   // Apply Moon global multiplier (+150% total LPS per Moon, or +225% if Mond zodiac)
   if (state.moonsCount && state.moonsCount > 0) {
-    const lvl = (state.zodiacLevels?.mond) || 1;
-    const moonMultiplier = state.zodiac === "mond" ? (2.25 + (lvl - 1) * 0.25) : 1.50;
-    totalLps *= (1.0 + state.moonsCount * moonMultiplier);
+    const lvl = state.zodiacLevels?.mond || 1;
+    const moonMultiplier = state.zodiac === "mond" ? 2.25 + (lvl - 1) * 0.25 : 1.5;
+    totalLps *= 1.0 + state.moonsCount * moonMultiplier;
   }
 
   // Schildkröte zodiac total passive boost (+20% total passive LPS)
   if (state.zodiac === "schildkroete") {
-    const lvl = (state.zodiacLevels?.schildkroete) || 1;
-    totalLps *= (1.20 + (lvl - 1) * 0.10);
+    const lvl = state.zodiacLevels?.schildkroete || 1;
+    totalLps *= 1.2 + (lvl - 1) * 0.1;
   }
 
   if (state.inGlitchGalaxy) {
@@ -325,7 +340,10 @@ export function getLpsAndStats(state: any) {
   }
 
   // Aggregate quantities
-  const totalAnimalsCount = Object.values(purchasedAnimals).reduce((sum: number, qty: any) => sum + qty, 0);
+  const totalAnimalsCount = Object.values(purchasedAnimals).reduce(
+    (sum: number, qty: any) => sum + qty,
+    0,
+  );
   const researchedUpgradesCount = purchasedUpgrades.length;
 
   // EXP needed to level up the planet based on current level and prestigeCount

@@ -1,10 +1,10 @@
 import { CRAFTING_RECIPES, Recipe } from "./recipes";
 
 export const BASE_RESOURCES: Record<string, { emoji: string; name: string; compact?: boolean }> = {
-  life:      { emoji: "💖", name: "Leben",        compact: true },
-  stars:     { emoji: "⭐", name: "Sterne" },
-  moons:     { emoji: "🌙", name: "Monde" },
-  glitter:   { emoji: "✨", name: "Glitzerstaub" },
+  life: { emoji: "💖", name: "Leben", compact: true },
+  stars: { emoji: "⭐", name: "Sterne" },
+  moons: { emoji: "🌙", name: "Monde" },
+  glitter: { emoji: "✨", name: "Glitzerstaub" },
   lootboxes: { emoji: "🌠", name: "Lootboxen" },
 };
 
@@ -57,14 +57,12 @@ export interface GraphNode {
   children: GraphNode[];
 }
 
-export function ingredientList(
-  ing: Recipe["ingredients"]
-): Array<{ id: string; qty: number }> {
+export function ingredientList(ing: Recipe["ingredients"]): Array<{ id: string; qty: number }> {
   const out: Array<{ id: string; qty: number }> = [];
-  if (ing.life)      out.push({ id: "life",      qty: ing.life });
-  if (ing.stars)     out.push({ id: "stars",     qty: ing.stars });
-  if (ing.moons)     out.push({ id: "moons",     qty: ing.moons });
-  if (ing.glitter)   out.push({ id: "glitter",   qty: ing.glitter });
+  if (ing.life) out.push({ id: "life", qty: ing.life });
+  if (ing.stars) out.push({ id: "stars", qty: ing.stars });
+  if (ing.moons) out.push({ id: "moons", qty: ing.moons });
+  if (ing.glitter) out.push({ id: "glitter", qty: ing.glitter });
   if (ing.lootboxes) out.push({ id: "lootboxes", qty: ing.lootboxes });
   if (ing.items) {
     for (const [id, qty] of Object.entries(ing.items)) {
@@ -85,7 +83,7 @@ export function buildGraph(rootId: string, qty: number): { root: GraphNode } {
     const r = item.recipe;
     const ops = Math.ceil(need / r.result.quantity);
     const children = ingredientList(r.ingredients).map(({ id: cid, qty: cqty }) =>
-      rec(cid, cqty * ops)
+      rec(cid, cqty * ops),
     );
     return { uid: u, id, item, need, kind: "craft", ops, yield: r.result.quantity, children };
   }
@@ -109,11 +107,7 @@ export interface ResolveResult {
 }
 
 // have map keys: "life", "stars", "moons", "glitter", "lootboxes", plus any craftedItem ids.
-export function resolve(
-  rootId: string,
-  qty: number,
-  have: Record<string, number>
-): ResolveResult {
+export function resolve(rootId: string, qty: number, have: Record<string, number>): ResolveResult {
   const stock = { ...have };
   const rawNeed: Record<string, number> = {};
   const plan: CraftStep[] = [];
@@ -134,9 +128,7 @@ export function resolve(
     if (rem <= 0) return;
     const r = item.recipe;
     const ops = Math.ceil(rem / r.result.quantity);
-    ingredientList(r.ingredients).forEach(({ id: cid, qty: cqty }) =>
-      rec(cid, cqty * ops)
-    );
+    ingredientList(r.ingredients).forEach(({ id: cid, qty: cqty }) => rec(cid, cqty * ops));
     plan.push({
       id,
       name: item.name,

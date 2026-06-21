@@ -67,13 +67,20 @@ interface GameModalsContainerProps {
   handleBuyAnimal: (animalId: string, cost: number, countToBuy: number) => void;
   handleBuyStar: () => void;
   handleMergeMoons: () => void;
-  handleInvestConstellation: (constellationId: string, starsCost: number, moonsCost: number) => void;
+  handleInvestConstellation: (
+    constellationId: string,
+    starsCost: number,
+    moonsCost: number,
+  ) => void;
   handleCraftItem: (recipeId: string, count?: number) => void;
   handleCraftRecursive: (targetItemId: string, count?: number) => void;
   handleClaimOfflineEarnings: (earnedLife: number) => void;
   handleClaimMissionReward: (missionId: string, starsReward: number) => void;
   handleOpenShootingStar: (cosmetic: any, alreadyUnlocked: boolean, refundAmt: number) => void;
-  handleApplyCosmetic: (id: string, type: "star_color" | "planet_accessory" | "frame_style" | "moon_skin") => void;
+  handleApplyCosmetic: (
+    id: string,
+    type: "star_color" | "planet_accessory" | "frame_style" | "moon_skin",
+  ) => void;
   handleUnlockCosmeticDirect: (cosmeticId: string, cost: number) => void;
   handleUpgradeCosmeticRarity: (cosmeticId: string, targetRarity: string, cost: number) => void;
   handleUseCraftedItem: (itemId: string, count?: number) => void;
@@ -125,342 +132,344 @@ interface GameModalsContainerProps {
   upgradesSpecs: any;
 }
 
-export const GameModalsContainer: React.FC<GameModalsContainerProps> = React.memo(({
-  showResetDialog,
-  setShowResetDialog,
-  showCheatEventModal,
-  setShowCheatEventModal,
-  showUpgradesModal,
-  setShowUpgradesModal,
-  showAnimalsModal,
-  setShowAnimalsModal,
-  showStarsModal,
-  setShowStarsModal,
-  showCraftingModal,
-  setShowCraftingModal,
-  showStatsModal,
-  setShowStatsModal,
-  showOfflineModal,
-  setShowOfflineModal,
-  showAchievementsModal,
-  setShowAchievementsModal,
-  showMusicSettingsModal,
-  setShowMusicSettingsModal,
-  showCloudSyncModal,
-  setShowCloudSyncModal,
-  showConflictDialog,
-  setShowConflictDialog,
-  showMissionsModal,
-  setShowMissionsModal,
-  openingResult,
-  setOpeningResult,
-  showInventoryModal,
-  setShowInventoryModal,
-  showZodiacModal,
-  setShowZodiacModal,
-  showLeaderboardModal,
-  setShowLeaderboardModal,
-  showPrestigeModal,
-  setShowPrestigeModal,
+export const GameModalsContainer: React.FC<GameModalsContainerProps> = React.memo(
+  ({
+    showResetDialog,
+    setShowResetDialog,
+    showCheatEventModal,
+    setShowCheatEventModal,
+    showUpgradesModal,
+    setShowUpgradesModal,
+    showAnimalsModal,
+    setShowAnimalsModal,
+    showStarsModal,
+    setShowStarsModal,
+    showCraftingModal,
+    setShowCraftingModal,
+    showStatsModal,
+    setShowStatsModal,
+    showOfflineModal,
+    setShowOfflineModal,
+    showAchievementsModal,
+    setShowAchievementsModal,
+    showMusicSettingsModal,
+    setShowMusicSettingsModal,
+    showCloudSyncModal,
+    setShowCloudSyncModal,
+    showConflictDialog,
+    setShowConflictDialog,
+    showMissionsModal,
+    setShowMissionsModal,
+    openingResult,
+    setOpeningResult,
+    showInventoryModal,
+    setShowInventoryModal,
+    showZodiacModal,
+    setShowZodiacModal,
+    showLeaderboardModal,
+    setShowLeaderboardModal,
+    showPrestigeModal,
+    setShowPrestigeModal,
 
-  handleGameReset,
-  workerRef,
-  handleBuyUpgrade,
-  handleBuyUpgradesBatch,
-  handleBuyAnimal,
-  handleBuyStar,
-  handleMergeMoons,
-  handleInvestConstellation,
-  handleCraftItem,
-  handleCraftRecursive,
-  handleClaimOfflineEarnings,
-  handleClaimMissionReward,
-  handleOpenShootingStar,
-  handleApplyCosmetic,
-  handleUnlockCosmeticDirect,
-  handleUpgradeCosmeticRarity,
-  handleUseCraftedItem,
-  handleSelectZodiac,
-  handleConfirmPrestige,
-  onForceSave,
+    handleGameReset,
+    workerRef,
+    handleBuyUpgrade,
+    handleBuyUpgradesBatch,
+    handleBuyAnimal,
+    handleBuyStar,
+    handleMergeMoons,
+    handleInvestConstellation,
+    handleCraftItem,
+    handleCraftRecursive,
+    handleClaimOfflineEarnings,
+    handleClaimMissionReward,
+    handleOpenShootingStar,
+    handleApplyCosmetic,
+    handleUnlockCosmeticDirect,
+    handleUpgradeCosmeticRarity,
+    handleUseCraftedItem,
+    handleSelectZodiac,
+    handleConfirmPrestige,
+    onForceSave,
 
-  purchasedUpgrades,
-  staticUpgrades,
-  purchasedAnimals,
-  constellations,
-  isNightStyle,
-  craftedItems,
-  formatCompactNumber,
-  formatTimePlayed,
-  offlineSeconds,
-  offlineLpsRate,
-  offlineEarnedLife,
-  achievements,
-  achievementCategoryFilter,
-  setAchievementCategoryFilter,
-  achievementSearch,
-  setAchievementSearch,
-  playUpgrade,
-  musicStyleState,
-  setMusicStyleState,
-  isLowMemory,
-  setIsLowMemory,
-  user,
-  authLoading,
-  syncing,
-  lastSynced,
-  loginWithGoogle,
-  logout,
-  cloudSaveFound,
-  triggerCloudStateLoad,
-  forceLocalOverwriteCloud,
-  missionSetNumber,
-  claimedMissionIds,
-  missionsCooldownEnd,
-  activeFrame,
-  unlockedCosmetics,
-  activeStarColor,
-  activeAccessory,
-  activeMoonSkin,
-  activeZodiacId,
-  cosmeticRarityLevels,
-  upgradesSpecs,
-}) => {
-  return (
-    <>
-      {showResetDialog && (
-        <ResetDialog
-          isOpen={showResetDialog}
-          onConfirm={handleGameReset}
-          onCancel={() => setShowResetDialog(false)}
-        />
-      )}
+    purchasedUpgrades,
+    staticUpgrades,
+    purchasedAnimals,
+    constellations,
+    isNightStyle,
+    craftedItems,
+    formatCompactNumber,
+    formatTimePlayed,
+    offlineSeconds,
+    offlineLpsRate,
+    offlineEarnedLife,
+    achievements,
+    achievementCategoryFilter,
+    setAchievementCategoryFilter,
+    achievementSearch,
+    setAchievementSearch,
+    playUpgrade,
+    musicStyleState,
+    setMusicStyleState,
+    isLowMemory,
+    setIsLowMemory,
+    user,
+    authLoading,
+    syncing,
+    lastSynced,
+    loginWithGoogle,
+    logout,
+    cloudSaveFound,
+    triggerCloudStateLoad,
+    forceLocalOverwriteCloud,
+    missionSetNumber,
+    claimedMissionIds,
+    missionsCooldownEnd,
+    activeFrame,
+    unlockedCosmetics,
+    activeStarColor,
+    activeAccessory,
+    activeMoonSkin,
+    activeZodiacId,
+    cosmeticRarityLevels,
+    upgradesSpecs,
+  }) => {
+    return (
+      <>
+        {showResetDialog && (
+          <ResetDialog
+            isOpen={showResetDialog}
+            onConfirm={handleGameReset}
+            onCancel={() => setShowResetDialog(false)}
+          />
+        )}
 
-      {showCheatEventModal && (
-        <CheatEventModal
-          isOpen={showCheatEventModal}
-          onSelectEvent={(event) => {
-            workerRef.current?.postMessage({
-              type: "FORCE_TRIGGER_EVENT",
-              event,
-            });
-          }}
-          onClose={() => setShowCheatEventModal(false)}
-        />
-      )}
+        {showCheatEventModal && (
+          <CheatEventModal
+            isOpen={showCheatEventModal}
+            onSelectEvent={(event) => {
+              workerRef.current?.postMessage({
+                type: "FORCE_TRIGGER_EVENT",
+                event,
+              });
+            }}
+            onClose={() => setShowCheatEventModal(false)}
+          />
+        )}
 
-      {showUpgradesModal && (
-        <UpgradesModal
-          isOpen={showUpgradesModal}
-          onClose={() => setShowUpgradesModal(false)}
-          purchasedUpgrades={purchasedUpgrades}
-          staticUpgrades={staticUpgrades}
-          onBuyUpgrade={handleBuyUpgrade}
-          onBuyUpgradesBatch={handleBuyUpgradesBatch}
-          formatCompactNumber={formatCompactNumber}
-        />
-      )}
+        {showUpgradesModal && (
+          <UpgradesModal
+            isOpen={showUpgradesModal}
+            onClose={() => setShowUpgradesModal(false)}
+            purchasedUpgrades={purchasedUpgrades}
+            staticUpgrades={staticUpgrades}
+            onBuyUpgrade={handleBuyUpgrade}
+            onBuyUpgradesBatch={handleBuyUpgradesBatch}
+            formatCompactNumber={formatCompactNumber}
+          />
+        )}
 
-      {showAnimalsModal && (
-        <AnimalsModal
-          isOpen={showAnimalsModal}
-          onClose={() => setShowAnimalsModal(false)}
-          purchasedAnimals={purchasedAnimals}
-          animalDefs={INITIAL_ANIMALS}
-          onBuyAnimal={handleBuyAnimal}
-          calculateCost={calculateCost}
-          formatCompactNumber={formatCompactNumber}
-          upgradesSpecs={upgradesSpecs}
-        />
-      )}
+        {showAnimalsModal && (
+          <AnimalsModal
+            isOpen={showAnimalsModal}
+            onClose={() => setShowAnimalsModal(false)}
+            purchasedAnimals={purchasedAnimals}
+            animalDefs={INITIAL_ANIMALS}
+            onBuyAnimal={handleBuyAnimal}
+            calculateCost={calculateCost}
+            formatCompactNumber={formatCompactNumber}
+            upgradesSpecs={upgradesSpecs}
+          />
+        )}
 
-      {showStarsModal && (
-        <StarsModal
-          isOpen={showStarsModal}
-          onClose={() => setShowStarsModal(false)}
-          onBuyStar={handleBuyStar}
-          formatCompactNumber={formatCompactNumber}
-          onMergeMoons={handleMergeMoons}
-          constellations={constellations}
-          onInvestConstellation={handleInvestConstellation}
-        />
-      )}
+        {showStarsModal && (
+          <StarsModal
+            isOpen={showStarsModal}
+            onClose={() => setShowStarsModal(false)}
+            onBuyStar={handleBuyStar}
+            formatCompactNumber={formatCompactNumber}
+            onMergeMoons={handleMergeMoons}
+            constellations={constellations}
+            onInvestConstellation={handleInvestConstellation}
+          />
+        )}
 
-      {showCraftingModal && (
-        <CraftingModal
-          isOpen={showCraftingModal}
-          onClose={() => setShowCraftingModal(false)}
-          craftedItems={craftedItems}
-          onCraftRecursive={handleCraftRecursive}
-          formatCompactNumber={formatCompactNumber}
-        />
-      )}
+        {showCraftingModal && (
+          <CraftingModal
+            isOpen={showCraftingModal}
+            onClose={() => setShowCraftingModal(false)}
+            craftedItems={craftedItems}
+            onCraftRecursive={handleCraftRecursive}
+            formatCompactNumber={formatCompactNumber}
+          />
+        )}
 
-      {showStatsModal && (
-        <StatsModal
-          isOpen={showStatsModal}
-          onClose={() => setShowStatsModal(false)}
-          purchasedAnimals={purchasedAnimals}
-          formatCompactNumber={formatCompactNumber}
-          formatTimePlayed={formatTimePlayed}
-        />
-      )}
+        {showStatsModal && (
+          <StatsModal
+            isOpen={showStatsModal}
+            onClose={() => setShowStatsModal(false)}
+            purchasedAnimals={purchasedAnimals}
+            formatCompactNumber={formatCompactNumber}
+            formatTimePlayed={formatTimePlayed}
+          />
+        )}
 
-      {showOfflineModal && (
-        <OfflineEarningsModal
-          isOpen={showOfflineModal}
-          onClose={() => setShowOfflineModal(false)}
-          secondsAway={offlineSeconds}
-          offlineLps={offlineLpsRate}
-          earnedLife={offlineEarnedLife}
-          onClaim={handleClaimOfflineEarnings}
-          formatCompactNumber={formatCompactNumber}
-          isNight={isNightStyle}
-        />
-      )}
+        {showOfflineModal && (
+          <OfflineEarningsModal
+            isOpen={showOfflineModal}
+            onClose={() => setShowOfflineModal(false)}
+            secondsAway={offlineSeconds}
+            offlineLps={offlineLpsRate}
+            earnedLife={offlineEarnedLife}
+            onClaim={handleClaimOfflineEarnings}
+            formatCompactNumber={formatCompactNumber}
+            isNight={isNightStyle}
+          />
+        )}
 
-      {showAchievementsModal && (
-        <AchievementsModal
-          isOpen={showAchievementsModal}
-          onClose={() => setShowAchievementsModal(false)}
-          isNight={isNightStyle}
-          achievements={achievements}
-          achievementCategoryFilter={achievementCategoryFilter}
-          setAchievementCategoryFilter={setAchievementCategoryFilter}
-          achievementSearch={achievementSearch}
-          setAchievementSearch={setAchievementSearch}
-          formatCompactNumber={formatCompactNumber}
-          playUpgrade={playUpgrade}
-        />
-      )}
+        {showAchievementsModal && (
+          <AchievementsModal
+            isOpen={showAchievementsModal}
+            onClose={() => setShowAchievementsModal(false)}
+            isNight={isNightStyle}
+            achievements={achievements}
+            achievementCategoryFilter={achievementCategoryFilter}
+            setAchievementCategoryFilter={setAchievementCategoryFilter}
+            achievementSearch={achievementSearch}
+            setAchievementSearch={setAchievementSearch}
+            formatCompactNumber={formatCompactNumber}
+            playUpgrade={playUpgrade}
+          />
+        )}
 
-      {showMusicSettingsModal && (
-        <MusicSettingsModal
-          isOpen={showMusicSettingsModal}
-          onClose={() => setShowMusicSettingsModal(false)}
-          isNight={isNightStyle}
-          musicStyleState={musicStyleState}
-          setMusicStyleState={setMusicStyleState}
-          isLowMemory={isLowMemory}
-          setIsLowMemory={setIsLowMemory}
-        />
-      )}
+        {showMusicSettingsModal && (
+          <MusicSettingsModal
+            isOpen={showMusicSettingsModal}
+            onClose={() => setShowMusicSettingsModal(false)}
+            isNight={isNightStyle}
+            musicStyleState={musicStyleState}
+            setMusicStyleState={setMusicStyleState}
+            isLowMemory={isLowMemory}
+            setIsLowMemory={setIsLowMemory}
+          />
+        )}
 
-      {showCloudSyncModal && (
-        <CloudSyncModal
-          isOpen={showCloudSyncModal}
-          onClose={() => setShowCloudSyncModal(false)}
-          user={user}
-          authLoading={authLoading}
-          syncing={syncing}
-          lastSynced={lastSynced}
-          onLogin={loginWithGoogle}
-          onLogout={logout}
-          onForceSave={onForceSave}
-          onForceLoad={() => {
-            if (cloudSaveFound) {
-              triggerCloudStateLoad(cloudSaveFound);
-            }
-          }}
-          purchasedUpgrades={purchasedUpgrades}
-          cloudStats={cloudSaveFound}
-        />
-      )}
+        {showCloudSyncModal && (
+          <CloudSyncModal
+            isOpen={showCloudSyncModal}
+            onClose={() => setShowCloudSyncModal(false)}
+            user={user}
+            authLoading={authLoading}
+            syncing={syncing}
+            lastSynced={lastSynced}
+            onLogin={loginWithGoogle}
+            onLogout={logout}
+            onForceSave={onForceSave}
+            onForceLoad={() => {
+              if (cloudSaveFound) {
+                triggerCloudStateLoad(cloudSaveFound);
+              }
+            }}
+            purchasedUpgrades={purchasedUpgrades}
+            cloudStats={cloudSaveFound}
+          />
+        )}
 
-      {showConflictDialog && (
-        <SyncConflictDialog
-          isOpen={showConflictDialog}
-          cloudData={cloudSaveFound}
-          purchasedUpgrades={purchasedUpgrades}
-          onKeepLocal={() => {
-            forceLocalOverwriteCloud();
-            setShowConflictDialog(false);
-          }}
-          onKeepCloud={() => {
-            if (cloudSaveFound) {
-              triggerCloudStateLoad(cloudSaveFound);
-            }
-            setShowConflictDialog(false);
-          }}
-        />
-      )}
+        {showConflictDialog && (
+          <SyncConflictDialog
+            isOpen={showConflictDialog}
+            cloudData={cloudSaveFound}
+            purchasedUpgrades={purchasedUpgrades}
+            onKeepLocal={() => {
+              forceLocalOverwriteCloud();
+              setShowConflictDialog(false);
+            }}
+            onKeepCloud={() => {
+              if (cloudSaveFound) {
+                triggerCloudStateLoad(cloudSaveFound);
+              }
+              setShowConflictDialog(false);
+            }}
+          />
+        )}
 
-      {showMissionsModal && (
-        <MissionsModal
-          isOpen={showMissionsModal}
-          onClose={() => setShowMissionsModal(false)}
-          isNight={isNightStyle}
-          missionSetNumber={missionSetNumber}
-          claimedMissionIds={claimedMissionIds}
-          missionsCooldownEnd={missionsCooldownEnd}
-          onClaimReward={handleClaimMissionReward}
-          activeFrame={activeFrame}
-          unlockedCosmetics={unlockedCosmetics}
-          purchasedUpgrades={purchasedUpgrades}
-        />
-      )}
+        {showMissionsModal && (
+          <MissionsModal
+            isOpen={showMissionsModal}
+            onClose={() => setShowMissionsModal(false)}
+            isNight={isNightStyle}
+            missionSetNumber={missionSetNumber}
+            claimedMissionIds={claimedMissionIds}
+            missionsCooldownEnd={missionsCooldownEnd}
+            onClaimReward={handleClaimMissionReward}
+            activeFrame={activeFrame}
+            unlockedCosmetics={unlockedCosmetics}
+            purchasedUpgrades={purchasedUpgrades}
+          />
+        )}
 
-      {openingResult !== null && (
-        <OpeningResultModal
-          isOpen={openingResult !== null}
-          onClose={() => setOpeningResult(null)}
-          isNight={isNightStyle}
-          result={openingResult}
-        />
-      )}
+        {openingResult !== null && (
+          <OpeningResultModal
+            isOpen={openingResult !== null}
+            onClose={() => setOpeningResult(null)}
+            isNight={isNightStyle}
+            result={openingResult}
+          />
+        )}
 
-      {showInventoryModal && (
-        <InventoryModal
-          isOpen={showInventoryModal}
-          onClose={() => setShowInventoryModal(false)}
-          isNight={isNightStyle}
-          zodiac={activeZodiacId}
-          unlockedCosmetics={unlockedCosmetics}
-          activeStarColor={activeStarColor}
-          activeAccessory={activeAccessory}
-          activeFrame={activeFrame}
-          activeMoonSkin={activeMoonSkin}
-          onOpenShootingStar={handleOpenShootingStar}
-          onApplyCosmetic={handleApplyCosmetic}
-          purchasedUpgrades={purchasedUpgrades}
-          cosmeticRarityLevels={cosmeticRarityLevels}
-          onUnlockCosmeticDirect={handleUnlockCosmeticDirect}
-          onUpgradeCosmeticRarity={handleUpgradeCosmeticRarity}
-          craftedItems={craftedItems}
-          onUseCraftedItem={handleUseCraftedItem}
-          onSelectZodiac={handleSelectZodiac}
-        />
-      )}
+        {showInventoryModal && (
+          <InventoryModal
+            isOpen={showInventoryModal}
+            onClose={() => setShowInventoryModal(false)}
+            isNight={isNightStyle}
+            zodiac={activeZodiacId}
+            unlockedCosmetics={unlockedCosmetics}
+            activeStarColor={activeStarColor}
+            activeAccessory={activeAccessory}
+            activeFrame={activeFrame}
+            activeMoonSkin={activeMoonSkin}
+            onOpenShootingStar={handleOpenShootingStar}
+            onApplyCosmetic={handleApplyCosmetic}
+            purchasedUpgrades={purchasedUpgrades}
+            cosmeticRarityLevels={cosmeticRarityLevels}
+            onUnlockCosmeticDirect={handleUnlockCosmeticDirect}
+            onUpgradeCosmeticRarity={handleUpgradeCosmeticRarity}
+            craftedItems={craftedItems}
+            onUseCraftedItem={handleUseCraftedItem}
+            onSelectZodiac={handleSelectZodiac}
+          />
+        )}
 
-      {showZodiacModal && (
-        <ZodiacModal
-          isOpen={showZodiacModal}
-          onClose={() => setShowZodiacModal(false)}
-          isNight={isNightStyle}
-          activeZodiacId={activeZodiacId || "katze"}
-        />
-      )}
+        {showZodiacModal && (
+          <ZodiacModal
+            isOpen={showZodiacModal}
+            onClose={() => setShowZodiacModal(false)}
+            isNight={isNightStyle}
+            activeZodiacId={activeZodiacId || "katze"}
+          />
+        )}
 
-      {showLeaderboardModal && (
-        <LeaderboardModal
-          isOpen={showLeaderboardModal}
-          onClose={() => setShowLeaderboardModal(false)}
-          currentUserId={user?.uid}
-          formatCompactNumber={formatCompactNumber}
-        />
-      )}
+        {showLeaderboardModal && (
+          <LeaderboardModal
+            isOpen={showLeaderboardModal}
+            onClose={() => setShowLeaderboardModal(false)}
+            currentUserId={user?.uid}
+            formatCompactNumber={formatCompactNumber}
+          />
+        )}
 
-      {showPrestigeModal && (
-        <PrestigeModal
-          isOpen={showPrestigeModal}
-          onClose={() => setShowPrestigeModal(false)}
-          isNight={isNightStyle}
-          onPrestigeConfirm={handleConfirmPrestige}
-          formatCompactNumber={formatCompactNumber}
-        />
-      )}
-    </>
-  );
-});
+        {showPrestigeModal && (
+          <PrestigeModal
+            isOpen={showPrestigeModal}
+            onClose={() => setShowPrestigeModal(false)}
+            isNight={isNightStyle}
+            onPrestigeConfirm={handleConfirmPrestige}
+            formatCompactNumber={formatCompactNumber}
+          />
+        )}
+      </>
+    );
+  },
+);
 
 GameModalsContainer.displayName = "GameModalsContainer";

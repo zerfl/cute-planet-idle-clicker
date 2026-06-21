@@ -17,7 +17,7 @@ export function calculateOfflineLps(savedState: any): number {
     pandaBoost: purchasedUpgrades.includes("upg-panda-1"),
     unicornBoost: purchasedUpgrades.includes("upg-unicorn-1"),
     globalAnimalsBoost: purchasedUpgrades.includes("upg-global-1"),
-    
+
     starGlow: purchasedUpgrades.includes("upg-star-glow"),
     starPulse: purchasedUpgrades.includes("upg-star-pulse"),
     starSupercharger: purchasedUpgrades.includes("upg-star-supercharger"),
@@ -42,7 +42,7 @@ export function calculateOfflineLps(savedState: any): number {
   let starPowerPerStar = 1.0;
   if (upgradesSpecs.starGlow) starPowerPerStar += 1.0;
   if (upgradesSpecs.starPulse) starPowerPerStar += 5.0;
-  const clickBonus = (rawClickPower - 1) * 0.20;
+  const clickBonus = (rawClickPower - 1) * 0.2;
   starPowerPerStar += clickBonus;
   if (upgradesSpecs.starSupercharger) starPowerPerStar *= 2.0;
   if (isNight) {
@@ -54,13 +54,13 @@ export function calculateOfflineLps(savedState: any): number {
 
   if (zodiac === "eule") {
     const lvl = zodiacLevels.eule || 1;
-    starPowerPerStar *= (1.30 + (lvl - 1) * 0.15);
+    starPowerPerStar *= 1.3 + (lvl - 1) * 0.15;
   }
 
   const moonsCount = savedState.moonsCount || 0;
 
   // Prestige multiplier (10% bonus per Prestige level, ALWAYS active for all!)
-  const prestigeMultiplier = 1 + prestigeCount * 0.10;
+  const prestigeMultiplier = 1 + prestigeCount * 0.1;
 
   // Apply prestige bonus to star power
   starPowerPerStar *= prestigeMultiplier;
@@ -69,7 +69,7 @@ export function calculateOfflineLps(savedState: any): number {
 
   // Calculate Animal LPS
   let totalAnimalsLps = 0;
-  
+
   INITIAL_ANIMALS.forEach((def) => {
     let multiplier = 1.0;
     if (def.id === "bunny" && upgradesSpecs.bunnyBoost) multiplier *= 2.0;
@@ -83,7 +83,7 @@ export function calculateOfflineLps(savedState: any): number {
 
     if (zodiac === "biene") {
       const lvl = zodiacLevels.biene || 1;
-      multiplier *= (1.35 + (lvl - 1) * 0.15);
+      multiplier *= 1.35 + (lvl - 1) * 0.15;
     }
 
     const quantity = purchasedAnimals[def.id] || 0;
@@ -95,21 +95,21 @@ export function calculateOfflineLps(savedState: any): number {
   let totalLps = totalAnimalsLps + totalStarsLps + flatMoonLps;
 
   const catalystLevel = savedState.catalystLevel || 0;
-  totalLps *= (1.0 + catalystLevel * 0.15);
+  totalLps *= 1.0 + catalystLevel * 0.15;
 
   if (purchasedUpgrades.includes("upg-nexus-core")) {
-    totalLps *= 1.40;
+    totalLps *= 1.4;
   }
 
   if (moonsCount > 0) {
     const lvl = zodiacLevels.mond || 1;
-    const moonMultiplier = zodiac === "mond" ? (2.25 + (lvl - 1) * 0.25) : 1.50;
-    totalLps *= (1.0 + moonsCount * moonMultiplier);
+    const moonMultiplier = zodiac === "mond" ? 2.25 + (lvl - 1) * 0.25 : 1.5;
+    totalLps *= 1.0 + moonsCount * moonMultiplier;
   }
 
   if (zodiac === "schildkroete") {
     const lvl = zodiacLevels.schildkroete || 1;
-    totalLps *= (1.20 + (lvl - 1) * 0.10);
+    totalLps *= 1.2 + (lvl - 1) * 0.1;
   }
 
   return totalLps;

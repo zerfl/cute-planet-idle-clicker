@@ -80,11 +80,7 @@
           "description": "Timestamp when progress was last synced"
         }
       },
-      "required": [
-        "userId",
-        "life",
-        "totalLifeEarned"
-      ]
+      "required": ["userId", "life", "totalLifeEarned"]
     },
     "leaderboard": {
       "title": "LeaderboardEntry",
@@ -113,11 +109,7 @@
           "description": "Timestamp when this record was updated"
         }
       },
-      "required": [
-        "userId",
-        "userName",
-        "totalLifeEarned"
-      ]
+      "required": ["userId", "userName", "totalLifeEarned"]
     }
   },
   "firestore": {

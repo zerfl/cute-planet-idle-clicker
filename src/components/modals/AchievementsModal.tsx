@@ -26,35 +26,44 @@ interface AchievementsModalProps {
   playUpgrade: () => void;
 }
 
-export const AchievementsModal: React.FC<AchievementsModalProps> = React.memo(function AchievementsModal({
-  isOpen,
-  onClose,
-  isNight,
-  achievements,
-  achievementCategoryFilter,
-  setAchievementCategoryFilter,
-  achievementSearch,
-  setAchievementSearch,
-  formatCompactNumber,
-  playUpgrade,
-}) {
-  const { life, unlockedAchievementsCount } = useGameState();
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      panelClassName={`flex flex-col max-w-2xl w-full max-h-[85vh] shadow-2xl rounded-3xl overflow-hidden border-3 transition-colors duration-500 text-cosmic-text ${
-        isNight ? "bg-[#181435]/95 border-amber-300" : "bg-amber-50/95 border-amber-400 text-slate-800"
-      }`}
+export const AchievementsModal: React.FC<AchievementsModalProps> = React.memo(
+  function AchievementsModal({
+    isOpen,
+    onClose,
+    isNight,
+    achievements,
+    achievementCategoryFilter,
+    setAchievementCategoryFilter,
+    achievementSearch,
+    setAchievementSearch,
+    formatCompactNumber,
+    playUpgrade,
+  }) {
+    const { life, unlockedAchievementsCount } = useGameState();
+    return (
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        panelClassName={`flex flex-col max-w-2xl w-full max-h-[85vh] shadow-2xl rounded-3xl overflow-hidden border-3 transition-colors duration-500 text-cosmic-text ${
+          isNight
+            ? "bg-[#181435]/95 border-amber-300"
+            : "bg-amber-50/95 border-amber-400 text-slate-800"
+        }`}
       >
         {/* Modal Header */}
-        <div className={`p-4 sm:p-5 border-b-3 flex items-center justify-between shrink-0 transition-colors duration-500 ${
-          isNight ? "border-amber-300/40 bg-[#0e0b23]" : "border-amber-300 bg-amber-100 text-[#2c1d0a]"
-        }`}>
+        <div
+          className={`p-4 sm:p-5 border-b-3 flex items-center justify-between shrink-0 transition-colors duration-500 ${
+            isNight
+              ? "border-amber-300/40 bg-[#0e0b23]"
+              : "border-amber-300 bg-amber-100 text-[#2c1d0a]"
+          }`}
+        >
           <div className="flex items-center gap-2.5">
             <span className="text-3xl select-none animate-bounce">🏆</span>
             <div>
-              <span className={`text-[9px] uppercase font-black tracking-wider block ${isNight ? "text-amber-300" : "text-amber-700"}`}>
+              <span
+                className={`text-[9px] uppercase font-black tracking-wider block ${isNight ? "text-amber-300" : "text-amber-700"}`}
+              >
                 Kosmische Auszeichnungen
               </span>
               <h4 className="font-sans font-black text-sm uppercase tracking-wide">
@@ -65,7 +74,9 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = React.memo(fu
           <button
             onClick={onClose}
             className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-lg hover:scale-110 active:scale-95 transition-all shadow-md cursor-pointer ${
-              isNight ? "bg-[#1a1738] border-2 border-amber-300 text-amber-200 hover:bg-cosmic-surface-hover" : "bg-white border-2 border-amber-450 text-amber-900 hover:bg-amber-100"
+              isNight
+                ? "bg-[#1a1738] border-2 border-amber-300 text-amber-200 hover:bg-cosmic-surface-hover"
+                : "bg-white border-2 border-amber-450 text-amber-900 hover:bg-amber-100"
             }`}
           >
             ✕
@@ -73,28 +84,38 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = React.memo(fu
         </div>
 
         {/* Modal Sub-Header: Progress Dashboard Card */}
-        <div className={`p-4 border-b shrink-0 flex flex-col sm:flex-row items-center justify-between gap-4 ${
-          isNight ? "bg-[#1c173c]/60 border-cosmic-accent/10" : "bg-amber-100/30 border-amber-200"
-        }`}>
+        <div
+          className={`p-4 border-b shrink-0 flex flex-col sm:flex-row items-center justify-between gap-4 ${
+            isNight ? "bg-[#1c173c]/60 border-cosmic-accent/10" : "bg-amber-100/30 border-amber-200"
+          }`}
+        >
           <div className="w-full sm:w-auto flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border-2 border-amber-500 flex items-center justify-center text-2.5xl shadow-inner select-none shrink-0">
               👑
             </div>
             <div>
               <div className="flex items-baseline gap-1">
-                <span className={`text-xl font-mono font-black ${isNight ? "text-amber-300" : "text-amber-955"}`}>
+                <span
+                  className={`text-xl font-mono font-black ${isNight ? "text-amber-300" : "text-amber-955"}`}
+                >
                   {unlockedAchievementsCount}
                 </span>
-                <span className="text-xs text-gray-400 font-mono font-bold">/ {achievements.length}</span>
+                <span className="text-xs text-gray-400 font-mono font-bold">
+                  / {achievements.length}
+                </span>
               </div>
-              <span className="text-[10px] sm:text-xs font-semibold text-gray-400">Meilensteine freigeschaltet</span>
+              <span className="text-[10px] sm:text-xs font-semibold text-gray-400">
+                Meilensteine freigeschaltet
+              </span>
             </div>
           </div>
 
           {/* Progress Bar */}
           <div className="w-full sm:max-w-xs flex-grow">
             <div className="flex items-center justify-between text-[10px] font-mono font-black mb-1">
-              <span className={isNight ? "text-amber-200" : "text-amber-900"}>Erfolge-Fortschritt</span>
+              <span className={isNight ? "text-amber-200" : "text-amber-900"}>
+                Erfolge-Fortschritt
+              </span>
               <span>{Math.round((unlockedAchievementsCount / achievements.length) * 100)}%</span>
             </div>
             <div className="w-full h-3 rounded-full bg-slate-300/20 overflow-hidden border border-slate-305/30 p-0.5">
@@ -107,9 +128,11 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = React.memo(fu
         </div>
 
         {/* Filters and Search Bar Container */}
-        <div className={`p-3 shrink-0 flex flex-col gap-2.5 border-b ${
-          isNight ? "bg-[#13102a]/70 border-cosmic-accent/15" : "bg-amber-50 border-amber-200"
-        }`}>
+        <div
+          className={`p-3 shrink-0 flex flex-col gap-2.5 border-b ${
+            isNight ? "bg-[#13102a]/70 border-cosmic-accent/15" : "bg-amber-50 border-amber-200"
+          }`}
+        >
           {/* Category tabs */}
           <div className="flex items-center gap-1.5 overflow-x-auto pb-1 select-none no-scrollbar">
             {[
@@ -173,9 +196,11 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = React.memo(fu
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-3">
             {achievements
               .filter((ach) => {
-                const matchCat = achievementCategoryFilter === "all" || ach.category === achievementCategoryFilter;
-                const matchText = ach.title.toLowerCase().includes(achievementSearch.toLowerCase()) ||
-                                  ach.description.toLowerCase().includes(achievementSearch.toLowerCase());
+                const matchCat =
+                  achievementCategoryFilter === "all" || ach.category === achievementCategoryFilter;
+                const matchText =
+                  ach.title.toLowerCase().includes(achievementSearch.toLowerCase()) ||
+                  ach.description.toLowerCase().includes(achievementSearch.toLowerCase());
                 return matchCat && matchText;
               })
               .map((ach) => (
@@ -192,22 +217,24 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = React.memo(fu
                   }`}
                 >
                   {/* Emoji Icon Container */}
-                  <div className={`p-2 rounded-xl text-2xl flex items-center justify-center select-none shrink-0 w-11 h-11 ${
-                    ach.isUnlocked
-                      ? "bg-amber-500/10 border border-amber-400"
-                      : "bg-slate-500/5 border border-slate-500/20 grayscale"
-                  }`}>
+                  <div
+                    className={`p-2 rounded-xl text-2xl flex items-center justify-center select-none shrink-0 w-11 h-11 ${
+                      ach.isUnlocked
+                        ? "bg-amber-500/10 border border-amber-400"
+                        : "bg-slate-500/5 border border-slate-500/20 grayscale"
+                    }`}
+                  >
                     {ach.isUnlocked ? ach.emoji : "🔒"}
                   </div>
 
                   {/* Content block */}
                   <div className="min-w-0 flex-grow pr-1">
                     <div className="flex items-center justify-between gap-1">
-                      <h5 className={`font-sans font-black text-xs uppercase tracking-wide truncate ${
-                        ach.isUnlocked
-                          ? "text-yellow-400"
-                          : "text-slate-400 dark:text-slate-500"
-                      }`}>
+                      <h5
+                        className={`font-sans font-black text-xs uppercase tracking-wide truncate ${
+                          ach.isUnlocked ? "text-yellow-400" : "text-slate-400 dark:text-slate-500"
+                        }`}
+                      >
                         {ach.title}
                       </h5>
                       {ach.isUnlocked && (
@@ -217,18 +244,30 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = React.memo(fu
                       )}
                     </div>
 
-                    <p className={`text-[10px] sm:text-[10.5px] font-semibold mt-0.5 leading-tight ${
-                      ach.isUnlocked
-                        ? isNight ? "text-cosmic-accent-muted" : "text-amber-800"
-                        : "text-slate-500 dark:text-slate-500"
-                    }`}>
+                    <p
+                      className={`text-[10px] sm:text-[10.5px] font-semibold mt-0.5 leading-tight ${
+                        ach.isUnlocked
+                          ? isNight
+                            ? "text-cosmic-accent-muted"
+                            : "text-amber-800"
+                          : "text-slate-500 dark:text-slate-500"
+                      }`}
+                    >
                       {ach.description}
                     </p>
 
                     {/* Progress Tracker Slider */}
                     <div className="mt-1.5 text-[8.5px] font-mono font-extrabold flex items-center justify-between">
                       <span className="opacity-80">Fortschritt:</span>
-                      <span className={ach.isUnlocked ? "text-emerald-400" : isNight ? "text-indigo-305" : "text-amber-800"}>
+                      <span
+                        className={
+                          ach.isUnlocked
+                            ? "text-emerald-400"
+                            : isNight
+                              ? "text-indigo-305"
+                              : "text-amber-800"
+                        }
+                      >
                         {formatCompactNumber(ach.progress)} / {formatCompactNumber(ach.target)}
                       </span>
                     </div>
@@ -249,14 +288,27 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = React.memo(fu
         </div>
 
         {/* Modal Footer */}
-        <div className={`p-3 border-t flex justify-between items-center text-[10px] text-cosmic-accent-muted font-semibold px-5 ${
-          isNight ? "border-amber-300/40 bg-[#0c0a21]" : "border-amber-250 bg-amber-100 text-amber-950"
-        }`}>
-          <span>Erfolge freigeschaltet: <b className="text-amber-300 font-extrabold">{unlockedAchievementsCount} / {achievements.length}</b></span>
-          <span>Guthaben: <b className="text-cosmic-pink font-extrabold">{formatCompactNumber(life)} 💖</b></span>
+        <div
+          className={`p-3 border-t flex justify-between items-center text-[10px] text-cosmic-accent-muted font-semibold px-5 ${
+            isNight
+              ? "border-amber-300/40 bg-[#0c0a21]"
+              : "border-amber-250 bg-amber-100 text-amber-950"
+          }`}
+        >
+          <span>
+            Erfolge freigeschaltet:{" "}
+            <b className="text-amber-300 font-extrabold">
+              {unlockedAchievementsCount} / {achievements.length}
+            </b>
+          </span>
+          <span>
+            Guthaben:{" "}
+            <b className="text-cosmic-pink font-extrabold">{formatCompactNumber(life)} 💖</b>
+          </span>
         </div>
-    </Modal>
-  );
-});
+      </Modal>
+    );
+  },
+);
 
 AchievementsModal.displayName = "AchievementsModal";

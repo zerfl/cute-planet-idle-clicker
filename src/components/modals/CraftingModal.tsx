@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useLayoutEffect,
-  useEffect,
-  useCallback,
-  useMemo,
-} from "react";
+import React, { useState, useRef, useLayoutEffect, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Modal } from "../ui/Modal";
 import { CRAFTING_RECIPES } from "../../data/recipes";
@@ -78,22 +71,27 @@ function NodeGroup({ node, have, isRoot, onDrill, formatNum }: NodeGroupProps) {
   const rawKids = node.children.filter((c) => c.kind === "raw");
   const craftKids = node.children.filter((c) => c.kind === "craft");
 
-  const pillCls =
-    { ok: "pill--ok", make: "pill--make", short: "pill--short", have: "pill--have" }[status];
+  const pillCls = { ok: "pill--ok", make: "pill--make", short: "pill--short", have: "pill--have" }[
+    status
+  ];
   const pillTxt =
     node.kind === "raw"
-      ? status === "ok" ? "vorhanden" : "fehlt"
+      ? status === "ok"
+        ? "vorhanden"
+        : "fehlt"
       : status === "have"
-      ? "im Lager ✓"
-      : status === "make"
-      ? `schmieden ×${node.ops}`
-      : "Engpass";
+        ? "im Lager ✓"
+        : status === "make"
+          ? `schmieden ×${node.ops}`
+          : "Engpass";
   const nodeCls = [
     "pk-craft-node",
     `pk-craft-node--${node.kind}`,
     `pk-craft-node--${status}`,
     isRoot ? "pk-craft-node--root" : "",
-  ].filter(Boolean).join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <div className="pk-ng">
@@ -117,9 +115,7 @@ function NodeGroup({ node, have, isRoot, onDrill, formatNum }: NodeGroupProps) {
           data-uid={node.uid}
           onClick={node.kind === "craft" && !isRoot ? () => onDrill(node.id) : undefined}
           title={
-            node.kind === "craft" && !isRoot
-              ? "Als Ziel öffnen — zur Quelle springen"
-              : undefined
+            node.kind === "craft" && !isRoot ? "Als Ziel öffnen — zur Quelle springen" : undefined
           }
         >
           <div className="pk-craft-node__top">
@@ -206,10 +202,7 @@ const SummaryContent = React.memo(function SummaryContent({
       <div className={`pk-craft-ready pk-craft-ready--${plan.ok ? "ok" : "no"}`}>
         <span className="pk-craft-ready__em">{plan.ok ? "✅" : "⚠️"}</span>
         <div>
-          <div
-            className="pk-craft-ready__t"
-            style={{ color: plan.ok ? "#6ee7b7" : "#fda4af" }}
-          >
+          <div className="pk-craft-ready__t" style={{ color: plan.ok ? "#6ee7b7" : "#fda4af" }}>
             {plan.ok ? "Alle Rohstoffe vorhanden" : "Rohstoffe fehlen"}
           </div>
           <div className="pk-craft-ready__s">
@@ -312,8 +305,7 @@ const CraftButton = React.memo(function CraftButton({ planOk, qty, onCraft }: Cr
 
 export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
   ({ isOpen, onClose, craftedItems, onCraftRecursive, formatCompactNumber }) => {
-    const { life, starsCount, moonsCount, glitterDust, shootingStarsCount } =
-      useGameState();
+    const { life, starsCount, moonsCount, glitterDust, shootingStarsCount } = useGameState();
 
     const [cat, setCat] = useState<"materials" | "consumables">("materials");
     const [search, setSearch] = useState("");
@@ -338,7 +330,7 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
         lootboxes: shootingStarsCount,
         ...craftedItems,
       }),
-      [life, starsCount, moonsCount, glitterDust, shootingStarsCount, craftedItems]
+      [life, starsCount, moonsCount, glitterDust, shootingStarsCount, craftedItems],
     );
 
     const { root } = useMemo(() => buildGraph(targetId, qty), [targetId, qty]);
@@ -359,9 +351,9 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
           (r) =>
             r.category === cat &&
             (r.result.name.toLowerCase().includes(search.toLowerCase()) ||
-              r.description.toLowerCase().includes(search.toLowerCase()))
+              r.description.toLowerCase().includes(search.toLowerCase())),
         ),
-      [cat, search, uniqueRecipes]
+      [cat, search, uniqueRecipes],
     );
 
     // --- viewport refs ---
@@ -432,21 +424,24 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
       applyView();
     }, [applyView]);
 
-    const zoomBy = useCallback((factor: number) => {
-      const g = graphScrollRef.current;
-      if (!g) return;
-      const cw = g.clientWidth;
-      const ch = g.clientHeight;
-      const { scale, tx, ty } = viewRef.current;
-      const newScale = Math.max(s0Ref.current, Math.min(maxScaleRef.current, scale * factor));
-      const ratio = newScale / scale;
-      viewRef.current = {
-        scale: newScale,
-        tx: cw / 2 - ratio * (cw / 2 - tx),
-        ty: ch / 2 - ratio * (ch / 2 - ty),
-      };
-      applyView();
-    }, [applyView]);
+    const zoomBy = useCallback(
+      (factor: number) => {
+        const g = graphScrollRef.current;
+        if (!g) return;
+        const cw = g.clientWidth;
+        const ch = g.clientHeight;
+        const { scale, tx, ty } = viewRef.current;
+        const newScale = Math.max(s0Ref.current, Math.min(maxScaleRef.current, scale * factor));
+        const ratio = newScale / scale;
+        viewRef.current = {
+          scale: newScale,
+          tx: cw / 2 - ratio * (cw / 2 - tx),
+          ty: ch / 2 - ratio * (ch / 2 - ty),
+        };
+        applyView();
+      },
+      [applyView],
+    );
 
     // Re-measure geometry and fit-to-view when target or qty changes
     useLayoutEffect(() => {
@@ -481,7 +476,7 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
         Array.from(inner.querySelectorAll(".pk-ng")).forEach((ngEl) => {
           const ng = ngEl as HTMLElement;
           const parentBox = ng.querySelector(
-            ":scope > .pk-ng__box > .pk-craft-node"
+            ":scope > .pk-ng__box > .pk-craft-node",
           ) as HTMLElement | null;
           const kids = ng.querySelector(":scope > .pk-ng__kids") as HTMLElement | null;
           if (!parentBox || !kids) return;
@@ -491,12 +486,8 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
           const py = p.top - base.top + p.height / 2;
 
           const childEls = [
-            ...Array.from(
-              kids.querySelectorAll(":scope > .pk-ng > .pk-ng__box > .pk-craft-node")
-            ),
-            ...Array.from(
-              kids.querySelectorAll(":scope > .pk-craft-leafcol > .pk-craft-leafchip")
-            ),
+            ...Array.from(kids.querySelectorAll(":scope > .pk-ng > .pk-ng__box > .pk-craft-node")),
+            ...Array.from(kids.querySelectorAll(":scope > .pk-craft-leafcol > .pk-craft-leafchip")),
           ] as HTMLElement[];
 
           childEls.forEach((ce) => {
@@ -572,7 +563,15 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
         const { tx: initTx, ty: initTy, scale: initScale } = viewRef.current;
         const initMidX = (pts[0].x + pts[1].x) / 2 - rect.left;
         const initMidY = (pts[0].y + pts[1].y) / 2 - rect.top;
-        pinchRef.current = { active: true, initDist: dist, initScale, initTx, initTy, initMidX, initMidY };
+        pinchRef.current = {
+          active: true,
+          initDist: dist,
+          initScale,
+          initTx,
+          initTy,
+          initMidX,
+          initMidY,
+        };
         dragRef.current.active = false;
         draggedRef.current = true;
       } else {
@@ -603,7 +602,10 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
         const midX = (pts[0].x + pts[1].x) / 2 - rect.left;
         const midY = (pts[0].y + pts[1].y) / 2 - rect.top;
         const { initDist, initScale, initTx, initTy, initMidX, initMidY } = pinchRef.current;
-        const newScale = Math.max(s0Ref.current, Math.min(maxScaleRef.current, initScale * (dist / initDist)));
+        const newScale = Math.max(
+          s0Ref.current,
+          Math.min(maxScaleRef.current, initScale * (dist / initDist)),
+        );
         const newTx = midX - ((initMidX - initTx) / initScale) * newScale;
         const newTy = midY - ((initMidY - initTy) / initScale) * newScale;
         viewRef.current = { scale: newScale, tx: newTx, ty: newTy };
@@ -631,11 +633,11 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
       const margin = 80;
       const newTx = Math.max(
         margin - natW * scale,
-        Math.min(cw - margin, dragRef.current.startTx + dx)
+        Math.min(cw - margin, dragRef.current.startTx + dx),
       );
       const newTy = Math.max(
         margin - natH * scale,
-        Math.min(ch - margin, dragRef.current.startTy + dy)
+        Math.min(ch - margin, dragRef.current.startTy + dy),
       );
       viewRef.current.tx = newTx;
       viewRef.current.ty = newTy;
@@ -662,7 +664,9 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
         draggedRef.current = true;
       } else if (pointers.size === 0) {
         dragRef.current.active = false;
-        setTimeout(() => { draggedRef.current = false; }, 0);
+        setTimeout(() => {
+          draggedRef.current = false;
+        }, 0);
       }
     }, []);
 
@@ -685,15 +689,13 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
     }, []);
 
     const fmtNum = useCallback(
-      (id: string, n: number) =>
-        BASE_RESOURCES[id]?.compact ? formatCompactNumber(n) : String(n),
-      [formatCompactNumber]
+      (id: string, n: number) => (BASE_RESOURCES[id]?.compact ? formatCompactNumber(n) : String(n)),
+      [formatCompactNumber],
     );
 
     const auraItem = (key: string, label: string, val: number, color: string) => (
       <span key={key} style={{ color: "#cfc8ec", whiteSpace: "nowrap" }}>
-        {BASE_RESOURCES[key]?.emoji} {label}:{" "}
-        <b style={{ color }}>{fmtNum(key, val)}</b>
+        {BASE_RESOURCES[key]?.emoji} {label}: <b style={{ color }}>{fmtNum(key, val)}</b>
       </span>
     );
 
@@ -740,16 +742,10 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
             <span style={{ fontSize: 26 }}>🔨</span>
             <div>
               <div className="pk-craft-hd__eyebrow">Kosmische Synthese</div>
-              <div className="pk-craft-hd__title">
-                Sternen-Schmiede &amp; Alchemie
-              </div>
+              <div className="pk-craft-hd__title">Sternen-Schmiede &amp; Alchemie</div>
             </div>
           </div>
-          <button
-            className="pk-craft-hd__close"
-            onClick={onClose}
-            title="Schließen"
-          >
+          <button className="pk-craft-hd__close" onClick={onClose} title="Schließen">
             ✕
           </button>
         </div>
@@ -955,9 +951,23 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
                 onPointerCancel={onPointerUp}
               >
                 <div className="pk-craft-zoom">
-                  <button className="pk-craft-zoom__btn" onClick={() => zoomBy(1.25)} title="Einzoomen">＋</button>
-                  <button className="pk-craft-zoom__btn" onClick={fitToView} title="Alles zeigen">⟳</button>
-                  <button className="pk-craft-zoom__btn" onClick={() => zoomBy(0.8)} title="Auszoomen">－</button>
+                  <button
+                    className="pk-craft-zoom__btn"
+                    onClick={() => zoomBy(1.25)}
+                    title="Einzoomen"
+                  >
+                    ＋
+                  </button>
+                  <button className="pk-craft-zoom__btn" onClick={fitToView} title="Alles zeigen">
+                    ⟳
+                  </button>
+                  <button
+                    className="pk-craft-zoom__btn"
+                    onClick={() => zoomBy(0.8)}
+                    title="Auszoomen"
+                  >
+                    －
+                  </button>
                 </div>
                 <div
                   ref={innerRef}
@@ -988,8 +998,8 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
                       const color = isShort
                         ? "rgba(251,113,133,.55)"
                         : isOk
-                        ? "rgba(52,211,153,.5)"
-                        : "rgba(202,165,254,.55)";
+                          ? "rgba(52,211,153,.5)"
+                          : "rgba(202,165,254,.55)";
                       return (
                         <path
                           key={i}
@@ -1034,7 +1044,7 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
         )}
       </Modal>
     );
-  }
+  },
 );
 
 CraftingModal.displayName = "CraftingModal";

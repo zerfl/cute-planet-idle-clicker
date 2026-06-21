@@ -8,7 +8,9 @@ export const CosmicFooter: React.FC = () => {
           Mit viel Liebe gemacht in Pastellfarben. Spielstand speichert sich automatisch im Browser.
         </p>
         <div className="flex items-center gap-2">
-          <span className="px-2.5 py-0.5 rounded-md border-2 font-mono font-black text-[10px] bg-cosmic-surface-mid border-cosmic-accent text-white">Ver. 1.0.6</span>
+          <span className="px-2.5 py-0.5 rounded-md border-2 font-mono font-black text-[10px] bg-cosmic-surface-mid border-cosmic-accent text-white">
+            Ver. 1.0.6
+          </span>
           <span className="text-[#f15e75] animate-pulse">💖</span>
         </div>
       </div>

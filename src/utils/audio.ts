@@ -13,11 +13,36 @@ export interface MusicStyleDef {
 }
 
 export const MUSIC_STYLES: MusicStyleDef[] = [
-  { id: "classic", name: "Gemütlicher Klassiker", emoji: "🌸", description: "Warme, entspannende Jazz-Akkorde für kuscheliges Wohlfühlen." },
-  { id: "rainy", name: "Regnerisches Café", emoji: "☕🌧️", description: "Sanfte Melodien untermalt von echtem, gemütlichem Regenrauschen." },
-  { id: "space", name: "Kosmischer Traum", emoji: "🌌", description: "Tiefe, schwebende Sphärenklänge für traumfeste Sternenwanderer." },
-  { id: "chiptune", name: "Retro Pixel-Lofi", emoji: "🎮", description: "Süßer 8-Bit Lofi-Charme mit nostalgischen Konsolen-Keys." },
-  { id: "zen", name: "Heilender Buddha-Garten", emoji: "🍃", description: "Reine Natur-Harmonien und tiefe, meditative Glocken-Chimes." },
+  {
+    id: "classic",
+    name: "Gemütlicher Klassiker",
+    emoji: "🌸",
+    description: "Warme, entspannende Jazz-Akkorde für kuscheliges Wohlfühlen.",
+  },
+  {
+    id: "rainy",
+    name: "Regnerisches Café",
+    emoji: "☕🌧️",
+    description: "Sanfte Melodien untermalt von echtem, gemütlichem Regenrauschen.",
+  },
+  {
+    id: "space",
+    name: "Kosmischer Traum",
+    emoji: "🌌",
+    description: "Tiefe, schwebende Sphärenklänge für traumfeste Sternenwanderer.",
+  },
+  {
+    id: "chiptune",
+    name: "Retro Pixel-Lofi",
+    emoji: "🎮",
+    description: "Süßer 8-Bit Lofi-Charme mit nostalgischen Konsolen-Keys.",
+  },
+  {
+    id: "zen",
+    name: "Heilender Buddha-Garten",
+    emoji: "🍃",
+    description: "Reine Natur-Harmonien und tiefe, meditative Glocken-Chimes.",
+  },
 ];
 
 let sharedCtx: AudioContext | null = null;
@@ -38,39 +63,39 @@ let rainGain: GainNode | null = null;
 // Different lush chords for each style (Hz)
 const CHORD_PRESETS: Record<MusicStyleId, number[][]> = {
   classic: [
-    [110.00, 220.00, 277.18, 329.63, 415.30, 493.88], // Amaj9 (Warm & cuddly)
-    [130.81, 246.94, 329.63, 415.30, 493.88, 622.25], // C#m7 (Starry)
-    [92.50, 185.00, 220.00, 277.18, 329.63, 415.30],  // F#m9 (Introspective)
-    [123.47, 246.94, 293.66, 369.99, 440.00, 554.37], // Bm11 (Calming)
+    [110.0, 220.0, 277.18, 329.63, 415.3, 493.88], // Amaj9 (Warm & cuddly)
+    [130.81, 246.94, 329.63, 415.3, 493.88, 622.25], // C#m7 (Starry)
+    [92.5, 185.0, 220.0, 277.18, 329.63, 415.3], // F#m9 (Introspective)
+    [123.47, 246.94, 293.66, 369.99, 440.0, 554.37], // Bm11 (Calming)
   ],
   rainy: [
-    [110.00, 220.00, 277.18, 329.63, 415.30, 493.88], // Amaj9
-    [92.50, 185.00, 220.00, 277.18, 329.63, 415.30],  // F#m9
-    [146.83, 293.66, 369.99, 440.00, 554.37, 659.25], // Dmaj9 (Sheltering)
-    [164.81, 329.63, 392.00, 440.00, 587.33, 659.25], // E7sus4 (Raindrops)
+    [110.0, 220.0, 277.18, 329.63, 415.3, 493.88], // Amaj9
+    [92.5, 185.0, 220.0, 277.18, 329.63, 415.3], // F#m9
+    [146.83, 293.66, 369.99, 440.0, 554.37, 659.25], // Dmaj9 (Sheltering)
+    [164.81, 329.63, 392.0, 440.0, 587.33, 659.25], // E7sus4 (Raindrops)
   ],
   space: [
-    [130.81, 196.00, 246.94, 329.63, 392.00, 493.88], // Cmaj9 (Celestial depth)
-    [110.00, 164.81, 220.00, 261.63, 329.63, 392.00], // Am9 (Cosmo floating)
-    [87.31, 130.81, 174.61, 220.00, 261.63, 349.23],  // Fmaj7/A
-    [98.00, 146.83, 196.00, 246.94, 293.66, 392.00],  // G6 (Universal)
+    [130.81, 196.0, 246.94, 329.63, 392.0, 493.88], // Cmaj9 (Celestial depth)
+    [110.0, 164.81, 220.0, 261.63, 329.63, 392.0], // Am9 (Cosmo floating)
+    [87.31, 130.81, 174.61, 220.0, 261.63, 349.23], // Fmaj7/A
+    [98.0, 146.83, 196.0, 246.94, 293.66, 392.0], // G6 (Universal)
   ],
   chiptune: [
-    [130.81, 174.61, 220.00, 261.63, 329.63], // Am7 / F chord sweep
-    [146.83, 196.00, 246.94, 293.66, 349.23], // G7 chord sweep
-    [130.81, 164.81, 220.00, 261.63],        // Am
-    [164.81, 220.00, 261.63, 329.63],        // C/E arcade nostalgic
+    [130.81, 174.61, 220.0, 261.63, 329.63], // Am7 / F chord sweep
+    [146.83, 196.0, 246.94, 293.66, 349.23], // G7 chord sweep
+    [130.81, 164.81, 220.0, 261.63], // Am
+    [164.81, 220.0, 261.63, 329.63], // C/E arcade nostalgic
   ],
   zen: [
-    [174.61, 220.00, 261.63, 349.23, 440.00],        // Fmaj7 (Forest ground)
-    [130.81, 164.81, 196.00, 261.63, 329.63],        // Cmaj7 (Deep stillness)
-    [196.00, 246.94, 293.66, 392.00, 493.88],        // Gmaj (Warm sunbeams)
-    [146.83, 196.00, 220.00, 293.66, 369.99],        // D7 (Gentle resolve)
+    [174.61, 220.0, 261.63, 349.23, 440.0], // Fmaj7 (Forest ground)
+    [130.81, 164.81, 196.0, 261.63, 329.63], // Cmaj7 (Deep stillness)
+    [196.0, 246.94, 293.66, 392.0, 493.88], // Gmaj (Warm sunbeams)
+    [146.83, 196.0, 220.0, 293.66, 369.99], // D7 (Gentle resolve)
   ],
 };
 
 // Pentatonic warm chime-bell frequencies (C5 - E6)
-const PENTATONIC_BELLS = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1174.66, 1318.51];
+const PENTATONIC_BELLS = [523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 1174.66, 1318.51];
 
 export function getAudioContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -101,7 +126,10 @@ export function setMuted(muted: boolean) {
     bMusicGain.gain.setValueAtTime(muted ? 0 : musicVolume, sharedCtx ? sharedCtx.currentTime : 0);
   }
   if (rainGain) {
-    rainGain.gain.setValueAtTime(muted ? 0 : musicVolume * 0.45, sharedCtx ? sharedCtx.currentTime : 0);
+    rainGain.gain.setValueAtTime(
+      muted ? 0 : musicVolume * 0.45,
+      sharedCtx ? sharedCtx.currentTime : 0,
+    );
   }
 }
 
@@ -208,7 +236,7 @@ export function playPop() {
 
 // 2. Ascending cute arpeggio for pet buying
 export function playBuy() {
-  const notes = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+  const notes = [261.63, 329.63, 392.0, 523.25]; // C4, E4, G4, C5
   notes.forEach((freq, index) => {
     setTimeout(() => {
       playTone({
@@ -216,7 +244,7 @@ export function playBuy() {
         endFreq: freq * 1.05,
         duration: 0.14,
         type: "sine",
-        gainStart: 0.10,
+        gainStart: 0.1,
       });
     }, index * 75);
   });

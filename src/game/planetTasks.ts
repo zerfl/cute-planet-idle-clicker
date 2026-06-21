@@ -54,7 +54,8 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
   {
     id: "no_click_duration",
     name: "Stille Meditation",
-    description: (t) => `Lass den Planeten ${t} Sekunden lang in Ruhe Leben generieren, ohne zu klicken.`,
+    description: (t) =>
+      `Lass den Planeten ${t} Sekunden lang in Ruhe Leben generieren, ohne zu klicken.`,
     type: "no_click_produce",
     minLevel: 1,
     targetFormula: (lv) => Math.min(180, Math.floor(30 + lv * 6)),
@@ -139,7 +140,8 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
   {
     id: "glitter_dust_collector",
     name: "Glitzer-Sammler",
-    description: (t) => `Sammle ${t} Einheiten magischen Glitzerstaub auf dem Festgelände oder durch Sternzeichen.`,
+    description: (t) =>
+      `Sammle ${t} Einheiten magischen Glitzerstaub auf dem Festgelände oder durch Sternzeichen.`,
     type: "glitter_dust",
     minLevel: 1,
     targetFormula: (lv, pr) => Math.floor((10 + lv * 8 + lv * lv * 0.5) * (1 + pr * 0.5)),
@@ -503,13 +505,13 @@ export const TASK_TEMPLATES: TaskTemplate[] = [
     targetFormula: (lv) => Math.floor(1 + lv * 0.8),
     targetAnimalId: "monkey",
     isCumulative: true,
-  }
+  },
 ];
 
 export function rollTaskForLevel(
   level: number,
   prestige: number,
-  currentAnimalsList: Animal[]
+  currentAnimalsList: Animal[],
 ): PlanetTask {
   // Filter templates eligible for the current level
   const eligible = TASK_TEMPLATES.filter((t) => level >= t.minLevel);

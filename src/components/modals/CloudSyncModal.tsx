@@ -2,19 +2,19 @@ import React from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Modal } from "../ui/Modal";
 import { useGameState } from "../../contexts/GameStateContext";
-import { 
-  Cloud, 
-  X, 
-  LogIn, 
-  LogOut, 
-  CheckCircle2, 
-  Clock, 
-  CloudUpload, 
-  CloudDownload, 
-  RefreshCcw, 
-  ShieldCheck, 
+import {
+  Cloud,
+  X,
+  LogIn,
+  LogOut,
+  CheckCircle2,
+  Clock,
+  CloudUpload,
+  CloudDownload,
+  RefreshCcw,
+  ShieldCheck,
   Sparkles,
-  Monitor
+  Monitor,
 } from "lucide-react";
 import { formatCompactNumber } from "../../data";
 
@@ -46,52 +46,53 @@ const getMaxMoonsForList = (upgrades: string[] | undefined): number => {
   return limit;
 };
 
-export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(({
-  isOpen,
-  onClose,
-  user,
-  authLoading,
-  syncing,
-  lastSynced,
-  onLogin,
-  onLogout,
-  onForceSave,
-  onForceLoad,
-  purchasedUpgrades,
-  cloudStats,
-}) => {
-  const { life, planetLevel, secondsPlayed, prestigeCount, moonsCount } = useGameState();
+export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(
+  ({
+    isOpen,
+    onClose,
+    user,
+    authLoading,
+    syncing,
+    lastSynced,
+    onLogin,
+    onLogout,
+    onForceSave,
+    onForceLoad,
+    purchasedUpgrades,
+    cloudStats,
+  }) => {
+    const { life, planetLevel, secondsPlayed, prestigeCount, moonsCount } = useGameState();
 
-  const formatTime = (totalSeconds: number) => {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    if (hours > 0) return `${hours} Std. ${minutes} Min.`;
-    return `${minutes} Min.`;
-  };
+    const formatTime = (totalSeconds: number) => {
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      if (hours > 0) return `${hours} Std. ${minutes} Min.`;
+      return `${minutes} Min.`;
+    };
 
-  const getSyncTimeString = () => {
-    if (!lastSynced) return "Noch nicht synchronisiert";
-    try {
-      const date = lastSynced instanceof Date ? lastSynced : new Date(lastSynced as any);
-      if (isNaN(date.getTime())) {
-        return "Noch nicht synchronisiert";
+    const getSyncTimeString = () => {
+      if (!lastSynced) return "Noch nicht synchronisiert";
+      try {
+        const date = lastSynced instanceof Date ? lastSynced : new Date(lastSynced as any);
+        if (isNaN(date.getTime())) {
+          return "Noch nicht synchronisiert";
+        }
+        return date.toLocaleTimeString("de-DE", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+      } catch (e) {
+        return String(lastSynced);
       }
-      return date.toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-      });
-    } catch (e) {
-      return String(lastSynced);
-    }
-  };
+    };
 
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      panelClassName="bg-[#181236]/95 border-3 border-cosmic-accent rounded-3.5xl p-6.5 max-w-lg w-full shadow-2xl text-cosmic-text relative"
-    >
+    return (
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        panelClassName="bg-[#181236]/95 border-3 border-cosmic-accent rounded-3.5xl p-6.5 max-w-lg w-full shadow-2xl text-cosmic-text relative"
+      >
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -112,7 +113,9 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(({
           {authLoading ? (
             <div className="py-12 flex flex-col items-center justify-center gap-3">
               <RefreshCcw className="w-8 h-8 text-cosmic-accent animate-spin" />
-              <p className="text-cosmic-accent-muted text-xs font-semibold uppercase tracking-wider">Verbindung prüfen...</p>
+              <p className="text-cosmic-accent-muted text-xs font-semibold uppercase tracking-wider">
+                Verbindung prüfen...
+              </p>
             </div>
           ) : !user ? (
             /* NOT LOGGED IN VIEW */
@@ -137,11 +140,17 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(({
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-sky-305 mt-0.5">•</span>
-                    <span>Synchronisiere deinen Spielstand nahtlos auf mehreren Computern, Smartphones oder Tabs.</span>
+                    <span>
+                      Synchronisiere deinen Spielstand nahtlos auf mehreren Computern, Smartphones
+                      oder Tabs.
+                    </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-sky-305 mt-0.5">•</span>
-                    <span>Automatisches Backup im Hintergrund alle 20 Sekunden und nach großen Einkäufen.</span>
+                    <span>
+                      Automatisches Backup im Hintergrund alle 20 Sekunden und nach großen
+                      Einkäufen.
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -149,7 +158,10 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(({
               {/* Safe storage notice */}
               <div className="flex items-center gap-2.5 px-3 py-2 bg-emerald-500/10 border border-emerald-550/20 rounded-xl text-[10px] text-emerald-300 font-bold leading-snug">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Zero-Trust Security: Deine Daten werden verschlüsselt gespeichert und sind nur für dich zugänglich.</span>
+                <span>
+                  Zero-Trust Security: Deine Daten werden verschlüsselt gespeichert und sind nur für
+                  dich zugänglich.
+                </span>
               </div>
 
               {/* Login Button */}
@@ -213,15 +225,19 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(({
               {/* Sync status section */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-3 rounded-2xl bg-[#090616]/70 border border-white/5 text-left flex flex-col justify-center">
-                  <span className="text-[9px] uppercase font-mono font-black text-cosmic-accent-muted block leading-none">Letzter Sync</span>
+                  <span className="text-[9px] uppercase font-mono font-black text-cosmic-accent-muted block leading-none">
+                    Letzter Sync
+                  </span>
                   <span className="text-[10.5px] font-black text-sky-405 mt-1 animate-pulse flex items-center gap-1.5 leading-none">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                     {getSyncTimeString()}
                   </span>
                 </div>
-                
+
                 <div className="p-3 rounded-2xl bg-[#090616]/70 border border-white/5 text-left flex flex-col justify-center">
-                  <span className="text-[9px] uppercase font-mono font-black text-cosmic-accent-muted block leading-none">Sync-Netzwerk</span>
+                  <span className="text-[9px] uppercase font-mono font-black text-cosmic-accent-muted block leading-none">
+                    Sync-Netzwerk
+                  </span>
                   <span className="text-[10px] font-black text-emerald-400 mt-1 flex items-center gap-1.5 leading-none">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     Aktiv & Sicher
@@ -231,7 +247,6 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(({
 
               {/* Cloud vs Local saves layout summary */}
               <div className="grid grid-cols-2 gap-3.5 mt-2">
-                
                 <div className="p-3.5 rounded-2xl bg-[#090616]/70 border border-slate-500/15 text-left">
                   <div className="flex items-center gap-1.5 text-[10px] text-sky-305 font-bold mb-1.5">
                     <Monitor className="w-3.5 h-3.5 text-sky-400" />
@@ -281,7 +296,8 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(({
                       <div className="flex justify-between">
                         <span>Monde:</span>
                         <span className="text-purple-300">
-                          {cloudStats.moonsCount || 0}/{getMaxMoonsForList(cloudStats.purchasedUpgrades)} 🌙
+                          {cloudStats.moonsCount || 0}/
+                          {getMaxMoonsForList(cloudStats.purchasedUpgrades)} 🌙
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -299,7 +315,6 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(({
                     </div>
                   )}
                 </div>
-
               </div>
 
               {/* Override controls */}
@@ -324,8 +339,9 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(({
             </motion.div>
           )}
         </AnimatePresence>
-    </Modal>
-  );
-});
+      </Modal>
+    );
+  },
+);
 
 CloudSyncModal.displayName = "CloudSyncModal";

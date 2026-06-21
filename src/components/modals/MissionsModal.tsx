@@ -17,78 +17,91 @@ interface MissionsModalProps {
   purchasedUpgrades?: string[];
 }
 
-export const MissionsModal: React.FC<MissionsModalProps> = React.memo(({
-  isOpen,
-  onClose,
-  isNight,
-  missionSetNumber,
-  claimedMissionIds,
-  missionsCooldownEnd = null,
-  onClaimReward,
-  activeFrame = "default",
-  unlockedCosmetics = [],
-  purchasedUpgrades = []
-}) => {
-  const { clicksCount, totalAnimalsCount, starsCount } = useGameState();
-  // Check Sakura Set Bonus (+20% Mission-Rewards)
-  const hasSetBonusSet = purchasedUpgrades.includes("upg-glitter-set");
-  const sakuraSetComplete = hasSetBonusSet && ["star_pink", "acc_flower_crown", "moon_sakura"].every((id) => unlockedCosmetics.includes(id));
+export const MissionsModal: React.FC<MissionsModalProps> = React.memo(
+  ({
+    isOpen,
+    onClose,
+    isNight,
+    missionSetNumber,
+    claimedMissionIds,
+    missionsCooldownEnd = null,
+    onClaimReward,
+    activeFrame = "default",
+    unlockedCosmetics = [],
+    purchasedUpgrades = [],
+  }) => {
+    const { clicksCount, totalAnimalsCount, starsCount } = useGameState();
+    // Check Sakura Set Bonus (+20% Mission-Rewards)
+    const hasSetBonusSet = purchasedUpgrades.includes("upg-glitter-set");
+    const sakuraSetComplete =
+      hasSetBonusSet &&
+      ["star_pink", "acc_flower_crown", "moon_sakura"].every((id) =>
+        unlockedCosmetics.includes(id),
+      );
 
-  // React hook to tick countdown
-  const [now, setNow] = React.useState<number>(Date.now());
+    // React hook to tick countdown
+    const [now, setNow] = React.useState<number>(Date.now());
 
-  React.useEffect(() => {
-    if (!isOpen || !missionsCooldownEnd) return;
-    const interval = setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [isOpen, missionsCooldownEnd]);
+    React.useEffect(() => {
+      if (!isOpen || !missionsCooldownEnd) return;
+      const interval = setInterval(() => {
+        setNow(Date.now());
+      }, 1000);
+      return () => clearInterval(interval);
+    }, [isOpen, missionsCooldownEnd]);
 
-  // Is cooldown active?
-  const isCooldownActive = !!(missionsCooldownEnd && now < missionsCooldownEnd);
+    // Is cooldown active?
+    const isCooldownActive = !!(missionsCooldownEnd && now < missionsCooldownEnd);
 
-  // Remaining time calculations
-  const msRemaining = missionsCooldownEnd ? Math.max(0, missionsCooldownEnd - now) : 0;
-  const secRemaining = Math.ceil(msRemaining / 1000);
-  const mins = Math.floor(secRemaining / 60);
-  const secs = secRemaining % 60;
-  const timeFormatted = `${mins}:${secs.toString().padStart(2, "0")}`;
-  const progressPercent = missionsCooldownEnd ? Math.min(100, Math.floor(((5 * 60 * 1000 - msRemaining) / (5 * 60 * 1000)) * 100)) : 100;
+    // Remaining time calculations
+    const msRemaining = missionsCooldownEnd ? Math.max(0, missionsCooldownEnd - now) : 0;
+    const secRemaining = Math.ceil(msRemaining / 1000);
+    const mins = Math.floor(secRemaining / 60);
+    const secs = secRemaining % 60;
+    const timeFormatted = `${mins}:${secs.toString().padStart(2, "0")}`;
+    const progressPercent = missionsCooldownEnd
+      ? Math.min(100, Math.floor(((5 * 60 * 1000 - msRemaining) / (5 * 60 * 1000)) * 100))
+      : 100;
 
-  // Generate missions for the current set number
-  const missions = generateMissionsForSet(missionSetNumber);
+    // Generate missions for the current set number
+    const missions = generateMissionsForSet(missionSetNumber);
 
-  // Helper to calculate progress for each mission type
-  const getMissionProgress = (mission: Mission) => {
-    switch (mission.type) {
-      case "clicks":
-        return clicksCount;
-      case "animals":
-        return totalAnimalsCount;
-      case "stars":
-        return starsCount;
-      default:
-        return 0;
-    }
-  };
+    // Helper to calculate progress for each mission type
+    const getMissionProgress = (mission: Mission) => {
+      switch (mission.type) {
+        case "clicks":
+          return clicksCount;
+        case "animals":
+          return totalAnimalsCount;
+        case "stars":
+          return starsCount;
+        default:
+          return 0;
+      }
+    };
 
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      panelClassName="flex flex-col max-w-xl w-full max-h-[85vh] shadow-2xl rounded-3.5xl overflow-hidden border-3 transition-colors duration-500 text-cosmic-text bg-[#181435]/95 border-cosmic-accent"
-    >
+    return (
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        panelClassName="flex flex-col max-w-xl w-full max-h-[85vh] shadow-2xl rounded-3.5xl overflow-hidden border-3 transition-colors duration-500 text-cosmic-text bg-[#181435]/95 border-cosmic-accent"
+      >
         {/* Header */}
-        <div className={`p-4 sm:p-5 border-b-3 flex items-center justify-between shrink-0 transition-colors duration-500 border-cosmic-accent/40 bg-[#0e0b23]`}>
+        <div
+          className={`p-4 sm:p-5 border-b-3 flex items-center justify-between shrink-0 transition-colors duration-500 border-cosmic-accent/40 bg-[#0e0b23]`}
+        >
           <div className="flex items-center gap-2.5">
             <span className="text-3xl select-none animate-pulse">🌌</span>
             <div>
-              <span className={`text-[9px] uppercase font-black tracking-wider block text-purple-300`}>
+              <span
+                className={`text-[9px] uppercase font-black tracking-wider block text-purple-300`}
+              >
                 Kosmische Abenteuer
               </span>
               <h4 className="font-sans font-black text-sm uppercase tracking-wide flex items-center gap-2">
-                {isCooldownActive ? "Missionen regenerieren" : `Missionen (Stufe ${missionSetNumber})`}
+                {isCooldownActive
+                  ? "Missionen regenerieren"
+                  : `Missionen (Stufe ${missionSetNumber})`}
               </h4>
             </div>
           </div>
@@ -106,7 +119,7 @@ export const MissionsModal: React.FC<MissionsModalProps> = React.memo(({
             <div className="w-21 h-21 rounded-full bg-purple-500/15 border-2 border-cosmic-accent/40 flex items-center justify-center text-4xl animate-pulse select-none shadow-[0_0_24px_rgba(202,165,254,0.35)]">
               🌠
             </div>
-            
+
             <div className="text-center space-y-1 px-4">
               <span className="text-[10px] font-mono font-black uppercase text-cosmic-accent tracking-widest bg-cosmic-accent/10 border border-cosmic-accent/30 px-3 py-1 rounded-full inline-block">
                 Sternen-Aufladung
@@ -146,7 +159,12 @@ export const MissionsModal: React.FC<MissionsModalProps> = React.memo(({
           /* Normal Missions List UI */
           <div className="p-4 sm:p-6 overflow-y-auto flex-grow space-y-4">
             <p className="text-[11px] sm:text-xs leading-relaxed text-center font-bold px-3 py-2.5 rounded-2xl text-cosmic-accent bg-[#221c48]/55 border border-cosmic-accent/20">
-              Löse diese schnuckeligen Aufgaben, um wertvolle <strong className="text-cosmic-accent font-black underline decoration-pink-300">Sternschnuppen (Lootboxen)</strong> zu verdienen! Öffne sie im Inventar für exklusive Farben, Accessoires und Fensterrahmen! 🌠
+              Löse diese schnuckeligen Aufgaben, um wertvolle{" "}
+              <strong className="text-cosmic-accent font-black underline decoration-pink-300">
+                Sternschnuppen (Lootboxen)
+              </strong>{" "}
+              zu verdienen! Öffne sie im Inventar für exklusive Farben, Accessoires und
+              Fensterrahmen! 🌠
             </p>
 
             {sakuraSetComplete && (
@@ -190,14 +208,20 @@ export const MissionsModal: React.FC<MissionsModalProps> = React.memo(({
 
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-2xl shrink-0 select-none border-2 ${
-                          isClaimed
-                            ? "bg-gray-800/10 border-gray-600/20"
-                            : isDone
-                              ? "bg-green-500/15 border-green-400 text-green-400"
-                              : "bg-cosmic-surface border-cosmic-accent"
-                        }`}>
-                          {mission.type === "clicks" ? "👆" : mission.type === "animals" ? "🐶" : "⭐"}
+                        <div
+                          className={`w-11 h-11 rounded-2xl flex items-center justify-center text-2xl shrink-0 select-none border-2 ${
+                            isClaimed
+                              ? "bg-gray-800/10 border-gray-600/20"
+                              : isDone
+                                ? "bg-green-500/15 border-green-400 text-green-400"
+                                : "bg-cosmic-surface border-cosmic-accent"
+                          }`}
+                        >
+                          {mission.type === "clicks"
+                            ? "👆"
+                            : mission.type === "animals"
+                              ? "🐶"
+                              : "⭐"}
                         </div>
                         <div>
                           <h5 className="font-sans font-black text-xs sm:text-xs leading-none text-cosmic-text">
@@ -211,12 +235,18 @@ export const MissionsModal: React.FC<MissionsModalProps> = React.memo(({
 
                       {!isClaimed && (
                         <div className="flex flex-col items-end shrink-0 select-none">
-                          <span className="text-[9px] font-mono uppercase text-cosmic-accent font-black tracking-wide font-bold">Belohnung:</span>
+                          <span className="text-[9px] font-mono uppercase text-cosmic-accent font-black tracking-wide font-bold">
+                            Belohnung:
+                          </span>
                           <span className="font-sans font-black text-xs text-amber-300 flex items-center gap-1 mt-0.5 filter drop-shadow-[0_1px_3px_rgba(245,158,11,0.2)]">
                             {sakuraSetComplete ? (
                               <>
-                                <span className="line-through opacity-40 text-rose-300 mr-1 text-[10px]">{mission.rewardShootingStars}x</span>
-                                <span className="text-pink-350 font-black">🌠 {Math.ceil(mission.rewardShootingStars * 1.20)}x</span>
+                                <span className="line-through opacity-40 text-rose-300 mr-1 text-[10px]">
+                                  {mission.rewardShootingStars}x
+                                </span>
+                                <span className="text-pink-350 font-black">
+                                  🌠 {Math.ceil(mission.rewardShootingStars * 1.2)}x
+                                </span>
                               </>
                             ) : (
                               <span>🌠 {mission.rewardShootingStars}x</span>
@@ -233,15 +263,17 @@ export const MissionsModal: React.FC<MissionsModalProps> = React.memo(({
                           <span className="text-purple-300">
                             Fortschritt: {progress} / {mission.target}
                           </span>
-                          <span className={isDone ? "text-green-400 font-extrabold" : "text-purple-300"}>
+                          <span
+                            className={isDone ? "text-green-400 font-extrabold" : "text-purple-300"}
+                          >
                             {percent}%
                           </span>
                         </div>
                         <div className="w-full h-2.5 rounded-full overflow-hidden p-0.5 border bg-[#13112b] border-cosmic-accent/20">
                           <div
                             className={`h-full rounded-full transition-all duration-300 ${
-                              isDone 
-                                ? "bg-gradient-to-r from-green-400 to-emerald-500" 
+                              isDone
+                                ? "bg-gradient-to-r from-green-400 to-emerald-500"
                                 : "bg-gradient-to-r from-purple-400 to-pink-500"
                             }`}
                             style={{ width: `${percent}%` }}
@@ -266,8 +298,9 @@ export const MissionsModal: React.FC<MissionsModalProps> = React.memo(({
             </div>
           </div>
         )}
-    </Modal>
-  );
-});
+      </Modal>
+    );
+  },
+);
 
 MissionsModal.displayName = "MissionsModal";
