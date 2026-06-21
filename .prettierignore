@@ -1,0 +1,8 @@
+dist
+build
+coverage
+node_modules
+.agents
+package-lock.json
+*.md
+public/assets
