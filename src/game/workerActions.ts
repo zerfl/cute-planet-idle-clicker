@@ -7,22 +7,24 @@ import { rollTaskForLevel } from "./planetTasks";
 import { handleUseCraftedItem } from "./itemHandlers";
 import { executeBlackHoleGamble } from "./blackHoleGamble";
 import { formatCompactNumber } from "./achievements";
+import type { WorkerCommand, WorkerEvent, WorkerGameState, StatsResult } from "./protocol";
+
+export interface WorkerActionHelpers {
+  getLpsAndStats: () => StatsResult;
+  addPlanetExp: (qty: number) => void;
+  setupActiveEvent: (event?: string | null) => void;
+  updateTaskProgress: (type: string, amount: number) => void;
+  broadcastStateUpdate: (forceRecalc?: boolean) => void;
+  rollNewZodiac: (exclude?: string) => string;
+  emit: (event: WorkerEvent) => void;
+  stopTimers: () => void;
+}
 
 export function handleWorkerAction(
-  type: string,
-  data: any,
-  state: any,
-  helpers: {
-    getLpsAndStats: () => any;
-    addPlanetExp: (qty: number) => void;
-    setupActiveEvent: (event?: string | null) => void;
-    updateTaskProgress: (type: string, amount: number) => void;
-    broadcastStateUpdate: (forceRecalc?: boolean) => void;
-    rollNewZodiac: (exclude?: string) => string;
-    postMessage: (msg: any) => void;
-    stopTimers: () => void;
-  },
-): any {
+  data: WorkerCommand,
+  state: WorkerGameState,
+  helpers: WorkerActionHelpers,
+): void {
   const {
     getLpsAndStats,
     addPlanetExp,
@@ -30,11 +32,11 @@ export function handleWorkerAction(
     updateTaskProgress,
     broadcastStateUpdate,
     rollNewZodiac,
-    postMessage,
+    emit,
     stopTimers,
   } = helpers;
 
-  switch (type) {
+  switch (data.type) {
     case "BUY_ANIMAL": {
       const { animalId, cost, countToBuy } = data;
       const amount = countToBuy || 1;
@@ -99,7 +101,7 @@ export function handleWorkerAction(
       state.prestigeCount = (state.prestigeCount || 0) + 5;
 
       state.planetLevel += 1;
-      postMessage({
+      emit({
         type: "LEVEL_UP",
         level: state.planetLevel,
       });
@@ -172,7 +174,7 @@ export function handleWorkerAction(
 
         updateTaskProgress("crafting", count);
 
-        postMessage({
+        emit({
           type: "COSMETIC_FOUND",
           text: `Erfolgreich hergestellt: ${totalQty}x ${recipe.result.name} ${recipe.result.emoji}! 🔨`,
         });
@@ -230,7 +232,7 @@ export function handleWorkerAction(
       updateTaskProgress("crafting", totalCraftOps);
 
       const targetItemInfo = getItem(targetItemId);
-      postMessage({
+      emit({
         type: "COSMETIC_FOUND",
         text: `Auto-geschmiedet: ${countR}x ${targetItemInfo.name} ${targetItemInfo.emoji}! 🔨`,
       });
@@ -248,7 +250,7 @@ export function handleWorkerAction(
         addPlanetExp,
       );
 
-      postMessage({
+      emit({
         type: "CRAFTED_ITEMS_OPENED",
         itemId,
         count: requestedCount,
@@ -624,7 +626,7 @@ export function handleWorkerAction(
           if (claimed) {
             state.activeEventInstantClaimed = true;
             state.eventTimeRemaining = Math.min(5, state.eventTimeRemaining);
-            postMessage({
+            emit({
               type: "COSMETIC_FOUND",
               text: `${rewardDesc} 🎉`,
             });
@@ -666,14 +668,14 @@ export function handleWorkerAction(
           waitDuration = Math.round(waitDuration * (1 - constellPolarlichtLvl * 0.15));
           state.eventTimeRemaining = waitDuration;
 
-          postMessage({
+          emit({
             type: "EVENT_TRIGGER",
             event: null,
             active: false,
           });
         }
 
-        postMessage({
+        emit({
           type: "BLACK_HOLE_GAMBLE_RESULT",
           success: true,
           roll: res.roll,
@@ -684,7 +686,7 @@ export function handleWorkerAction(
 
         broadcastStateUpdate(true);
       } else {
-        postMessage({
+        emit({
           type: "BLACK_HOLE_GAMBLE_RESULT",
           success: false,
           error: res.error,
@@ -701,7 +703,6 @@ export function handleWorkerAction(
       break;
     }
     default:
-      return false;
+      return;
   }
-  return true;
 }

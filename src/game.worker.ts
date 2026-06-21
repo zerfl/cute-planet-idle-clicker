@@ -1,12 +1,4 @@
-import {
-  GameState,
-  Animal,
-  Upgrade,
-  PlanetTask,
-  CosmicEventOption,
-  ActiveCosmicEvent,
-} from "./types";
-import { INITIAL_ANIMALS, calculateCost } from "./data";
+import { INITIAL_ANIMALS } from "./data";
 import { COSMETIC_ITEMS } from "./data/cosmetics";
 import { CRAFTING_RECIPES } from "./data/recipes";
 import { resolve, RECIPE_BY_RESULT, getItem } from "./data/craftingGraph";
@@ -19,6 +11,17 @@ import { generateAchievements as calcAchievements, formatCompactNumber } from ".
 import { handleUseCraftedItem } from "./game/itemHandlers";
 import { executeBlackHoleGamble } from "./game/blackHoleGamble";
 import { handleWorkerAction } from "./game/workerActions";
+import type {
+  WorkerCommand,
+  WorkerEvent,
+  WorkerGameState,
+  StateUpdateEvent,
+} from "./game/protocol";
+
+/** Typed wrapper around the worker's global postMessage. */
+function emit(event: WorkerEvent) {
+  postMessage(event);
+}
 
 function getLpsAndStats() {
   return calcLpsAndStats(state);
@@ -28,55 +31,8 @@ function generateAchievements() {
   return calcAchievements(state);
 }
 
-interface WorkerState {
-  life: number;
-  totalLifeEarned: number;
-  starsCount: number;
-  purchasedAnimals: Record<string, number>;
-  purchasedUpgrades: string[];
-  planetLevel: number;
-  planetExp: number;
-  planetTask?: PlanetTask;
-  clicksCount: number;
-  starClicksTriggered: number;
-  secondsPlayed: number;
-  isNight: boolean;
-  cycleProgress: number;
-  activeEvent: string | null;
-  activeEventDecision: string | null;
-  activeEventDetails?: ActiveCosmicEvent | null;
-  activeEventInstantClaimed?: boolean;
-  eventTimeRemaining: number;
-  prestigeCount: number;
-  moonsCount: number;
-  constellations: Record<string, number>;
-  unlockedCosmetics: string[];
-  cosmeticRarityLevels: Record<string, string>;
-  glitterDust: number;
-  shootingStarsCount: number;
-  blackHoleSize?: number;
-  craftedItems?: Record<string, number>;
-  zodiac?: string;
-  galaxyShards: number;
-  zodiacLevels?: Record<string, number>;
-  slummerGlassLevel?: number;
-  catalystLevel?: number;
-  doubleStellarLevel?: number;
-  inGlitchGalaxy?: boolean;
-  glitchPending?: boolean;
-  unlockedGlitchGalaxy?: boolean;
-  spentGalaxyShards?: number;
-  glitchBenchmarks?: {
-    prestigeTarget: number;
-    stardustTarget: number;
-    shardsTarget: number;
-    phoenixTarget: number;
-    glitterTarget: number;
-  };
-}
-
 // Default initial state
-let state: WorkerState = {
+let state: WorkerGameState = {
   life: 0,
   totalLifeEarned: 0,
   starsCount: 0,
@@ -186,7 +142,7 @@ function checkPlanetLevelUp() {
     lastCheckedGlitter = state.glitterDust || 0;
     lastCheckedStars = state.starsCount || 0;
 
-    postMessage({
+    emit({
       type: "LEVEL_UP",
       level: state.planetLevel,
     });
@@ -307,7 +263,7 @@ function broadcastStateUpdate(
 
   const unlockedAchievementsCount = cachedAchievementsObj.filter((a: any) => a.isUnlocked).length;
 
-  const msg: any = {
+  const msg: StateUpdateEvent = {
     type: "STATE_UPDATE",
     state: {
       life: state.life,
@@ -356,7 +312,7 @@ function broadcastStateUpdate(
   if (freshAchievements !== undefined) {
     msg.achievements = freshAchievements;
   }
-  postMessage(msg);
+  emit(msg);
 }
 
 function setupActiveEvent(eventId: string) {
@@ -452,7 +408,7 @@ function startTimers() {
       const reward = state.starsCount * stats.starPowerPerStar * stats.starMultiplierForEvents;
       state.starClicksTriggered += state.starsCount;
 
-      postMessage({
+      emit({
         type: "STAR_TRIGGER",
         reward: reward,
         starsCount: state.starsCount,
@@ -466,7 +422,7 @@ function startTimers() {
       const prestigeMultiplier = 1 + (state.prestigeCount || 0) * 0.1;
       const moonReward = state.moonsCount * 15000 * prestigeMultiplier;
 
-      postMessage({
+      emit({
         type: "MOON_TRIGGER",
         reward: moonReward,
         moonsCount: state.moonsCount,
@@ -510,7 +466,7 @@ function startTimers() {
           state.totalLifeEarned += bonus;
         }
 
-        postMessage({
+        emit({
           type: "EVENT_TRIGGER",
           event: chosen,
           active: true,
@@ -536,7 +492,7 @@ function startTimers() {
 
         state.eventTimeRemaining = waitDuration;
 
-        postMessage({
+        emit({
           type: "EVENT_TRIGGER",
           event: null,
           active: false,
@@ -555,7 +511,7 @@ function stopTimers() {
 }
 
 // Handle messages from UI
-addEventListener("message", (e) => {
+addEventListener("message", (e: MessageEvent<WorkerCommand>) => {
   const data = e.data;
   if (!data || !data.type) return;
 
@@ -634,14 +590,14 @@ addEventListener("message", (e) => {
           const isPhoenix = state.zodiac === "phoenix";
           const amount = Math.ceil(targetAmount * (isPhoenix ? 1.5 : 1.0));
           state.glitterDust = (state.glitterDust || 0) + amount;
-          postMessage({
+          emit({
             type: "COSMETIC_FOUND",
             text: `+${amount} Glitzerstaub ✨ (Ereignis)`,
           });
         }
       }
 
-      postMessage({
+      emit({
         type: "CLICK_EFFECT",
         actualClickLife,
         x: data.x,
@@ -707,14 +663,14 @@ addEventListener("message", (e) => {
       break;
     }
     default: {
-      const handled = handleWorkerAction(data.type, data, state, {
+      handleWorkerAction(data, state, {
         getLpsAndStats,
         addPlanetExp,
         setupActiveEvent,
         updateTaskProgress,
         broadcastStateUpdate,
         rollNewZodiac,
-        postMessage,
+        emit,
         stopTimers,
       });
       break;
