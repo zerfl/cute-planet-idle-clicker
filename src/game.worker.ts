@@ -11,6 +11,7 @@ import { generateAchievements as calcAchievements, formatCompactNumber } from ".
 import { handleUseCraftedItem } from "./game/itemHandlers";
 import { executeBlackHoleGamble } from "./game/blackHoleGamble";
 import { handleWorkerAction } from "./game/workerActions";
+import { DEFAULT_GLITCH_BENCHMARKS, hasReachedGlitchMilestone } from "./game/glitchGalaxy";
 import type {
   WorkerCommand,
   WorkerEvent,
@@ -88,32 +89,20 @@ function rollNewZodiac(currentId?: string): string {
 function checkGlitchGalaxyTrigger() {
   if (state.inGlitchGalaxy || state.glitchPending) return;
 
-  // Raised initial benchmarks
+  // The glitch galaxy is offered at the level-20 voyage gate, in place of a
+  // normal galaxy voyage. Below level 20 there is no voyage to replace.
+  if ((state.planetLevel || 0) < 20) return;
+
+  // Seed the fixed first-time benchmarks once; they are only escalated when a
+  // glitch galaxy is repaired, never on a normal prestige.
   if (!state.glitchBenchmarks) {
-    state.glitchBenchmarks = {
-      prestigeTarget: 10,
-      stardustTarget: 150,
-      shardsTarget: 10,
-      phoenixTarget: 5,
-      glitterTarget: 150,
-    };
+    state.glitchBenchmarks = { ...DEFAULT_GLITCH_BENCHMARKS };
   }
 
-  const benchmarks = state.glitchBenchmarks;
-  const condPrestige = (state.prestigeCount || 0) >= benchmarks.prestigeTarget;
-  const condStardust = (state.craftedItems?.["mat_stardust"] || 0) >= benchmarks.stardustTarget;
-  const totalShards = (state.galaxyShards || 0) + (state.spentGalaxyShards || 0);
-  const condShards = totalShards >= benchmarks.shardsTarget;
-  const condPhoenix = (state.purchasedAnimals?.["phoenix"] || 0) >= benchmarks.phoenixTarget;
-  const condGlitter = (state.glitterDust || 0) >= benchmarks.glitterTarget;
-
-  // Raised to require ALL benchmarks met simultaneously (&& instead of ||)
-  if (condPrestige && condStardust && condShards && condPhoenix && condGlitter) {
-    // 5% chance on each second tick to trigger the glitch!
-    if (Math.random() < 0.05) {
-      state.glitchPending = true;
-      broadcastStateUpdate(true);
-    }
+  // Eligible the moment ANY single milestone is reached — fire deterministically.
+  if (hasReachedGlitchMilestone(state)) {
+    state.glitchPending = true;
+    broadcastStateUpdate(true);
   }
 }
 let secondaryTimerId: any = null;
