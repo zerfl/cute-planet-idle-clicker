@@ -65,6 +65,8 @@ import { useAudioSettings } from "./hooks/useAudioSettings";
 import { useDisplayPreferences } from "./hooks/useDisplayPreferences";
 import { useFloatingTexts } from "./hooks/useFloatingTexts";
 import { useModalState } from "./hooks/useModalState";
+import { useWorkerVisibility } from "./hooks/useWorkerVisibility";
+import { useOfflineEarnings } from "./hooks/useOfflineEarnings";
 import { CosmicOverlays } from "./components/CosmicOverlays";
 import { InteractiveCosmos } from "./components/InteractiveCosmos";
 
@@ -118,7 +120,15 @@ export default function App() {
   const [cycleProgress, setCycleProgress] = useState<number>(0);
 
   // UI States
-  const offlineCheckedRef = useRef<boolean>(false);
+  // Offline earnings (state + one-shot on-load check owned by the hook)
+  const {
+    offlineSeconds,
+    setOfflineSeconds,
+    offlineLpsRate,
+    setOfflineLpsRate,
+    offlineEarnedLife,
+    setOfflineEarnedLife,
+  } = useOfflineEarnings(isLoaded);
 
   // All modal / dialog / overlay visibility flags + simple openers
   const {
@@ -283,11 +293,6 @@ export default function App() {
     };
   } | null>(null);
 
-  // Offline Progress States
-  const [offlineSeconds, setOfflineSeconds] = useState<number>(0);
-  const [offlineLpsRate, setOfflineLpsRate] = useState<number>(0);
-  const [offlineEarnedLife, setOfflineEarnedLife] = useState<number>(0);
-
   const handleClaimOfflineEarnings = useCallback((earnedLife: number) => {
     playBuy();
 
@@ -331,46 +336,6 @@ export default function App() {
     },
     [inGlitchGalaxy],
   );
-
-  useEffect(() => {
-    if (isLoaded && !offlineCheckedRef.current) {
-      offlineCheckedRef.current = true;
-      try {
-        const saved = localStorage.getItem(SAVE_KEY);
-        if (saved) {
-          const savedStateObj = JSON.parse(saved);
-          const cachedSecs = savedStateObj.offlineSeconds || 0;
-
-          let elapsedSecs = 0;
-          if (savedStateObj.lastSavedAt) {
-            const elapsedMs = Date.now() - savedStateObj.lastSavedAt;
-            elapsedSecs = Math.floor(elapsedMs / 1000);
-          }
-
-          const totalOfflineSecs = cachedSecs + elapsedSecs;
-
-          // Only calculate if the total accumulated secs is >= 10
-          if (totalOfflineSecs >= 10) {
-            const lvl = savedStateObj.slummerGlassLevel || 1;
-            const maxOfflineHours = 5 + (lvl - 1) * 2;
-            const maxOfflineSecs = maxOfflineHours * 60 * 60;
-            const cappedSecs = Math.min(totalOfflineSecs, maxOfflineSecs);
-            const computedLps = calculateOfflineLps(savedStateObj);
-            const lifeEarned = Math.floor(computedLps * cappedSecs);
-
-            if (lifeEarned > 0) {
-              setOfflineSeconds(cappedSecs);
-              setOfflineLpsRate(computedLps);
-              setOfflineEarnedLife(lifeEarned);
-              // We do not open the modal automatically now; the user clicks the jar in the cycle indicator box!
-            }
-          }
-        }
-      } catch (err) {
-        console.error("Failed to check offline earnings:", err);
-      }
-    }
-  }, [isLoaded]);
 
   const handleClaimMissionReward = useCallback(
     (missionId: string, starsReward: number) => {
@@ -953,17 +918,7 @@ export default function App() {
   }, []);
 
   // Tab visibility — pause/resume the worker loop to avoid backlog + freeze on return
-  useEffect(() => {
-    const handleVisibility = () => {
-      if (document.hidden) {
-        workerRef.current?.postMessage({ type: "PAUSE_TIMERS" });
-      } else {
-        workerRef.current?.postMessage({ type: "RESUME_TIMERS" });
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibility);
-    return () => document.removeEventListener("visibilitychange", handleVisibility);
-  }, []);
+  useWorkerVisibility(workerRef);
 
   // Game stats tracking (hydrated by worker)
   const [achievementCategoryFilter, setAchievementCategoryFilter] = useState<string>("all");
