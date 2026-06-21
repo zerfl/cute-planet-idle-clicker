@@ -7,13 +7,15 @@ import { expForLevel } from "./engine";
  */
 export function getLpsAndStats(state: any) {
   const purchasedUpgrades = state.purchasedUpgrades || [];
+  // O(1) membership for the many upgrade checks below (js-set-map-lookups).
+  const upgradeSet = new Set<string>(purchasedUpgrades);
   const purchasedAnimals = state.purchasedAnimals || {};
   const starsCount = state.starsCount || 0;
   const isNight = state.isNight !== false;
   const activeEvent = state.activeEvent;
 
   // 🧩 SETBONI CHECK (Kosmischer Set-Harmonisierer)
-  const hasSetBonusSet = purchasedUpgrades.includes("upg-glitter-set");
+  const hasSetBonusSet = upgradeSet.has("upg-glitter-set");
   let sakuraSetComplete = false;
   let cyberSetComplete = false;
   let goldSetComplete = false;
@@ -42,28 +44,28 @@ export function getLpsAndStats(state: any) {
 
   // Upgrades specifications check
   const upgradesSpecs = {
-    bunnyBoost: purchasedUpgrades.includes("upg-bunny-1"),
-    chickBoost: purchasedUpgrades.includes("upg-chick-1"),
-    catBoost: purchasedUpgrades.includes("upg-cat-1"),
-    frogBoost: purchasedUpgrades.includes("upg-frog-1"),
-    koalaBoost: purchasedUpgrades.includes("upg-koala-1"),
-    pandaBoost: purchasedUpgrades.includes("upg-panda-1"),
-    unicornBoost: purchasedUpgrades.includes("upg-unicorn-1"),
-    globalAnimalsBoost: purchasedUpgrades.includes("upg-global-1"),
+    bunnyBoost: upgradeSet.has("upg-bunny-1"),
+    chickBoost: upgradeSet.has("upg-chick-1"),
+    catBoost: upgradeSet.has("upg-cat-1"),
+    frogBoost: upgradeSet.has("upg-frog-1"),
+    koalaBoost: upgradeSet.has("upg-koala-1"),
+    pandaBoost: upgradeSet.has("upg-panda-1"),
+    unicornBoost: upgradeSet.has("upg-unicorn-1"),
+    globalAnimalsBoost: upgradeSet.has("upg-global-1"),
 
-    starGlow: purchasedUpgrades.includes("upg-star-glow"),
-    starPulse: purchasedUpgrades.includes("upg-star-pulse"),
-    starSupercharger: purchasedUpgrades.includes("upg-star-supercharger"),
+    starGlow: upgradeSet.has("upg-star-glow"),
+    starPulse: upgradeSet.has("upg-star-pulse"),
+    starSupercharger: upgradeSet.has("upg-star-supercharger"),
   };
 
   // Click power calculation (raw click power for upgrades synergy)
   let rawClickPower = 1;
-  if (purchasedUpgrades.includes("upg-click-1")) rawClickPower += 1;
-  if (purchasedUpgrades.includes("upg-click-2")) rawClickPower += 5;
-  if (purchasedUpgrades.includes("upg-click-3")) rawClickPower += 25;
-  if (purchasedUpgrades.includes("upg-click-4")) rawClickPower += 150;
-  if (purchasedUpgrades.includes("upg-click-5")) rawClickPower += 1000;
-  if (purchasedUpgrades.includes("upg-click-multiplier")) rawClickPower *= 2;
+  if (upgradeSet.has("upg-click-1")) rawClickPower += 1;
+  if (upgradeSet.has("upg-click-2")) rawClickPower += 5;
+  if (upgradeSet.has("upg-click-3")) rawClickPower += 25;
+  if (upgradeSet.has("upg-click-4")) rawClickPower += 150;
+  if (upgradeSet.has("upg-click-5")) rawClickPower += 1000;
+  if (upgradeSet.has("upg-click-multiplier")) rawClickPower *= 2;
 
   // Click power with DAYTIME BONUS: own clicks are 1.5x stronger during day (isNight === false)
   let clickPower = rawClickPower;
@@ -83,13 +85,13 @@ export function getLpsAndStats(state: any) {
 
   // XP multiplier calculation based on Research upgrades
   let xpMultiplier = 1.0;
-  if (purchasedUpgrades.includes("upg-xp-1")) xpMultiplier += 0.5;
-  if (purchasedUpgrades.includes("upg-xp-2")) xpMultiplier += 0.5;
-  if (purchasedUpgrades.includes("upg-xp-3")) xpMultiplier += 0.5;
-  if (purchasedUpgrades.includes("upg-xp-4")) xpMultiplier += 0.5;
-  if (purchasedUpgrades.includes("upg-xp-5")) xpMultiplier += 1.0;
-  if (purchasedUpgrades.includes("upg-star-magnetic")) xpMultiplier += 1.0;
-  if (purchasedUpgrades.includes("upg-cosmic-eternity")) xpMultiplier *= 3.0;
+  if (upgradeSet.has("upg-xp-1")) xpMultiplier += 0.5;
+  if (upgradeSet.has("upg-xp-2")) xpMultiplier += 0.5;
+  if (upgradeSet.has("upg-xp-3")) xpMultiplier += 0.5;
+  if (upgradeSet.has("upg-xp-4")) xpMultiplier += 0.5;
+  if (upgradeSet.has("upg-xp-5")) xpMultiplier += 1.0;
+  if (upgradeSet.has("upg-star-magnetic")) xpMultiplier += 1.0;
+  if (upgradeSet.has("upg-cosmic-eternity")) xpMultiplier *= 3.0;
 
   // Schmetterling Set complete (+25% XP-Multiplikator)
   if (butterflySetComplete) {
@@ -174,16 +176,16 @@ export function getLpsAndStats(state: any) {
     }
 
     // Apply upgrade modifiers if applicable (rewarding previous research upgrades!)
-    if (purchasedUpgrades.includes("upg-event-meteor") && clickMultiplierForEvents > 1.0) {
+    if (upgradeSet.has("upg-event-meteor") && clickMultiplierForEvents > 1.0) {
       clickMultiplierForEvents *= 1.5;
     }
-    if (purchasedUpgrades.includes("upg-event-aurora") && starMultiplierForEvents > 1.0) {
+    if (upgradeSet.has("upg-event-aurora") && starMultiplierForEvents > 1.0) {
       starMultiplierForEvents *= 1.5;
     }
-    if (purchasedUpgrades.includes("upg-animal-synergy-1") && animalMultiplierForEvents > 1.0) {
+    if (upgradeSet.has("upg-animal-synergy-1") && animalMultiplierForEvents > 1.0) {
       animalMultiplierForEvents *= 1.5;
     }
-    if (purchasedUpgrades.includes("upg-event-supernova") && lpsMultiplierForEvents > 1.0) {
+    if (upgradeSet.has("upg-event-supernova") && lpsMultiplierForEvents > 1.0) {
       lpsMultiplierForEvents *= 1.5;
     }
   } else if (activeEvent === "black_hole") {
@@ -295,7 +297,7 @@ export function getLpsAndStats(state: any) {
   const catalystLvl = state.catalystLevel || 0;
   totalLps *= 1.0 + catalystLvl * 0.15;
 
-  if (purchasedUpgrades.includes("upg-nexus-core")) {
+  if (upgradeSet.has("upg-nexus-core")) {
     totalLps *= 1.4;
   }
 
@@ -311,7 +313,7 @@ export function getLpsAndStats(state: any) {
 
   // ✨ RARITY UPGRADE BONUS CHECK
   let rarityUpgradeMultiplier = 1.0;
-  if (purchasedUpgrades.includes("upg-glitter-rarity") && state.cosmeticRarityLevels) {
+  if (upgradeSet.has("upg-glitter-rarity") && state.cosmeticRarityLevels) {
     Object.keys(state.cosmeticRarityLevels).forEach((id) => {
       const level = state.cosmeticRarityLevels[id];
       if (level === "rare") rarityUpgradeMultiplier += 0.02;
