@@ -1,4 +1,5 @@
 import { getLpsAndStats } from "./statsCalculator";
+import { formatCompactNumber } from "../utils/format";
 
 // ROMAN NUMERAL LIST for Achievements
 export const ROMAN_NUMERALS = [
@@ -19,38 +20,8 @@ export const ROMAN_NUMERALS = [
   "XV",
 ];
 
-// Calculations helper for formatting inside compact loops
-export function formatCompactNumber(num: number): string {
-  if (num === null || isNaN(num) || num === undefined) return "0";
-  if (num < 1000) {
-    if (num === 0) return "0";
-    return num % 1 === 0 ? num.toString() : num.toFixed(1);
-  }
-  const suffixes = [
-    { value: 1e3, symbol: "K" },
-    { value: 1e6, symbol: "M" },
-    { value: 1e9, symbol: "B" },
-    { value: 1e12, symbol: "T" },
-    { value: 1e15, symbol: "Qa" },
-    { value: 1e18, symbol: "Qi" },
-    { value: 1e21, symbol: "Sx" },
-    { value: 1e24, symbol: "Sp" },
-    { value: 1e27, symbol: "Oc" },
-    { value: 1e30, symbol: "No" },
-    { value: 1e33, symbol: "Dc" },
-    { value: 1e36, symbol: "Ud" },
-    { value: 1e39, symbol: "Dd" },
-    { value: 1e42, symbol: "Td" },
-    { value: 1e45, symbol: "Qad" },
-  ];
-  for (let i = suffixes.length - 1; i >= 0; i--) {
-    if (num >= suffixes[i].value) {
-      const formatted = (num / suffixes[i].value).toFixed(2);
-      return parseFloat(formatted) + suffixes[i].symbol;
-    }
-  }
-  return num.toString();
-}
+// Re-exported so existing importers (game.worker.ts, workerActions.ts) keep working.
+export { formatCompactNumber };
 
 /**
  * Recreation of state-independent achievements generation. Recalculates in Worker thread

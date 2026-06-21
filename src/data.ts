@@ -707,39 +707,7 @@ export function calculateCost(baseCost: number, count: number, multiplier: numbe
   return Math.floor(baseCost * Math.pow(multiplier, count));
 }
 
-export function formatCompactNumber(num: number): string {
-  if (num === null || isNaN(num)) return "0";
-  if (num < 1000) {
-    if (num === 0) return "0";
-    return num % 1 === 0 ? num.toString() : num.toFixed(1);
-  }
-  const suffixes = [
-    { value: 1e3, symbol: "K" },
-    { value: 1e6, symbol: "M" },
-    { value: 1e9, symbol: "B" },
-    { value: 1e12, symbol: "T" },
-    { value: 1e15, symbol: "Qa" },
-    { value: 1e18, symbol: "Qi" },
-    { value: 1e21, symbol: "Sx" },
-    { value: 1e24, symbol: "Sp" },
-    { value: 1e27, symbol: "Oc" },
-    { value: 1e30, symbol: "No" },
-    { value: 1e33, symbol: "Dc" },
-    { value: 1e36, symbol: "Ud" },
-    { value: 1e39, symbol: "Dd" },
-    { value: 1e42, symbol: "Td" },
-    { value: 1e45, symbol: "Qad" },
-  ];
-
-  for (let i = suffixes.length - 1; i >= 0; i--) {
-    if (num >= suffixes[i].value) {
-      const formatted = (num / suffixes[i].value).toFixed(2);
-      // Clean up trivial trailing decimals (e.g. 1.20 -> 1.2, 1.00 -> 1)
-      return parseFloat(formatted) + suffixes[i].symbol;
-    }
-  }
-  return num.toString();
-}
+export { formatCompactNumber } from "./utils/format";
 
 /**
  * Dynamically calculates the prestige requirement based on current prestige count.
