@@ -1759,7 +1759,13 @@ export default function App() {
         setShowVoyageModal={setShowVoyageModal}
         handleEnterGlitchGalaxy={handleEnterGlitchGalaxy}
         handleRepairGlitchGalaxy={handleRepairGlitchGalaxy}
-        setGlitchPending={setGlitchPending}
+      />
+
+      <GalaxyVoyageModal
+        isOpen={showVoyageModal}
+        prestigeCount={prestigeCount}
+        onConfirmVoyage={handleConfirmPrestige}
+        inGlitchGalaxy={inGlitchGalaxy}
       />
     </ModalSettingsProvider>
   );

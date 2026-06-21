@@ -11,7 +11,6 @@ interface CosmicOverlaysProps {
   setShowVoyageModal: (val: boolean) => void;
   handleEnterGlitchGalaxy: () => void;
   handleRepairGlitchGalaxy: () => void;
-  setGlitchPending: (val: boolean) => void;
 }
 
 export const CosmicOverlays: React.FC<CosmicOverlaysProps> = ({
@@ -23,7 +22,6 @@ export const CosmicOverlays: React.FC<CosmicOverlaysProps> = ({
   setShowVoyageModal,
   handleEnterGlitchGalaxy,
   handleRepairGlitchGalaxy,
-  setGlitchPending,
 }) => {
   return (
     <>
@@ -85,11 +83,12 @@ export const CosmicOverlays: React.FC<CosmicOverlaysProps> = ({
             whileTap={{ scale: 0.93 }}
             onClick={() => {
               playUpgrade();
-              if (!inGlitchGalaxy) {
-                setGlitchPending(true);
-              } else {
-                setShowVoyageModal(true);
-              }
+              // Open the (forced) Galaxy Voyage confirmation modal. The pastel
+              // vs. glitch styling is driven by `inGlitchGalaxy` inside the modal.
+              // NOTE: `glitchPending` is owned by the worker (it broadcasts it on
+              // every tick), so setting it locally here used to get instantly
+              // overwritten back to false — the modal flashed open and closed.
+              setShowVoyageModal(true);
             }}
             className={`px-8 py-4 rounded-3xl font-sans font-black text-sm uppercase tracking-[0.2em] border-4 cursor-pointer select-none pointer-events-auto shadow-2xl ${
               inGlitchGalaxy
