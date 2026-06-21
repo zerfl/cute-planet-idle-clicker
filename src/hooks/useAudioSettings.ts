@@ -57,7 +57,7 @@ export function useAudioSettings() {
       window.removeEventListener("keydown", handleFirstInteraction);
     };
     window.addEventListener("click", handleFirstInteraction);
-    window.addEventListener("touchstart", handleFirstInteraction);
+    window.addEventListener("touchstart", handleFirstInteraction, { passive: true });
     window.addEventListener("keydown", handleFirstInteraction);
     return () => {
       window.removeEventListener("click", handleFirstInteraction);

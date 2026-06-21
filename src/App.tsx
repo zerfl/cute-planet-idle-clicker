@@ -46,6 +46,7 @@ import { STATIC_UPGRADES } from "./data/upgrades";
 import { useFirebaseSync } from "./hooks/useFirebaseSync";
 import { Cloud, Trophy } from "lucide-react";
 import { calculateOfflineLps } from "./utils/offline";
+import { SAVE_KEY, migrateSave, withSaveVersion } from "./utils/persistence";
 import { generateMissionsForSet } from "./data/missions";
 import { TutorialModal } from "./components/modals/TutorialModal";
 import { GalaxyVoyageModal } from "./components/modals/GalaxyVoyageModal";
@@ -335,7 +336,7 @@ export default function App() {
     if (isLoaded && !offlineCheckedRef.current) {
       offlineCheckedRef.current = true;
       try {
-        const saved = localStorage.getItem("cute_planet_save");
+        const saved = localStorage.getItem(SAVE_KEY);
         if (saved) {
           const savedStateObj = JSON.parse(saved);
           const cachedSecs = savedStateObj.offlineSeconds || 0;
@@ -584,13 +585,13 @@ export default function App() {
       if (data && workerRef.current) {
         workerRef.current.postMessage({
           type: "INIT",
-          savedState: data,
+          savedState: migrateSave(data),
         });
-        const fullSaveData = {
+        const fullSaveData = withSaveVersion({
           ...data,
           lastSavedAt: data.lastSavedAt || Date.now(),
-        };
-        localStorage.setItem("cute_planet_save", JSON.stringify(fullSaveData));
+        });
+        localStorage.setItem(SAVE_KEY, JSON.stringify(fullSaveData));
 
         // Hydrate Cosmetics & Missions
         if (data.unlockedCosmetics) setUnlockedCosmetics(data.unlockedCosmetics);
@@ -634,9 +635,9 @@ export default function App() {
     // Load initial save from localStorage and hydrate worker state
     let savedStateObj = null;
     try {
-      const saved = localStorage.getItem("cute_planet_save");
+      const saved = localStorage.getItem(SAVE_KEY);
       if (saved) {
-        savedStateObj = JSON.parse(saved);
+        savedStateObj = migrateSave(JSON.parse(saved));
 
         // Hydrate local cosmetics
         if (savedStateObj.unlockedCosmetics) setUnlockedCosmetics(savedStateObj.unlockedCosmetics);
@@ -1252,7 +1253,7 @@ export default function App() {
           glitchBenchmarks: s.glitchBenchmarks,
           lastSavedAt: Date.now(),
         };
-        localStorage.setItem("cute_planet_save", JSON.stringify(stateToSave));
+        localStorage.setItem(SAVE_KEY, JSON.stringify(withSaveVersion(stateToSave)));
 
         // Sync with cloud every 60 seconds; skip while conflict dialog is open
         const now = Date.now();
@@ -1602,7 +1603,7 @@ export default function App() {
   // Full Game hard Reset trigger
   const handleGameReset = useCallback(() => {
     playLevelUp();
-    localStorage.removeItem("cute_planet_save");
+    localStorage.removeItem(SAVE_KEY);
     workerRef.current?.postMessage({
       type: "RESET",
     });
