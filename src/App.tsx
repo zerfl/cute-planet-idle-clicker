@@ -63,6 +63,7 @@ import { CosmicFooter } from "./components/CosmicFooter";
 import { useAudioSettings } from "./hooks/useAudioSettings";
 import { useDisplayPreferences } from "./hooks/useDisplayPreferences";
 import { useFloatingTexts } from "./hooks/useFloatingTexts";
+import { useModalState } from "./hooks/useModalState";
 import { CosmicOverlays } from "./components/CosmicOverlays";
 import { InteractiveCosmos } from "./components/InteractiveCosmos";
 
@@ -116,11 +117,62 @@ export default function App() {
   const [cycleProgress, setCycleProgress] = useState<number>(0);
 
   // UI States
-  const [showAnimalsModal, setShowAnimalsModal] = useState<boolean>(false);
-  const [showStarsModal, setShowStarsModal] = useState<boolean>(false);
-  const [showStatsModal, setShowStatsModal] = useState<boolean>(false);
-  const [showMusicSettingsModal, setShowMusicSettingsModal] = useState<boolean>(false);
   const offlineCheckedRef = useRef<boolean>(false);
+
+  // All modal / dialog / overlay visibility flags + simple openers
+  const {
+    showAnimalsModal,
+    setShowAnimalsModal,
+    showStarsModal,
+    setShowStarsModal,
+    showStatsModal,
+    setShowStatsModal,
+    showMusicSettingsModal,
+    setShowMusicSettingsModal,
+    showCloudSyncModal,
+    setShowCloudSyncModal,
+    showLeaderboardModal,
+    setShowLeaderboardModal,
+    showCraftingModal,
+    setShowCraftingModal,
+    showGalaxyShardsShop,
+    setShowGalaxyShardsShop,
+    showMissionsModal,
+    setShowMissionsModal,
+    showInventoryModal,
+    setShowInventoryModal,
+    showPrestigeModal,
+    setShowPrestigeModal,
+    showVoyageModal,
+    setShowVoyageModal,
+    showZodiacModal,
+    setShowZodiacModal,
+    showOfflineModal,
+    setShowOfflineModal,
+    showResetDialog,
+    setShowResetDialog,
+    showRepairDialog,
+    setShowRepairDialog,
+    showCheatEventModal,
+    setShowCheatEventModal,
+    showTutorial,
+    setShowTutorial,
+    showUpgradesModal,
+    setShowUpgradesModal,
+    showAchievementsModal,
+    setShowAchievementsModal,
+    openPrestigeModal,
+    openOfflineModal,
+    openZodiacModal,
+    openAnimalsModal,
+    openCraftingModal,
+    openStarsModal,
+    openUpgradesModal,
+    openAchievementsModal,
+    openStatsModal,
+    openMissionsModal,
+    openInventoryModal,
+  } = useModalState();
 
   // Display / performance preferences (low-memory toggle + reduced motion)
   const { isLowMemory, setIsLowMemory, disableAnimations } = useDisplayPreferences();
@@ -128,10 +180,6 @@ export default function App() {
   // Floating "+N" reward particles (state + lifecycle owned by the hook)
   const { floatingTexts, setFloatingTexts, nextParticleId } = useFloatingTexts();
 
-  // Cloud Sync Modal state
-  const [showCloudSyncModal, setShowCloudSyncModal] = useState<boolean>(false);
-  const [showLeaderboardModal, setShowLeaderboardModal] = useState<boolean>(false);
-  const [showCraftingModal, setShowCraftingModal] = useState<boolean>(false);
   const [craftedItems, setCraftedItems] = useState<Record<string, number>>({});
   const [constellations, setConstellations] = useState<Record<string, number>>({});
   const [autosaveNotification, setAutosaveNotification] = useState<{
@@ -190,7 +238,6 @@ export default function App() {
   const [activeZodiacId, setActiveZodiacId] = useState<string>("katze");
   const [prestigeCount, setPrestigeCount] = useState<number>(0);
   const [galaxyShards, setGalaxyShards] = useState<number>(0);
-  const [showGalaxyShardsShop, setShowGalaxyShardsShop] = useState<boolean>(false);
   const [zodiacLevels, setZodiacLevels] = useState<Record<string, number>>({});
   const [slummerGlassLevel, setSlummerGlassLevel] = useState<number>(1);
   const [catalystLevel, setCatalystLevel] = useState<number>(0);
@@ -210,11 +257,6 @@ export default function App() {
   const [unlockedGlitchGalaxy, setUnlockedGlitchGalaxy] = useState<boolean>(false);
   const [spentGalaxyShards, setSpentGalaxyShards] = useState<number>(0);
   const [glitchBenchmarks, setGlitchBenchmarks] = useState<any>(undefined);
-  const [showMissionsModal, setShowMissionsModal] = useState<boolean>(false);
-  const [showInventoryModal, setShowInventoryModal] = useState<boolean>(false);
-  const [showPrestigeModal, setShowPrestigeModal] = useState<boolean>(false);
-  const [showVoyageModal, setShowVoyageModal] = useState<boolean>(false);
-  const [showZodiacModal, setShowZodiacModal] = useState<boolean>(false);
 
   const [openingResult, setOpeningResult] = useState<{
     itemId: string;
@@ -241,7 +283,6 @@ export default function App() {
   } | null>(null);
 
   // Offline Progress States
-  const [showOfflineModal, setShowOfflineModal] = useState<boolean>(false);
   const [offlineSeconds, setOfflineSeconds] = useState<number>(0);
   const [offlineLpsRate, setOfflineLpsRate] = useState<number>(0);
   const [offlineEarnedLife, setOfflineEarnedLife] = useState<number>(0);
@@ -924,12 +965,6 @@ export default function App() {
   }, []);
 
   // Game stats tracking (hydrated by worker)
-  const [showResetDialog, setShowResetDialog] = useState<boolean>(false);
-  const [showRepairDialog, setShowRepairDialog] = useState<boolean>(false);
-  const [showCheatEventModal, setShowCheatEventModal] = useState<boolean>(false);
-  const [showTutorial, setShowTutorial] = useState<boolean>(true);
-  const [showUpgradesModal, setShowUpgradesModal] = useState<boolean>(false);
-  const [showAchievementsModal, setShowAchievementsModal] = useState<boolean>(false);
   const [achievementCategoryFilter, setAchievementCategoryFilter] = useState<string>("all");
   const [achievementSearch, setAchievementSearch] = useState<string>("");
 
@@ -1656,17 +1691,6 @@ export default function App() {
   }, []);
 
   // Stable modal openers — defined once so memoized children never see new refs
-  const openPrestigeModal = useCallback(() => setShowPrestigeModal(true), []);
-  const openOfflineModal = useCallback(() => setShowOfflineModal(true), []);
-  const openZodiacModal = useCallback(() => setShowZodiacModal(true), []);
-  const openAnimalsModal = useCallback(() => setShowAnimalsModal(true), []);
-  const openCraftingModal = useCallback(() => setShowCraftingModal(true), []);
-  const openStarsModal = useCallback(() => setShowStarsModal(true), []);
-  const openUpgradesModal = useCallback(() => setShowUpgradesModal(true), []);
-  const openAchievementsModal = useCallback(() => setShowAchievementsModal(true), []);
-  const openStatsModal = useCallback(() => setShowStatsModal(true), []);
-  const openMissionsModal = useCallback(() => setShowMissionsModal(true), []);
-  const openInventoryModal = useCallback(() => setShowInventoryModal(true), []);
   const closeTutorial = useCallback(() => setShowTutorial(false), []);
 
   if (!isLoaded) {
