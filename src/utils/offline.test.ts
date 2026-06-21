@@ -173,7 +173,7 @@ describe("calculateOfflineLps", () => {
       const withVal = calculateOfflineLps(stateWithCatalystLvl2);
 
       // should be exactly 1 + 2 * 0.15 = 1.30 times higher
-      expect(withVal).toBeCloseTo(withoutVal * 1.30);
+      expect(withVal).toBeCloseTo(withoutVal * 1.3);
     });
 
     it("applies Eule zodiac level boost correctly (+30% stars LPS, +15% per additional level)", () => {
@@ -198,7 +198,7 @@ describe("calculateOfflineLps", () => {
       const valLvl2 = calculateOfflineLps(stateLvl2);
 
       // Level 1: +30% stars LPS → multiplier 1.30
-      expect(valLvl1).toBeCloseTo(valNoZodiac * 1.30);
+      expect(valLvl1).toBeCloseTo(valNoZodiac * 1.3);
       // Level 2: +45% stars LPS → multiplier 1.45
       expect(valLvl2).toBeCloseTo(valNoZodiac * 1.45);
     });
@@ -227,7 +227,7 @@ describe("calculateOfflineLps", () => {
       // Level 1: +35% multiplier → 1.35
       expect(valLvl1).toBeCloseTo(valNoZodiac * 1.35);
       // Level 2: +50% multiplier → 1.50
-      expect(valLvl2).toBeCloseTo(valNoZodiac * 1.50);
+      expect(valLvl2).toBeCloseTo(valNoZodiac * 1.5);
     });
 
     it("applies Mond zodiac level boost to Moon multiplier correctly (default 1.5, mond lvl1 2.25, mond lvl2 2.50)", () => {
@@ -254,7 +254,7 @@ describe("calculateOfflineLps", () => {
       // Normal Mond zodiac level 1: moon multiplier is 2.25 → total = base * (1 + 2.25) = base * 3.25
       expect(valNormalMond).toBeCloseTo(baseMoonVal * (1.0 + 2.25));
       // Level 2 Mond zodiac: moon multiplier is 2.50 → total = base * (1 + 2.50) = base * 3.50
-      expect(valLvl2Mond).toBeCloseTo(baseMoonVal * (1.0 + 2.50));
+      expect(valLvl2Mond).toBeCloseTo(baseMoonVal * (1.0 + 2.5));
     });
 
     it("applies Schildkroete zodiac level boost correctly (+20% total passive LPS, +10% per additional level)", () => {
@@ -279,9 +279,9 @@ describe("calculateOfflineLps", () => {
       const valLvl2 = calculateOfflineLps(stateLvl2);
 
       // Level 1: 1.20x total LPS
-      expect(valLvl1).toBeCloseTo(valNoZodiac * 1.20);
+      expect(valLvl1).toBeCloseTo(valNoZodiac * 1.2);
       // Level 2: 1.30x total LPS
-      expect(valLvl2).toBeCloseTo(valNoZodiac * 1.30);
+      expect(valLvl2).toBeCloseTo(valNoZodiac * 1.3);
     });
   });
 });

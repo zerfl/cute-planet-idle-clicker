@@ -24,7 +24,7 @@ export function generateMissionsForSet(setNumber: number): Mission[] {
 
   // Generate 3 unique mission templates using seeded random seeds based on set number
   const seedBase = setNumber * 73 + 19;
-  
+
   const templates = [
     {
       title: "Kuschel-Klicks",
@@ -37,7 +37,8 @@ export function generateMissionsForSet(setNumber: number): Mission[] {
     },
     {
       title: "Sternen-Sammelwut",
-      description: "Sammle funkelndes Orbitallicht! Lasse mindestens {target} Sterne am Himmel kreisen.",
+      description:
+        "Sammle funkelndes Orbitallicht! Lasse mindestens {target} Sterne am Himmel kreisen.",
       englishDesc: "Attract cosmic light! Have at least {target} active stars orbiting.",
       type: "stars",
       minBase: 3,
@@ -74,7 +75,8 @@ export function generateMissionsForSet(setNumber: number): Mission[] {
     {
       title: "Klick-Gewitter",
       description: "Klicke im Rhythmus des Kosmos! Meistere {target} leidenschaftliche Klicks.",
-      englishDesc: "Click to the rhythm of the cosmos! Achieve at least {target} passionate clicks.",
+      englishDesc:
+        "Click to the rhythm of the cosmos! Achieve at least {target} passionate clicks.",
       type: "clicks",
       minBase: 220,
       maxBase: 420,
@@ -96,10 +98,14 @@ export function generateMissionsForSet(setNumber: number): Mission[] {
   return chosenIndices.map((templateIdx, order) => {
     const template = templates[templateIdx];
     const itemSeed = rollSeed + (order + 1) * 37;
-    
+
     // Calculate randomized scaled target
     const baseVal = getRandInRange(itemSeed, template.minBase, template.maxBase);
-    const scaleFactor = getRandInRange(itemSeed + 5, Math.max(1, Math.floor(template.scale * 0.75)), Math.ceil(template.scale * 1.25));
+    const scaleFactor = getRandInRange(
+      itemSeed + 5,
+      Math.max(1, Math.floor(template.scale * 0.75)),
+      Math.ceil(template.scale * 1.25),
+    );
     let target = baseVal + Math.floor(setNumber * scaleFactor);
 
     // Make click counts clean

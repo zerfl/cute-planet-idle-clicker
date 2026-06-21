@@ -1,4 +1,11 @@
-import { GameState, Animal, Upgrade, PlanetTask, CosmicEventOption, ActiveCosmicEvent } from "./types";
+import {
+  GameState,
+  Animal,
+  Upgrade,
+  PlanetTask,
+  CosmicEventOption,
+  ActiveCosmicEvent,
+} from "./types";
 import { INITIAL_ANIMALS, calculateCost } from "./data";
 import { COSMETIC_ITEMS } from "./data/cosmetics";
 import { CRAFTING_RECIPES } from "./data/recipes";
@@ -116,7 +123,7 @@ let hiddenAt: number | null = null;
 
 // Roll helper to guarantee never calling the same zodiac twice in a row
 function rollNewZodiac(currentId?: string): string {
-  const eligible = currentId ? ZODIACS.filter(z => z.id !== currentId) : ZODIACS;
+  const eligible = currentId ? ZODIACS.filter((z) => z.id !== currentId) : ZODIACS;
   if (eligible.length === 0) return ZODIACS[0].id;
   const picked = eligible[Math.floor(Math.random() * eligible.length)];
   return picked.id;
@@ -168,7 +175,11 @@ function checkPlanetLevelUp() {
   if (!state.planetTask) return;
   if (state.planetTask.progress >= state.planetTask.target) {
     state.planetLevel += 1;
-    state.planetTask = rollTaskForLevel(state.planetLevel, state.prestigeCount || 0, INITIAL_ANIMALS);
+    state.planetTask = rollTaskForLevel(
+      state.planetLevel,
+      state.prestigeCount || 0,
+      INITIAL_ANIMALS,
+    );
     secondsNoClick = 0;
 
     // Reset baseline indicators for the new task so we don't carry over delta progress
@@ -186,9 +197,18 @@ function checkPlanetLevelUp() {
   }
 }
 
-function updateTaskProgress(type: string, amount: number, isSet: boolean = false, extraId?: string) {
+function updateTaskProgress(
+  type: string,
+  amount: number,
+  isSet: boolean = false,
+  extraId?: string,
+) {
   if (!state.planetTask) {
-    state.planetTask = rollTaskForLevel(state.planetLevel, state.prestigeCount || 0, INITIAL_ANIMALS);
+    state.planetTask = rollTaskForLevel(
+      state.planetLevel,
+      state.prestigeCount || 0,
+      INITIAL_ANIMALS,
+    );
   }
   const task = state.planetTask;
   if (!task) return;
@@ -216,7 +236,11 @@ function updateTaskProgress(type: string, amount: number, isSet: boolean = false
 
 function syncCumulativeTasks() {
   if (!state.planetTask) {
-    state.planetTask = rollTaskForLevel(state.planetLevel, state.prestigeCount || 0, INITIAL_ANIMALS);
+    state.planetTask = rollTaskForLevel(
+      state.planetLevel,
+      state.prestigeCount || 0,
+      INITIAL_ANIMALS,
+    );
   }
   const task = state.planetTask;
   if (!task || !task.isCumulative) return;
@@ -255,7 +279,10 @@ let lastAchievementsCalcTime = 0;
 
 // State Broadcaster
 // cachedStats: pre-computed getLpsAndStats() from the calling tick (avoids a second call)
-function broadcastStateUpdate(forceRecalculateAchievements = false, cachedStats?: ReturnType<typeof getLpsAndStats>) {
+function broadcastStateUpdate(
+  forceRecalculateAchievements = false,
+  cachedStats?: ReturnType<typeof getLpsAndStats>,
+) {
   if (!isSyncing) {
     isSyncing = true;
     syncCumulativeTasks();
@@ -268,7 +295,11 @@ function broadcastStateUpdate(forceRecalculateAchievements = false, cachedStats?
   // Throttle achievements calculation to once every 1250ms unless forced by a buy/click event
   const now = Date.now();
   let freshAchievements: any[] | undefined;
-  if (forceRecalculateAchievements || cachedAchievementsObj.length === 0 || now - lastAchievementsCalcTime > 1250) {
+  if (
+    forceRecalculateAchievements ||
+    cachedAchievementsObj.length === 0 ||
+    now - lastAchievementsCalcTime > 1250
+  ) {
     cachedAchievementsObj = generateAchievements();
     lastAchievementsCalcTime = now;
     freshAchievements = cachedAchievementsObj;
@@ -349,7 +380,8 @@ function setupActiveEvent(eventId: string) {
     return;
   }
 
-  const eventData = COSMIC_EVENTS_POOL.find((ev) => ev.id === finalEventId) || COSMIC_EVENTS_POOL[0];
+  const eventData =
+    COSMIC_EVENTS_POOL.find((ev) => ev.id === finalEventId) || COSMIC_EVENTS_POOL[0];
   const shuffledOpts = [...eventData.options].sort(() => Math.random() - 0.5);
   const selectedOpts = shuffledOpts.slice(0, 3);
 
@@ -400,8 +432,8 @@ function startTimers() {
   cycleTimerId = setInterval(() => {
     // Mondhasen-Sternbild bonus: Night lasts longer (slower cycleProgress during night)
     const constellMondhasenLvl = state.constellations?.mondhasen || 0;
-    const progressModifier = state.isNight ? (1 / (1 + constellMondhasenLvl * 0.25)) : 1.0;
-    
+    const progressModifier = state.isNight ? 1 / (1 + constellMondhasenLvl * 0.25) : 1.0;
+
     const nextVal = state.cycleProgress + 0.4166667 * progressModifier;
     if (nextVal >= 100) {
       state.cycleProgress = 0;
@@ -431,7 +463,7 @@ function startTimers() {
     }
 
     if (state.moonsCount && state.moonsCount > 0) {
-      const prestigeMultiplier = 1 + (state.prestigeCount || 0) * 0.10;
+      const prestigeMultiplier = 1 + (state.prestigeCount || 0) * 0.1;
       const moonReward = state.moonsCount * 15000 * prestigeMultiplier;
 
       postMessage({
@@ -460,7 +492,7 @@ function startTimers() {
           eventPool.push("black_hole");
         }
         const chosen = eventPool[Math.floor(Math.random() * eventPool.length)];
-        
+
         setupActiveEvent(chosen);
 
         let duration = 120;
@@ -472,7 +504,7 @@ function startTimers() {
         state.eventTimeRemaining = duration;
 
         if (state.purchasedUpgrades.includes("upg-quantum-tapper")) {
-          const prestigeMultiplier = 1 + (state.prestigeCount || 0) * 0.10;
+          const prestigeMultiplier = 1 + (state.prestigeCount || 0) * 0.1;
           const bonus = 1000 * prestigeMultiplier;
           state.life += bonus;
           state.totalLifeEarned += bonus;
@@ -497,11 +529,11 @@ function startTimers() {
         if (state.purchasedUpgrades.includes("upg-event-frequency")) {
           waitDuration = 70;
         }
-        
+
         // Ewiges Polarlicht reduces wait time by 15% per level
         const constellPolarlichtLvl = state.constellations?.ewiges_polarlicht || 0;
         waitDuration = Math.round(waitDuration * (1 - constellPolarlichtLvl * 0.15));
-        
+
         state.eventTimeRemaining = waitDuration;
 
         postMessage({
@@ -536,7 +568,11 @@ addEventListener("message", (e) => {
         };
       }
       if (!state.planetTask) {
-        state.planetTask = rollTaskForLevel(state.planetLevel, state.prestigeCount || 0, INITIAL_ANIMALS);
+        state.planetTask = rollTaskForLevel(
+          state.planetLevel,
+          state.prestigeCount || 0,
+          INITIAL_ANIMALS,
+        );
       }
       lastCheckedGlitter = state.glitterDust || 0;
       lastCheckedStars = state.starsCount || 0;
@@ -554,11 +590,11 @@ addEventListener("message", (e) => {
       const stats = getLpsAndStats();
 
       const isKatze = state.zodiac === "katze";
-      const lvl = (state.zodiacLevels?.katze) || 1;
-      const critChance = isKatze ? (0.20 + (lvl - 1) * 0.05) : 0.05;
+      const lvl = state.zodiacLevels?.katze || 1;
+      const critChance = isKatze ? 0.2 + (lvl - 1) * 0.05 : 0.05;
       const isCrit = Math.random() < critChance;
-      const critMult = isKatze ? (7 + (lvl - 1) * 2) : 3;
-      const clickVal = isCrit ? (stats.clickPower * critMult) : stats.clickPower;
+      const critMult = isKatze ? 7 + (lvl - 1) * 2 : 3;
+      const clickVal = isCrit ? stats.clickPower * critMult : stats.clickPower;
 
       const actualClickLife = clickVal * stats.clickMultiplierForEvents;
       const actualClickXP = 1.0 * stats.xpMultiplier * stats.xpEventMultiplier;
@@ -571,7 +607,9 @@ addEventListener("message", (e) => {
       let targetAmount = 0;
 
       if (state.activeEvent && state.activeEventDetails && state.activeEventDecision) {
-        const selectedOpt = state.activeEventDetails.options.find(o => o.id === state.activeEventDecision);
+        const selectedOpt = state.activeEventDetails.options.find(
+          (o) => o.id === state.activeEventDecision,
+        );
         if (selectedOpt) {
           if (selectedOpt.effectType === "glitter_click_2") {
             targetChance = 20.0;
@@ -585,7 +623,8 @@ addEventListener("message", (e) => {
 
       // Legacy fallback in case of legacy trigger names
       if (state.activeEvent && state.activeEventDecision === "zerlegen") {
-        targetChance = state.activeEvent === "aurora" ? 15.0 : state.activeEvent === "supernova" ? 15.0 : 10.0;
+        targetChance =
+          state.activeEvent === "aurora" ? 15.0 : state.activeEvent === "supernova" ? 15.0 : 10.0;
         targetAmount = state.activeEvent === "supernova" ? 5 : 2;
       }
 
@@ -593,7 +632,7 @@ addEventListener("message", (e) => {
         const dustRand = Math.random() * 100;
         if (dustRand < targetChance) {
           const isPhoenix = state.zodiac === "phoenix";
-          const amount = Math.ceil(targetAmount * (isPhoenix ? 1.50 : 1.0));
+          const amount = Math.ceil(targetAmount * (isPhoenix ? 1.5 : 1.0));
           state.glitterDust = (state.glitterDust || 0) + amount;
           postMessage({
             type: "COSMETIC_FOUND",
@@ -640,7 +679,7 @@ addEventListener("message", (e) => {
           let cycleProgress = state.cycleProgress;
           let isNight = state.isNight;
           let progressToAdd = cycleUnits * 0.4166667;
-          const nightMod = isNight ? (1 / (1 + constellMondhasenLvl * 0.25)) : 1.0;
+          const nightMod = isNight ? 1 / (1 + constellMondhasenLvl * 0.25) : 1.0;
           progressToAdd *= nightMod;
           cycleProgress += progressToAdd;
           const fullCycles = Math.floor(cycleProgress / 100);
@@ -651,8 +690,14 @@ addEventListener("message", (e) => {
           state.cycleProgress = cycleProgress;
           state.isNight = isNight;
 
-          const xpFromStars = state.starsCount * 1.0 * stats.xpMultiplier * stats.xpEventMultiplier * cappedSecs;
-          const xpFromMoons = (state.moonsCount || 0) * 15 * stats.xpMultiplier * stats.xpEventMultiplier * cappedSecs;
+          const xpFromStars =
+            state.starsCount * 1.0 * stats.xpMultiplier * stats.xpEventMultiplier * cappedSecs;
+          const xpFromMoons =
+            (state.moonsCount || 0) *
+            15 *
+            stats.xpMultiplier *
+            stats.xpEventMultiplier *
+            cappedSecs;
           addPlanetExp(xpFromStars + xpFromMoons);
         }
       }

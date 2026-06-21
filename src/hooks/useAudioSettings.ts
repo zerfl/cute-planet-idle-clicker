@@ -33,7 +33,10 @@ export function useAudioSettings() {
       }
 
       const savedStyle = localStorage.getItem("cute_planet_music_style") as MusicStyleId | null;
-      if (savedStyle !== null && ["classic", "rainy", "space", "chiptune", "zen"].includes(savedStyle)) {
+      if (
+        savedStyle !== null &&
+        ["classic", "rainy", "space", "chiptune", "zen"].includes(savedStyle)
+      ) {
         setMusicStyle(savedStyle);
         setMusicStyleState(savedStyle);
       } else {

@@ -274,7 +274,7 @@ export const INITIAL_ANIMALS: Animal[] = [
     emoji: "🦆",
     image: "/assets/animals/duck.png",
     baseCost: 22000000000000000,
-    costMultiplier: 1.20,
+    costMultiplier: 1.2,
     baseLps: 4200000000000.0,
     count: 0,
     description: "Splashes in warm milk canals.",
@@ -288,7 +288,7 @@ export const INITIAL_ANIMALS: Animal[] = [
     emoji: "🐞",
     image: "/assets/animals/ladybug.png",
     baseCost: 150000000000000000,
-    costMultiplier: 1.20,
+    costMultiplier: 1.2,
     baseLps: 24000000000000.0,
     count: 0,
     description: "Brings good fortune to every space garden.",
@@ -302,7 +302,7 @@ export const INITIAL_ANIMALS: Animal[] = [
     emoji: "🐝",
     image: "/assets/animals/bee.png",
     baseCost: 1000000000000000000,
-    costMultiplier: 1.20,
+    costMultiplier: 1.2,
     baseLps: 130000000000000.0,
     count: 0,
     description: "Flutters about pollinating pastel blooms.",
@@ -730,7 +730,7 @@ export function formatCompactNumber(num: number): string {
     { value: 1e42, symbol: "Td" },
     { value: 1e45, symbol: "Qad" },
   ];
-  
+
   for (let i = suffixes.length - 1; i >= 0; i--) {
     if (num >= suffixes[i].value) {
       const formatted = (num / suffixes[i].value).toFixed(2);
@@ -749,4 +749,3 @@ export function formatCompactNumber(num: number): string {
 export function getPrestigeRequirement(prestigeCount: number): number {
   return 500000000 * Math.pow(2.5, prestigeCount);
 }
-

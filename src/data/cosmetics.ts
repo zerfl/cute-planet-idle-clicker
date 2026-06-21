@@ -23,7 +23,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🌸",
     description: "Your auto-click stars glow in sweet cherry blossom pink.",
-    germanDescription: "Deine Autoclicker-Sterne erstrahlen in süßem Kirschblüten-Rosa."
+    germanDescription: "Deine Autoclicker-Sterne erstrahlen in süßem Kirschblüten-Rosa.",
   },
   {
     id: "star_purple",
@@ -35,7 +35,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🔮",
     description: "A mysterious, ambient violet starlight from deeper galaxies.",
-    germanDescription: "Ein geheimnisvolles, violettes Sternenlicht aus fernen Welten."
+    germanDescription: "Ein geheimnisvolles, violettes Sternenlicht aus fernen Welten.",
   },
   {
     id: "star_cyber",
@@ -47,7 +47,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "⚡",
     description: "An electric cyan starlight pulsing with digital coding power.",
-    germanDescription: "Ein elektrisch cyanfarbenes Sternenlicht voller digitaler Kraft."
+    germanDescription: "Ein elektrisch cyanfarbenes Sternenlicht voller digitaler Kraft.",
   },
   {
     id: "star_gold",
@@ -59,7 +59,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🌟",
     description: "A brilliant, royal gold light symbolizing stellar sovereignty.",
-    germanDescription: "Ein strahlendes, königliches Goldlicht, das kosmischen Reichtum verspricht."
+    germanDescription:
+      "Ein strahlendes, königliches Goldlicht, das kosmischen Reichtum verspricht.",
   },
   {
     id: "star_mint",
@@ -71,7 +72,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🌿",
     description: "A soothing, fresh herbal mint green glow.",
-    germanDescription: "Ein beruhigendes, frisches krautiges Mintgrün mit sanftem Schein."
+    germanDescription: "Ein beruhigendes, frisches krautiges Mintgrün mit sanftem Schein.",
   },
   {
     id: "star_ruby",
@@ -83,7 +84,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "☄️",
     description: "A rare, deep ruby-red aura of a freshly collapsed hyper-giant star.",
-    germanDescription: "Eine tief rubinrote Aura eines kollabierten Hyperriesensterns."
+    germanDescription: "Eine tief rubinrote Aura eines kollabierten Hyperriesensterns.",
   },
   {
     id: "star_rainbow",
@@ -95,7 +96,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "🌈",
     description: "A gorgeous, shifting spectrum starlight displaying pure joy.",
-    germanDescription: "Ein wunderschönes, fließendes Farbspektrum voller Lebensenergie."
+    germanDescription: "Ein wunderschönes, fließendes Farbspektrum voller Lebensenergie.",
   },
   {
     id: "star_emerald",
@@ -107,7 +108,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "💎",
     description: "A bright green, precious crystal glow like a fresh galactic jewel.",
-    germanDescription: "Ein tiefgrüner, kostbarer Edelstein-Glanz aus der Welten-Tiefe."
+    germanDescription: "Ein tiefgrüner, kostbarer Edelstein-Glanz aus der Welten-Tiefe.",
   },
   {
     id: "star_sunset",
@@ -119,7 +120,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🌇",
     description: "Warm, relaxing orange rays of a peaceful stellar evening.",
-    germanDescription: "Warme, entspannende orangefarbene Strahlen eines perfekten Abendhimmels."
+    germanDescription: "Warme, entspannende orangefarbene Strahlen eines perfekten Abendhimmels.",
   },
   {
     id: "star_silver",
@@ -131,7 +132,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🌙",
     description: "A soft, reflective metallic silver aura from the moon.",
-    germanDescription: "Eine sanfte, reflektierende Aura aus purem, kühlem Mondlicht."
+    germanDescription: "Eine sanfte, reflektierende Aura aus purem, kühlem Mondlicht.",
   },
   {
     id: "star_ocean",
@@ -143,7 +144,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🌊",
     description: "Deep-sea aquamarine light radiating relaxing oceanic waves.",
-    germanDescription: "Aquamarinfarbenes Tiefsee-Licht mit Welleneffekt für ruhige Gemüter."
+    germanDescription: "Aquamarinfarbenes Tiefsee-Licht mit Welleneffekt für ruhige Gemüter.",
   },
   {
     id: "star_cosmic_black",
@@ -155,7 +156,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🕳️",
     description: "A mesmerizing dark violet starlight around a gravity well.",
-    germanDescription: "Ein mysteriöser dunkel-violetter Wirbel, der alle Blicke anzieht."
+    germanDescription: "Ein mysteriöser dunkel-violetter Wirbel, der alle Blicke anzieht.",
   },
   {
     id: "star_sakura_petals",
@@ -167,7 +168,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🍃",
     description: "A gentle pink glow blended with leaves from blooming spring trees.",
-    germanDescription: "Eine sanftrosa Frühlings-Knospung für glückselige Klicks."
+    germanDescription: "Eine sanftrosa Frühlings-Knospung für glückselige Klicks.",
   },
   {
     id: "star_ghostly",
@@ -179,7 +180,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "👻",
     description: "A spooky, pulsing blue-indigo glow from the phantom realm.",
-    germanDescription: "Ein unheimliches, sanft pulsierendes Licht direkt aus der Geisterwelt."
+    germanDescription: "Ein unheimliches, sanft pulsierendes Licht direkt aus der Geisterwelt.",
   },
   {
     id: "star_toxic",
@@ -191,7 +192,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🧪",
     description: "A radioactive, bright neon lime green glow.",
-    germanDescription: "Ein strahlender neongrüner Farbtupfer mit radioaktivem Kick."
+    germanDescription: "Ein strahlender neongrüner Farbtupfer mit radioaktivem Kick.",
   },
   {
     id: "star_lava",
@@ -203,7 +204,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🌋",
     description: "An intense, boiling orange-red energy glow from vulcanic stars.",
-    germanDescription: "Glühend heißes Magma-Orange für feurigen Sternenschauer."
+    germanDescription: "Glühend heißes Magma-Orange für feurigen Sternenschauer.",
   },
   {
     id: "star_candy",
@@ -215,7 +216,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🍬",
     description: "A sweet pink-fuchsia candy starlight.",
-    germanDescription: "Ein zuckersüßes, pastellrosa Bonbonlicht mit Gute-Laune-Garantie."
+    germanDescription: "Ein zuckersüßes, pastellrosa Bonbonlicht mit Gute-Laune-Garantie.",
   },
 
   // Accessories
@@ -229,7 +230,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🐱",
     description: "Two adorable fluffy cat ears sitting atop your planet.",
-    germanDescription: "Zwei flauschige Katzenöhrchen, die deinem Planeten sofort +100 Niedlichkeit geben!"
+    germanDescription:
+      "Zwei flauschige Katzenöhrchen, die deinem Planeten sofort +100 Niedlichkeit geben!",
   },
   {
     id: "acc_chef_hat",
@@ -241,7 +243,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🍳",
     description: "Let the planet cook up delicious cosmic energy recipes.",
-    germanDescription: "Lass deinen Planeten köstliche Sternensuppen-Rezepte kochen."
+    germanDescription: "Lass deinen Planeten köstliche Sternensuppen-Rezepte kochen.",
   },
   {
     id: "acc_wizard_hat",
@@ -253,7 +255,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🧙",
     description: "Spellbound wizard hat with glowing stars to channel cosmic magic.",
-    germanDescription: "Ein alter Hut voll Magie und Glitzerstaub für echte Sternen-Zauberer."
+    germanDescription: "Ein alter Hut voll Magie und Glitzerstaub für echte Sternen-Zauberer.",
   },
   {
     id: "acc_angel_halo",
@@ -265,7 +267,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "👼",
     description: "An angelic glow floating above the planet.",
-    germanDescription: "Ein göttlich strahlender Reif aus reinem Licht, der über dem Planeten schwebt."
+    germanDescription:
+      "Ein göttlich strahlender Reif aus reinem Licht, der über dem Planeten schwebt.",
   },
   {
     id: "acc_space_glasses",
@@ -277,7 +280,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🕶️",
     description: "Cool pixel star glasses to block out extreme stellar wind solar radiation.",
-    germanDescription: "Ein extrem cooler Sonnenschutz gegen schädliche kosmische Sonnenstürme."
+    germanDescription: "Ein extrem cooler Sonnenschutz gegen schädliche kosmische Sonnenstürme.",
   },
   {
     id: "acc_star_crown",
@@ -289,7 +292,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "♛",
     description: "A sparkling, tiny golden crown to represent the planet royalty.",
-    germanDescription: "Ein zierliches, hochglanzpoliertes Goldkrönchen für Kosmos-Adelige."
+    germanDescription: "Ein zierliches, hochglanzpoliertes Goldkrönchen für Kosmos-Adelige.",
   },
   {
     id: "acc_detective_hat",
@@ -301,7 +304,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🕵️",
     description: "Solve galactic mysteries behind the magnifying glass.",
-    germanDescription: "Löse knifflige Sternenrätsel mit Stil und Scharfsinn."
+    germanDescription: "Löse knifflige Sternenrätsel mit Stil und Scharfsinn.",
   },
   {
     id: "acc_flower_crown",
@@ -313,7 +316,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🌸",
     description: "Woven with beautiful and extremely fragrant spring flowers.",
-    germanDescription: "Ein lieblicher Kranz aus duftenden, blühenden Kosmos-Blumen."
+    germanDescription: "Ein lieblicher Kranz aus duftenden, blühenden Kosmos-Blumen.",
   },
   {
     id: "acc_frog_hat",
@@ -325,7 +328,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🐸",
     description: "A silly, extremely cozy frog-themed dome.",
-    germanDescription: "Ein herrlich alberner und gemütlicher Froschhut für Regentage."
+    germanDescription: "Ein herrlich alberner und gemütlicher Froschhut für Regentage.",
   },
   {
     id: "acc_cowboy_hat",
@@ -337,7 +340,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🤠",
     description: "Howdy partner! Gather up some extra cosmic dust.",
-    germanDescription: "Howdy Partner! Reite stilvoll durch staubige Asteroidengürtel."
+    germanDescription: "Howdy Partner! Reite stilvoll durch staubige Asteroidengürtel.",
   },
   {
     id: "acc_straw_hat",
@@ -349,7 +352,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "👒",
     description: "A light straw hat woven for sunny intergalactic summer hikes.",
-    germanDescription: "Ein federleichter Sommer-Strohhut für entspannte Sternenwanderungen."
+    germanDescription: "Ein federleichter Sommer-Strohhut für entspannte Sternenwanderungen.",
   },
   {
     id: "acc_sleep_cap",
@@ -361,7 +364,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "💤",
     description: "A floppy blue nightcap sprinkled with small silver stars.",
-    germanDescription: "Eine blaue Zipfelmütze voll süßer Träume und Sternschnuppen."
+    germanDescription: "Eine blaue Zipfelmütze voll süßer Träume und Sternschnuppen.",
   },
   {
     id: "acc_pirate_hat",
@@ -373,7 +376,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "🏴‍☠️",
     description: "Sail the stars and loot space energy under the Jolly Roger.",
-    germanDescription: "Segle unter der Flagge des Abenteuers und plündere Sternenstaub!"
+    germanDescription: "Segle unter der Flagge des Abenteuers und plündere Sternenstaub!",
   },
   {
     id: "acc_reindeer_horns",
@@ -385,7 +388,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🦌",
     description: "Adorable festive antlers that make your planet look extremely jolly.",
-    germanDescription: "Ein festliches und super süßes braunes Geweih für Wintertage."
+    germanDescription: "Ein festliches und super süßes braunes Geweih für Wintertage.",
   },
   {
     id: "acc_slime_blob",
@@ -397,7 +400,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🟢",
     description: "A friendly green slime blob bouncing on top of the planet.",
-    germanDescription: "Ein lustiger, klebriger grüner Schleimklumpen, der fröhlich mitwippt."
+    germanDescription: "Ein lustiger, klebriger grüner Schleimklumpen, der fröhlich mitwippt.",
   },
   {
     id: "acc_top_hat",
@@ -409,7 +412,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🎩",
     description: "Add some classy Victorian style to your cosmic sphere.",
-    germanDescription: "Verleihe deinem Planeten vornehmen, viktorianischen Glanz."
+    germanDescription: "Verleihe deinem Planeten vornehmen, viktorianischen Glanz.",
   },
   {
     id: "acc_devil_horns",
@@ -421,7 +424,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "😈",
     description: "Two glowing, neon-red devil horns to look mischief-loving.",
-    germanDescription: "Zwei glühend rote Teufelshörner für eine Portion kosmischen Schabernack."
+    germanDescription: "Zwei glühend rote Teufelshörner für eine Portion kosmischen Schabernack.",
   },
 
   // Frame Styles
@@ -435,7 +438,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🎀",
     description: "Soft pink border frames dressed up with cute ribbons in the corners.",
-    germanDescription: "Niedliche rosa Holzrahmen mit handgebundenen Schleifchen in den oberen Ecken."
+    germanDescription:
+      "Niedliche rosa Holzrahmen mit handgebundenen Schleifchen in den oberen Ecken.",
   },
   {
     id: "frame_rainbow",
@@ -447,7 +451,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "🌈",
     description: "An animated, shifting neon-rainbow gradient border that glows brightly.",
-    germanDescription: "Ein lebendiger, schimmernder Regenbogenverlauf, der magisch im Kreis wandert."
+    germanDescription:
+      "Ein lebendiger, schimmernder Regenbogenverlauf, der magisch im Kreis wandert.",
   },
   {
     id: "frame_galaxy",
@@ -459,7 +464,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🌌",
     description: "Deep starlight borders sprinkled with white cosmic glazes.",
-    germanDescription: "Ein tief dunkelblauer Rand mit funkelnden Sternenstaub-Partikeln."
+    germanDescription: "Ein tief dunkelblauer Rand mit funkelnden Sternenstaub-Partikeln.",
   },
   {
     id: "frame_gold",
@@ -471,7 +476,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "✨",
     description: "High-contrast golden border that shines with noble luxury.",
-    germanDescription: "Prachtvoller goldglänzender Metallrand mit einer strahlend warmen Aura."
+    germanDescription: "Prachtvoller goldglänzender Metallrand mit einer strahlend warmen Aura.",
   },
   {
     id: "frame_cyber",
@@ -483,7 +488,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "💾",
     description: "Electric cyan and magenta pulsing grid lines for synth lovers.",
-    germanDescription: "Neuzeitliche neon-blaue & violette Gitterlinien für coole Retro-Schnittstellen."
+    germanDescription:
+      "Neuzeitliche neon-blaue & violette Gitterlinien für coole Retro-Schnittstellen.",
   },
   {
     id: "frame_clouds",
@@ -495,7 +501,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "☁️",
     description: "Fluffy white clouds floating in the corners of your screen.",
-    germanDescription: "Kuschelig weiche, weiße Wolken, die sanft an den Ecken schweben."
+    germanDescription: "Kuschelig weiche, weiße Wolken, die sanft an den Ecken schweben.",
   },
   {
     id: "frame_stars",
@@ -507,7 +513,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "💖",
     description: "Twinkling star cluster lining the borders of the window.",
-    germanDescription: "Überall funkelnde, kleine Sternchen und Glitzereffekte am Rahmen."
+    germanDescription: "Überall funkelnde, kleine Sternchen und Glitzereffekte am Rahmen.",
   },
   {
     id: "frame_forest",
@@ -519,7 +525,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🍃",
     description: "An ancient border wrapped with fresh green leaves and wood.",
-    germanDescription: "Ein uralter elfenhafter Holzrahmen, bewachsen mit frischem Efeu."
+    germanDescription: "Ein uralter elfenhafter Holzrahmen, bewachsen mit frischem Efeu.",
   },
   {
     id: "frame_royal",
@@ -531,7 +537,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "👑",
     description: "A rich royal purple and gold border fit for space majesty.",
-    germanDescription: "Ein prachtvoller kaiserlich-violetter Rahmen mit echtem Goldrand."
+    germanDescription: "Ein prachtvoller kaiserlich-violetter Rahmen mit echtem Goldrand.",
   },
   {
     id: "frame_sakura",
@@ -543,7 +549,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🌸",
     description: "Draped with delicate pink cherry blossom petals on branches.",
-    germanDescription: "Ein wunderschöner rosa Rahmen, verziert mit Kirschblütenzweigen."
+    germanDescription: "Ein wunderschöner rosa Rahmen, verziert mit Kirschblütenzweigen.",
   },
   {
     id: "frame_ghost",
@@ -555,7 +561,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "👻",
     description: "An ethereal ghostly purple outline glowing with phantom energy.",
-    germanDescription: "Ein geisterhaft bläulicher Rahmen mit schwebenden Spuk-Lichtern."
+    germanDescription: "Ein geisterhaft bläulicher Rahmen mit schwebenden Spuk-Lichtern.",
   },
   {
     id: "frame_candy",
@@ -567,7 +573,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🍬",
     description: "Pink and white striped cane design sweet enough to eat.",
-    germanDescription: "Ein leuchtend rot-weiß gestreifter Rahmen im zuckersüßen Design."
+    germanDescription: "Ein leuchtend rot-weiß gestreifter Rahmen im zuckersüßen Design.",
   },
   {
     id: "frame_steampunk",
@@ -579,7 +585,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "⚙️",
     description: "Retro brass borders decorated with animated ticking gears.",
-    germanDescription: "Ein robuster, kupferner Steampunk-Rahmen voller kleiner Zahnräder."
+    germanDescription: "Ein robuster, kupferner Steampunk-Rahmen voller kleiner Zahnräder.",
   },
   {
     id: "frame_ice",
@@ -591,7 +597,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "❄️",
     description: "A crystalline, frosted light blue border with ice spikes.",
-    germanDescription: "Von Eiskristallen überzogener, hellblau schimmernder Frost-Rahmen."
+    germanDescription: "Von Eiskristallen überzogener, hellblau schimmernder Frost-Rahmen.",
   },
   {
     id: "frame_abyss",
@@ -603,7 +609,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "🐙",
     description: "A mysterious pulsing dark navy ocean border wrapped in tentacles.",
-    germanDescription: "Geheimnisvoll dunkelblauer Tiefsee-Rahmen mit sanft glühenden Polypen."
+    germanDescription: "Geheimnisvoll dunkelblauer Tiefsee-Rahmen mit sanft glühenden Polypen.",
   },
   {
     id: "frame_valentines",
@@ -615,7 +621,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "💖",
     description: "A sweet crimson frame floating heart shapes all around.",
-    germanDescription: "Ein romantischer rosa-roter Rahmen mit winzig pulsierenden Herzchen."
+    germanDescription: "Ein romantischer rosa-roter Rahmen mit winzig pulsierenden Herzchen.",
   },
 
   // --- Moon Skins (20 items) ---
@@ -629,7 +635,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🌙",
     description: "Your standard orbiting crescent moon, glowing with peaceful starlight.",
-    germanDescription: "Dein Standard-Mondsichel-Orbiter, der in ruhigem Sternenlicht glänzt."
+    germanDescription: "Dein Standard-Mondsichel-Orbiter, der in ruhigem Sternenlicht glänzt.",
   },
   {
     id: "moon_blood",
@@ -641,7 +647,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🩸",
     description: "A deep blood-red celestial orb carrying dark stellar powers.",
-    germanDescription: "Ein tiefblutroter Himmelskörper, der geheimnisvolle dunkle Energie ausstrahlt."
+    germanDescription:
+      "Ein tiefblutroter Himmelskörper, der geheimnisvolle dunkle Energie ausstrahlt.",
   },
   {
     id: "moon_cheese",
@@ -653,7 +660,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🧀",
     description: "A delicious chunk of cosmic Swiss cheese complete with savory craters.",
-    germanDescription: "Ein leckeres Stück Weltall-Schweizerkäse mit schmackhaften Kratern."
+    germanDescription: "Ein leckeres Stück Weltall-Schweizerkäse mit schmackhaften Kratern.",
   },
   {
     id: "moon_neon",
@@ -665,7 +672,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "⚡",
     description: "High-tech virtual moon reflecting bright cyan cyber nets.",
-    germanDescription: "Ein hochmoderner virtueller Mond, der cyanfarbene Tech-Netze reflektiert."
+    germanDescription: "Ein hochmoderner virtueller Mond, der cyanfarbene Tech-Netze reflektiert.",
   },
   {
     id: "moon_gold",
@@ -677,7 +684,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "👑",
     description: "A highly-polished solid gold moon built for glorious kings and queens.",
-    germanDescription: "Ein hochglanzpolierter, massiver Goldmond für edle Herrscher."
+    germanDescription: "Ein hochglanzpolierter, massiver Goldmond für edle Herrscher.",
   },
   {
     id: "moon_crystal",
@@ -689,7 +696,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "💎",
     description: "A legendary crystal shard that refracts ambient space rays into diamonds.",
-    germanDescription: "Ein legendärer Kristalldom, der herumlaufendes Sternenlicht in Diamanten bricht."
+    germanDescription:
+      "Ein legendärer Kristalldom, der herumlaufendes Sternenlicht in Diamanten bricht.",
   },
   {
     id: "moon_cat",
@@ -701,7 +709,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🐱",
     description: "A cute golden cat curled up into a sleepy celestial dream.",
-    germanDescription: "Eine süße goldene Katze, die sich gemütlich zu einer Sichel zusammengerollt hat."
+    germanDescription:
+      "Eine süße goldene Katze, die sich gemütlich zu einer Sichel zusammengerollt hat.",
   },
   {
     id: "moon_lavender",
@@ -713,7 +722,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🔮",
     description: "A soft, pastel lavender moon giving off soothing herbal perfume.",
-    germanDescription: "Ein zarter, lavendelvioletter Mond mit wohltuendem, weichem Glanz."
+    germanDescription: "Ein zarter, lavendelvioletter Mond mit wohltuendem, weichem Glanz.",
   },
   {
     id: "moon_cyber",
@@ -725,7 +734,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "💾",
     description: "A digital grid-hologram scrolling with green binary rain.",
-    germanDescription: "Ein holografisches Datensystem mit herabfallendem, grünem Binärcode."
+    germanDescription: "Ein holografisches Datensystem mit herabfallendem, grünem Binärcode.",
   },
   {
     id: "moon_prism",
@@ -737,7 +746,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "🌈",
     description: "An animated shifting color spectral moon of pure aesthetic joy.",
-    germanDescription: "Ein farbwechselnder Spektralmond voller bunter, magischer Strahlkraft."
+    germanDescription: "Ein farbwechselnder Spektralmond voller bunter, magischer Strahlkraft.",
   },
   {
     id: "moon_cotton",
@@ -749,7 +758,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🍬",
     description: "A sweet fluffy pink and blue cloud candy that floats softly.",
-    germanDescription: "Ein zuckersüßes rosa-blaues Wolkengebilde, das leise im Kreis schwebt."
+    germanDescription: "Ein zuckersüßes rosa-blaues Wolkengebilde, das leise im Kreis schwebt.",
   },
   {
     id: "moon_abyss",
@@ -761,7 +770,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "🐙",
     description: "A dark deep-sea eyeball watching you from the eternal void.",
-    germanDescription: "Ein unheimliches, glühendes Tiefsee-Auge, das stumm aus der Leere blickt."
+    germanDescription: "Ein unheimliches, glühendes Tiefsee-Auge, das stumm aus der Leere blickt.",
   },
   {
     id: "moon_sakura",
@@ -773,7 +782,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🌸",
     description: "An elegant white sphere decorated with falling cherry blossom petals.",
-    germanDescription: "Eine edle weiße Kugel, verziert mit tanzenden rosa Kirschblütenblättern."
+    germanDescription: "Eine edle weiße Kugel, verziert mit tanzenden rosa Kirschblütenblättern.",
   },
   {
     id: "moon_galaxy",
@@ -785,7 +794,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🌌",
     description: "A miniature swirling purple galaxy spinning in your orbit.",
-    germanDescription: "Eine winzige, wirbelnde lila Sternengalaxie, die eifrig umherwandert."
+    germanDescription: "Eine winzige, wirbelnde lila Sternengalaxie, die eifrig umherwandert.",
   },
   {
     id: "moon_cookie",
@@ -797,7 +806,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🍪",
     description: "Who took a bite? A delicious chocolate chip cookie in orbit.",
-    germanDescription: "Wer hat da angebissen? Ein knuspriger Schokokeks fliegt umher."
+    germanDescription: "Wer hat da angebissen? Ein knuspriger Schokokeks fliegt umher.",
   },
   {
     id: "moon_bubble",
@@ -809,7 +818,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Gewöhnlich",
     emoji: "🫧",
     description: "A floating transparent water bubble shimmering in the sun.",
-    germanDescription: "Eine schimmernde, völlig transparente Seifenblase voller Frische."
+    germanDescription: "Eine schimmernde, völlig transparente Seifenblase voller Frische.",
   },
   {
     id: "moon_clock",
@@ -821,7 +830,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "🕰️",
     description: "An intricate planetary gear mechanism ticking away spatial seconds.",
-    germanDescription: "Ein fantastisches Uhrwerk voller goldener Zahnräder, die leise ticken."
+    germanDescription: "Ein fantastisches Uhrwerk voller goldener Zahnräder, die leise ticken.",
   },
   {
     id: "moon_frost",
@@ -833,7 +842,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Selten",
     emoji: "❄️",
     description: "A chilling core of deep-frozen glacier ice radiating cold snaps.",
-    germanDescription: "Ein uralter eisblauer Gletscherkern, der knackige Kälte verströmt."
+    germanDescription: "Ein uralter eisblauer Gletscherkern, der knackige Kälte verströmt.",
   },
   {
     id: "moon_phoenix",
@@ -845,7 +854,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "🔥",
     description: "A blazing sphere of celestial plasma pulsing with stellar fire.",
-    germanDescription: "Eine lodernde Plasmakugel, die in sengender Hitze rotiert."
+    germanDescription: "Eine lodernde Plasmakugel, die in sengender Hitze rotiert.",
   },
   {
     id: "moon_ghost",
@@ -857,7 +866,7 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Episch",
     emoji: "👻",
     description: "A cute floating ghost moon saying a shy hello to your planet.",
-    germanDescription: "Ein süßer kleiner Geist, der neugierig um deinen Planeten spukt."
+    germanDescription: "Ein süßer kleiner Geist, der neugierig um deinen Planeten spukt.",
   },
   {
     id: "star_butterfly",
@@ -869,7 +878,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "🦋",
     description: "Your auto-click stars glow with a fluttering pink and cyan butterfly dust aura.",
-    germanDescription: "Deine Autoclicker-Sterne hinterlassen einen funkelnden Schweif aus Schmetterlingsflügeln."
+    germanDescription:
+      "Deine Autoclicker-Sterne hinterlassen einen funkelnden Schweif aus Schmetterlingsflügeln.",
   },
   {
     id: "acc_butterfly_wings",
@@ -881,7 +891,8 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "🦋",
     description: "Two glowing, animated butterfly wings on the sides of your planet.",
-    germanDescription: "Zwei majestätische, leuchtende Schmetterlingsflügel, die an den Seiten deines Planeten schlagen."
+    germanDescription:
+      "Zwei majestätische, leuchtende Schmetterlingsflügel, die an den Seiten deines Planeten schlagen.",
   },
   {
     id: "frame_butterfly",
@@ -892,8 +903,10 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarity: "legendary",
     rarityGerman: "Legendär",
     emoji: "🦋",
-    description: "Cute fluttering blue and purple butterflies nesting on blooming flowers in your corners.",
-    germanDescription: "Zierliche, im Wind schwebende Schmetterlinge und zarte Ranken an deinem Bildschirmrand."
+    description:
+      "Cute fluttering blue and purple butterflies nesting on blooming flowers in your corners.",
+    germanDescription:
+      "Zierliche, im Wind schwebende Schmetterlinge und zarte Ranken an deinem Bildschirmrand.",
   },
   {
     id: "moon_butterfly",
@@ -905,8 +918,9 @@ export const COSMETIC_ITEMS: CosmeticItem[] = [
     rarityGerman: "Legendär",
     emoji: "🦋",
     description: "A gorgeous mythical monarch butterfly carrying glowing gold dust in orbit.",
-    germanDescription: "Ein seltener, schillernder Monarchfalter, der den Sternenstaub auf seiner Umlaufbahn verteilt."
-  }
+    germanDescription:
+      "Ein seltener, schillernder Monarchfalter, der den Sternenstaub auf seiner Umlaufbahn verteilt.",
+  },
 ];
 
 export const RARITY_STYLES = {
@@ -914,24 +928,24 @@ export const RARITY_STYLES = {
     text: "text-gray-400",
     bg: "bg-gray-400/10",
     border: "border-gray-400/30",
-    name: "Gewöhnlich"
+    name: "Gewöhnlich",
   },
   rare: {
     text: "text-sky-300",
     bg: "bg-sky-500/10",
     border: "border-sky-400/40",
-    name: "Selten"
+    name: "Selten",
   },
   epic: {
     text: "text-purple-300",
     bg: "bg-purple-500/15",
     border: "border-cosmic-accent/50",
-    name: "Episch"
+    name: "Episch",
   },
   legendary: {
     text: "text-amber-300 font-bold animate-pulse",
     bg: "bg-amber-500/15",
     border: "border-amber-400/60",
-    name: "Legendär"
-  }
+    name: "Legendär",
+  },
 };

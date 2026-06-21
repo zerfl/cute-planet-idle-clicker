@@ -23,26 +23,129 @@ interface PlanetProps {
   onOpenZodiacModal?: () => void;
 }
 
-const STAR_STYLES: Record<string, { fill: string; border: string; glow: string; ping: string; extraClass?: string }> = {
-  default: { fill: "fill-yellow-250", border: "text-amber-400", glow: "rgba(253, 224, 71, 0.5)", ping: "bg-yellow-300" },
-  pink: { fill: "fill-pink-200", border: "text-pink-400", glow: "rgba(244, 143, 177, 0.6)", ping: "bg-pink-300" },
-  purple: { fill: "fill-purple-200", border: "text-purple-400", glow: "rgba(168, 85, 247, 0.6)", ping: "bg-purple-300" },
-  cyber: { fill: "fill-cyan-200", border: "text-cyan-400", glow: "rgba(6, 182, 212, 0.6)", ping: "bg-cyan-300" },
-  gold: { fill: "fill-amber-300", border: "text-amber-500", glow: "rgba(245, 158, 11, 0.6)", ping: "bg-amber-400" },
-  mint: { fill: "fill-emerald-200", border: "text-emerald-400", glow: "rgba(16, 185, 129, 0.5)", ping: "bg-emerald-300" },
-  ruby: { fill: "fill-red-200", border: "text-red-400", glow: "rgba(239, 68, 68, 0.6)", ping: "bg-red-400" },
-  rainbow: { fill: "", border: "", glow: "rgba(236, 72, 153, 0.7)", ping: "bg-pink-400", extraClass: "animate-rainbow-star" },
-  emerald: { fill: "fill-emerald-300", border: "text-emerald-500", glow: "rgba(16, 185, 129, 0.6)", ping: "bg-emerald-400" },
-  sunset: { fill: "fill-orange-300", border: "text-orange-500", glow: "rgba(249, 115, 22, 0.6)", ping: "bg-orange-400" },
-  silver: { fill: "fill-slate-200", border: "text-slate-400", glow: "rgba(148, 163, 184, 0.5)", ping: "bg-slate-300" },
-  ocean: { fill: "fill-sky-200", border: "text-blue-500", glow: "rgba(14, 165, 233, 0.6)", ping: "bg-sky-400" },
-  cosmic_black: { fill: "fill-violet-950", border: "text-violet-800", glow: "rgba(139, 92, 246, 0.8)", ping: "bg-violet-900", extraClass: "brightness-75" },
-  sakura_petals: { fill: "fill-rose-200", border: "text-rose-400", glow: "rgba(251, 113, 133, 0.5)", ping: "bg-rose-300" },
-  ghostly: { fill: "fill-indigo-200", border: "text-indigo-400", glow: "rgba(129, 140, 248, 0.6)", ping: "bg-indigo-300", extraClass: "opacity-80 animate-pulse" },
-  toxic: { fill: "fill-lime-300", border: "text-lime-500", glow: "rgba(132, 204, 22, 0.6)", ping: "bg-lime-400" },
-  lava: { fill: "fill-orange-400", border: "text-red-500", glow: "rgba(239, 68, 68, 0.7)", ping: "bg-orange-500", extraClass: "animate-pulse" },
-  candy: { fill: "fill-fuchsia-200", border: "text-pink-400", glow: "rgba(232, 121, 249, 0.6)", ping: "bg-pink-300" },
-  butterfly: { fill: "fill-pink-350", border: "text-amber-300", glow: "rgba(232, 121, 249, 0.7)", ping: "bg-fuchsia-400", extraClass: "animate-pulse" }
+const STAR_STYLES: Record<
+  string,
+  { fill: string; border: string; glow: string; ping: string; extraClass?: string }
+> = {
+  default: {
+    fill: "fill-yellow-250",
+    border: "text-amber-400",
+    glow: "rgba(253, 224, 71, 0.5)",
+    ping: "bg-yellow-300",
+  },
+  pink: {
+    fill: "fill-pink-200",
+    border: "text-pink-400",
+    glow: "rgba(244, 143, 177, 0.6)",
+    ping: "bg-pink-300",
+  },
+  purple: {
+    fill: "fill-purple-200",
+    border: "text-purple-400",
+    glow: "rgba(168, 85, 247, 0.6)",
+    ping: "bg-purple-300",
+  },
+  cyber: {
+    fill: "fill-cyan-200",
+    border: "text-cyan-400",
+    glow: "rgba(6, 182, 212, 0.6)",
+    ping: "bg-cyan-300",
+  },
+  gold: {
+    fill: "fill-amber-300",
+    border: "text-amber-500",
+    glow: "rgba(245, 158, 11, 0.6)",
+    ping: "bg-amber-400",
+  },
+  mint: {
+    fill: "fill-emerald-200",
+    border: "text-emerald-400",
+    glow: "rgba(16, 185, 129, 0.5)",
+    ping: "bg-emerald-300",
+  },
+  ruby: {
+    fill: "fill-red-200",
+    border: "text-red-400",
+    glow: "rgba(239, 68, 68, 0.6)",
+    ping: "bg-red-400",
+  },
+  rainbow: {
+    fill: "",
+    border: "",
+    glow: "rgba(236, 72, 153, 0.7)",
+    ping: "bg-pink-400",
+    extraClass: "animate-rainbow-star",
+  },
+  emerald: {
+    fill: "fill-emerald-300",
+    border: "text-emerald-500",
+    glow: "rgba(16, 185, 129, 0.6)",
+    ping: "bg-emerald-400",
+  },
+  sunset: {
+    fill: "fill-orange-300",
+    border: "text-orange-500",
+    glow: "rgba(249, 115, 22, 0.6)",
+    ping: "bg-orange-400",
+  },
+  silver: {
+    fill: "fill-slate-200",
+    border: "text-slate-400",
+    glow: "rgba(148, 163, 184, 0.5)",
+    ping: "bg-slate-300",
+  },
+  ocean: {
+    fill: "fill-sky-200",
+    border: "text-blue-500",
+    glow: "rgba(14, 165, 233, 0.6)",
+    ping: "bg-sky-400",
+  },
+  cosmic_black: {
+    fill: "fill-violet-950",
+    border: "text-violet-800",
+    glow: "rgba(139, 92, 246, 0.8)",
+    ping: "bg-violet-900",
+    extraClass: "brightness-75",
+  },
+  sakura_petals: {
+    fill: "fill-rose-200",
+    border: "text-rose-400",
+    glow: "rgba(251, 113, 133, 0.5)",
+    ping: "bg-rose-300",
+  },
+  ghostly: {
+    fill: "fill-indigo-200",
+    border: "text-indigo-400",
+    glow: "rgba(129, 140, 248, 0.6)",
+    ping: "bg-indigo-300",
+    extraClass: "opacity-80 animate-pulse",
+  },
+  toxic: {
+    fill: "fill-lime-300",
+    border: "text-lime-500",
+    glow: "rgba(132, 204, 22, 0.6)",
+    ping: "bg-lime-400",
+  },
+  lava: {
+    fill: "fill-orange-400",
+    border: "text-red-500",
+    glow: "rgba(239, 68, 68, 0.7)",
+    ping: "bg-orange-500",
+    extraClass: "animate-pulse",
+  },
+  candy: {
+    fill: "fill-fuchsia-200",
+    border: "text-pink-400",
+    glow: "rgba(232, 121, 249, 0.6)",
+    ping: "bg-pink-300",
+  },
+  butterfly: {
+    fill: "fill-pink-350",
+    border: "text-amber-300",
+    glow: "rgba(232, 121, 249, 0.7)",
+    ping: "bg-fuchsia-400",
+    extraClass: "animate-pulse",
+  },
 };
 
 // Visual themes for the planet according to level
@@ -335,406 +438,452 @@ const getMoonSkinGraphic = (skin: string) => {
       return {
         element: <Moon className="w-4 h-4 fill-red-500 text-red-600 stroke-[1.2] animate-pulse" />,
         shadow: "0 0 7px rgba(239, 68, 68, 0.9)",
-        pingBg: "bg-red-500/30"
+        pingBg: "bg-red-500/30",
       };
     case "cheese":
       return {
         element: <span className="text-sm select-none">🧀</span>,
         shadow: "0 0 6px rgba(251, 191, 36, 0.8)",
-        pingBg: "bg-amber-300/30"
+        pingBg: "bg-amber-300/30",
       };
     case "neon":
       return {
-        element: <Moon className="w-4 h-4 fill-cyan-400 text-cyan-300 stroke-[1.2] brightness-125" />,
+        element: (
+          <Moon className="w-4 h-4 fill-cyan-400 text-cyan-300 stroke-[1.2] brightness-125" />
+        ),
         shadow: "0 0 8px rgba(6, 182, 212, 0.9)",
-        pingBg: "bg-cyan-400/30"
+        pingBg: "bg-cyan-400/30",
       };
     case "gold":
       return {
-        element: <Moon className="w-4 h-4 fill-amber-300 text-amber-500 stroke-[1.5] brightness-110" />,
+        element: (
+          <Moon className="w-4 h-4 fill-amber-300 text-amber-500 stroke-[1.5] brightness-110" />
+        ),
         shadow: "0 0 8px rgba(245, 158, 11, 0.9)",
-        pingBg: "bg-amber-400/35"
+        pingBg: "bg-amber-400/35",
       };
     case "crystal":
       return {
         element: <span className="text-sm select-none">💎</span>,
         shadow: "0 0 8px rgba(147, 197, 253, 0.9)",
-        pingBg: "bg-sky-300/30"
+        pingBg: "bg-sky-300/30",
       };
     case "cat":
       return {
         element: <span className="text-sm select-none">🐱</span>,
         shadow: "0 0 6px rgba(253, 186, 116, 0.8)",
-        pingBg: "bg-orange-300/25"
+        pingBg: "bg-orange-300/25",
       };
     case "lavender":
       return {
         element: <Moon className="w-4 h-4 fill-fuchsia-300 text-cosmic-accent stroke-[1.2]" />,
         shadow: "0 0 6px rgba(217, 70, 239, 0.8)",
-        pingBg: "bg-purple-400/30"
+        pingBg: "bg-purple-400/30",
       };
     case "cyber":
       return {
-        element: <span className="text-[11px] font-mono text-emerald-400 select-none animate-pulse">01</span>,
+        element: (
+          <span className="text-[11px] font-mono text-emerald-400 select-none animate-pulse">
+            01
+          </span>
+        ),
         shadow: "0 0 7px rgba(34, 197, 94, 0.9)",
-        pingBg: "bg-emerald-400/30"
+        pingBg: "bg-emerald-400/30",
       };
     case "prism":
       return {
-        element: <Moon className="w-4 h-4 fill-transparent text-cosmic-pink stroke-[2] animate-rainbow-star" />,
+        element: (
+          <Moon className="w-4 h-4 fill-transparent text-cosmic-pink stroke-[2] animate-rainbow-star" />
+        ),
         shadow: "0 0 8px rgba(236, 72, 153, 0.8)",
-        pingBg: "bg-pink-400/30"
+        pingBg: "bg-pink-400/30",
       };
     case "cotton":
       return {
         element: <span className="text-sm select-none">🍬</span>,
         shadow: "0 0 6px rgba(244, 114, 182, 0.8)",
-        pingBg: "bg-pink-300/30"
+        pingBg: "bg-pink-300/30",
       };
     case "abyss":
       return {
         element: <span className="text-sm select-none">👁️</span>,
         shadow: "0 0 8px rgba(99, 102, 241, 0.9)",
-        pingBg: "bg-indigo-500/30"
+        pingBg: "bg-indigo-500/30",
       };
     case "sakura":
       return {
         element: <span className="text-sm select-none">🌸</span>,
         shadow: "0 0 8px rgba(251, 113, 133, 0.9)",
-        pingBg: "bg-rose-400/30"
+        pingBg: "bg-rose-400/30",
       };
     case "galaxy":
       return {
         element: <span className="text-sm select-none">🌌</span>,
         shadow: "0 0 8px rgba(139, 92, 246, 0.9)",
-        pingBg: "bg-violet-400/30"
+        pingBg: "bg-violet-400/30",
       };
     case "cookie":
       return {
         element: <span className="text-sm select-none">🍪</span>,
         shadow: "0 0 5px rgba(180, 83, 9, 0.6)",
-        pingBg: "bg-amber-700/20"
+        pingBg: "bg-amber-700/20",
       };
     case "bubble":
       return {
         element: <span className="text-sm select-none">🫧</span>,
         shadow: "0 0 6px rgba(56, 189, 248, 0.8)",
-        pingBg: "bg-sky-400/25"
+        pingBg: "bg-sky-400/25",
       };
     case "clock":
       return {
         element: <span className="text-sm select-none">🕰️</span>,
         shadow: "0 0 6px rgba(217, 119, 6, 0.8)",
-        pingBg: "bg-amber-500/25"
+        pingBg: "bg-amber-500/25",
       };
     case "frost":
       return {
         element: <span className="text-sm select-none">❄️</span>,
         shadow: "0 0 8px rgba(186, 230, 253, 0.9)",
-        pingBg: "bg-sky-200/30"
+        pingBg: "bg-sky-200/30",
       };
     case "phoenix":
       return {
         element: <span className="text-sm select-none animate-pulse">🔥</span>,
         shadow: "0 0 8px rgba(239, 68, 68, 0.9)",
-        pingBg: "bg-red-400/30"
+        pingBg: "bg-red-400/30",
       };
     case "ghost":
       return {
         element: <span className="text-sm select-none animate-bounce">👻</span>,
         shadow: "0 0 6px rgba(241, 245, 249, 0.8)",
-        pingBg: "bg-slate-300/25"
+        pingBg: "bg-slate-300/25",
       };
     case "butterfly":
       return {
         element: <span className="text-sm select-none animate-pulse">🦋</span>,
         shadow: "0 0 8px rgba(244, 114, 182, 0.9)",
-        pingBg: "bg-pink-400/35"
+        pingBg: "bg-pink-400/35",
       };
     case "classic":
     default:
       return {
         element: <Moon className="w-4 h-4 fill-purple-200 text-purple-300 stroke-[1.2]" />,
         shadow: "0 0 5px rgba(212, 195, 255, 0.8)",
-        pingBg: "bg-purple-400/30"
+        pingBg: "bg-purple-400/30",
       };
   }
 };
 
-export const Planet: React.FC<PlanetProps> = React.memo(({
-  level,
-  planetExp,
-  planetExpNeeded,
-  planetTask,
-  starsCount,
-  starPowerMultiplier,
-  onPlanetClick,
-  isNight = true,
-  activeStarColor = "default",
-  activeAccessory = "none",
-  isLowMemory = false,
-  moonsCount = 0,
-  activeMoonSkin = "default",
-  activeZodiacId,
-  onOpenZodiacModal,
-}) => {
-  // Select theme based on level
-  const theme = useMemo(() => {
+export const Planet: React.FC<PlanetProps> = React.memo(
+  ({
+    level,
+    planetExp,
+    planetExpNeeded,
+    planetTask,
+    starsCount,
+    starPowerMultiplier,
+    onPlanetClick,
+    isNight = true,
+    activeStarColor = "default",
+    activeAccessory = "none",
+    isLowMemory = false,
+    moonsCount = 0,
+    activeMoonSkin = "default",
+    activeZodiacId,
+    onOpenZodiacModal,
+  }) => {
+    // Select theme based on level
+    const theme = useMemo(() => {
+      return (
+        PLANET_THEMES.find((t) => level >= t.levelRange[0] && level <= t.levelRange[1]) ||
+        PLANET_THEMES[PLANET_THEMES.length - 1]
+      );
+    }, [level]);
+
+    // Generate orbit arrays for stars
+    const orbits = useMemo(() => {
+      const arr = [];
+      // Cap visual stars to at most 20 to prevent severe mobile rendering lag on high star counts, or 4 in low-memory mode
+      const maxRenderedStars = Math.min(starsCount, isLowMemory ? 4 : 20);
+      for (let i = 0; i < maxRenderedStars; i++) {
+        // Calculate randomized paths for orbit effect
+        const distance = 132 + (i % 5) * 16; // concentric circles closer to planet
+        const duration = 10 + (i % 4) * 5 + Math.random() * 2; // timing in seconds
+        const delay = -(i * 2.1); // stagger starting points
+        const reverse = i % 2 === 0;
+        arr.push({ id: i, distance, duration, delay, reverse });
+      }
+      return arr;
+    }, [starsCount, isLowMemory]);
+
+    // Generate moon orbits (outer orbits, max 10, or max 2 in low memory mode)
+    const moonOrbits = useMemo(() => {
+      const arr = [];
+      const maxRenderedMoons = Math.min(moonsCount, isLowMemory ? 2 : 10);
+      for (let i = 0; i < maxRenderedMoons; i++) {
+        const distance = 216 + i * 18; // concentric orbits closer to each other to pack 10 nicely
+        const duration = 24 + i * 6; // slightly staggered speeds
+        const delay = -(i * 5.2); // stagger delays
+        const reverse = i % 2 !== 0;
+        arr.push({ id: i, distance, duration, delay, reverse });
+      }
+      return arr;
+    }, [moonsCount, isLowMemory]);
+
     return (
-      PLANET_THEMES.find(
-        (t) => level >= t.levelRange[0] && level <= t.levelRange[1]
-      ) || PLANET_THEMES[PLANET_THEMES.length - 1]
-    );
-  }, [level]);
+      <div className="relative flex flex-col items-center select-none py-6 px-4">
+        {/* Visual background atmospheric glow */}
+        <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-pink-200/40 via-purple-200/30 to-teal-200/40 blur-3xl opacity-90 -z-10" />
 
-  // Generate orbit arrays for stars
-  const orbits = useMemo(() => {
-    const arr = [];
-    // Cap visual stars to at most 20 to prevent severe mobile rendering lag on high star counts, or 4 in low-memory mode
-    const maxRenderedStars = Math.min(starsCount, isLowMemory ? 4 : 20);
-    for (let i = 0; i < maxRenderedStars; i++) {
-      // Calculate randomized paths for orbit effect
-      const distance = 132 + (i % 5) * 16; // concentric circles closer to planet
-      const duration = 10 + (i % 4) * 5 + Math.random() * 2; // timing in seconds
-      const delay = -(i * 2.1); // stagger starting points
-      const reverse = i % 2 === 0;
-      arr.push({ id: i, distance, duration, delay, reverse });
-    }
-    return arr;
-  }, [starsCount, isLowMemory]);
-
-  // Generate moon orbits (outer orbits, max 10, or max 2 in low memory mode)
-  const moonOrbits = useMemo(() => {
-    const arr = [];
-    const maxRenderedMoons = Math.min(moonsCount, isLowMemory ? 2 : 10);
-    for (let i = 0; i < maxRenderedMoons; i++) {
-      const distance = 216 + i * 18; // concentric orbits closer to each other to pack 10 nicely
-      const duration = 24 + i * 6; // slightly staggered speeds
-      const delay = -(i * 5.2); // stagger delays
-      const reverse = i % 2 !== 0;
-      arr.push({ id: i, distance, duration, delay, reverse });
-    }
-    return arr;
-  }, [moonsCount, isLowMemory]);
-
-  return (
-    <div className="relative flex flex-col items-center select-none py-6 px-4">
-      {/* Visual background atmospheric glow */}
-      <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-pink-200/40 via-purple-200/30 to-teal-200/40 blur-3xl opacity-90 -z-10" />
-
-      {/* Central Cosmic System Wrapper: perfectly binds everything to the exact same center anchor point */}
-      <div className="relative w-44 h-44 sm:w-56 sm:h-56 flex items-center justify-center">
-
-        {/* Orbit Rings Container */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-[660px] h-[660px] flex items-center justify-center z-20">
-          {/* Render Concentric Orbits if Stars exist */}
-          {orbits.map((val) => {
-            const starStyle = STAR_STYLES[activeStarColor] || STAR_STYLES.default;
-            return (
-              <div
-                key={val.id}
-                className="absolute border border-dashed border-sky-200/15 rounded-full"
-                style={{
-                  width: `${val.distance * 2}px`,
-                  height: `${val.distance * 2}px`,
-                  transform: `rotate(${val.id * 15}deg)`,
-                }}
-              >
-                {/* Spinning Star Wrapper */}
+        {/* Central Cosmic System Wrapper: perfectly binds everything to the exact same center anchor point */}
+        <div className="relative w-44 h-44 sm:w-56 sm:h-56 flex items-center justify-center">
+          {/* Orbit Rings Container */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-[660px] h-[660px] flex items-center justify-center z-20">
+            {/* Render Concentric Orbits if Stars exist */}
+            {orbits.map((val) => {
+              const starStyle = STAR_STYLES[activeStarColor] || STAR_STYLES.default;
+              return (
                 <div
-                  className="absolute w-full h-full animate-spin"
+                  key={val.id}
+                  className="absolute border border-dashed border-sky-200/15 rounded-full"
                   style={{
-                    animationDuration: `${val.duration}s`,
-                    animationTimingFunction: "linear",
-                    animationIterationCount: "infinite",
-                    animationDirection: val.reverse ? "reverse" : "normal",
+                    width: `${val.distance * 2}px`,
+                    height: `${val.distance * 2}px`,
+                    transform: `rotate(${val.id * 15}deg)`,
                   }}
                 >
-                  {/* Real physical orbiting star */}
+                  {/* Spinning Star Wrapper */}
                   <div
-                    className="absolute left-1/2 -top-1.5 w-3 h-3 flex items-center justify-center -translate-x-1/2"
+                    className="absolute w-full h-full animate-spin"
                     style={{
-                      filter: `drop-shadow(0 0 2px ${starStyle.glow})`,
+                      animationDuration: `${val.duration}s`,
+                      animationTimingFunction: "linear",
+                      animationIterationCount: "infinite",
+                      animationDirection: val.reverse ? "reverse" : "normal",
                     }}
                   >
-                    <Star className={`w-2.5 h-2.5 ${starStyle.fill} ${starStyle.border} stroke-[1.5] ${starStyle.extraClass || ""}`} />
-                    {/* Subtle emission pulse radiating from the star occasionally */}
-                    <span className={`absolute animate-ping inline-flex h-full w-full rounded-full ${starStyle.ping} opacity-20 pointer-events-none`} />
+                    {/* Real physical orbiting star */}
+                    <div
+                      className="absolute left-1/2 -top-1.5 w-3 h-3 flex items-center justify-center -translate-x-1/2"
+                      style={{
+                        filter: `drop-shadow(0 0 2px ${starStyle.glow})`,
+                      }}
+                    >
+                      <Star
+                        className={`w-2.5 h-2.5 ${starStyle.fill} ${starStyle.border} stroke-[1.5] ${starStyle.extraClass || ""}`}
+                      />
+                      {/* Subtle emission pulse radiating from the star occasionally */}
+                      <span
+                        className={`absolute animate-ping inline-flex h-full w-full rounded-full ${starStyle.ping} opacity-20 pointer-events-none`}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
 
-          {/* Render Moons if Moons exist */}
-          {moonOrbits.map((val) => {
-            const skinGraphic = getMoonSkinGraphic(activeMoonSkin);
-            return (
-              <div
-                key={val.id}
-                className={`absolute rounded-full ${isLowMemory ? "" : "border border-dashed border-purple-400/20"}`}
-                style={{
-                  width: `${val.distance * 2}px`,
-                  height: `${val.distance * 2}px`,
-                  transform: `rotate(${val.id * 40}deg)`,
-                }}
-              >
-                {/* Spinning Moon Wrapper */}
+            {/* Render Moons if Moons exist */}
+            {moonOrbits.map((val) => {
+              const skinGraphic = getMoonSkinGraphic(activeMoonSkin);
+              return (
                 <div
-                  className="absolute w-full h-full animate-spin"
+                  key={val.id}
+                  className={`absolute rounded-full ${isLowMemory ? "" : "border border-dashed border-purple-400/20"}`}
                   style={{
-                    animationDuration: `${val.duration}s`,
-                    animationTimingFunction: "linear",
-                    animationIterationCount: "infinite",
-                    animationDirection: val.reverse ? "reverse" : "normal",
+                    width: `${val.distance * 2}px`,
+                    height: `${val.distance * 2}px`,
+                    transform: `rotate(${val.id * 40}deg)`,
                   }}
                 >
-                  {/* Glowing physical orbiting moon */}
+                  {/* Spinning Moon Wrapper */}
                   <div
-                    className="absolute left-1/2 -top-2.5 w-5 h-5 flex items-center justify-center -translate-x-1/2 rotate-45"
+                    className="absolute w-full h-full animate-spin"
                     style={{
-                      filter: isLowMemory ? "" : `drop-shadow(${skinGraphic.shadow})`,
+                      animationDuration: `${val.duration}s`,
+                      animationTimingFunction: "linear",
+                      animationIterationCount: "infinite",
+                      animationDirection: val.reverse ? "reverse" : "normal",
                     }}
                   >
-                    {skinGraphic.element}
-                    {/* Ping radiant aura */}
-                    {!isLowMemory && (
-                      <span className={`absolute animate-ping inline-flex h-full w-full rounded-full ${skinGraphic.pingBg} opacity-25 pointer-events-none`} />
-                    )}
+                    {/* Glowing physical orbiting moon */}
+                    <div
+                      className="absolute left-1/2 -top-2.5 w-5 h-5 flex items-center justify-center -translate-x-1/2 rotate-45"
+                      style={{
+                        filter: isLowMemory ? "" : `drop-shadow(${skinGraphic.shadow})`,
+                      }}
+                    >
+                      {skinGraphic.element}
+                      {/* Ping radiant aura */}
+                      {!isLowMemory && (
+                        <span
+                          className={`absolute animate-ping inline-flex h-full w-full rounded-full ${skinGraphic.pingBg} opacity-25 pointer-events-none`}
+                        />
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
 
-        {/* Main Interactive Planet Wrapper */}
-        <motion.div
-          id="planet-container"
-          whileTap={{ scale: 0.94 }}
-          whileHover={{ scale: 1.03 }}
-          transition={{ type: "spring", stiffness: 450, damping: 15 }}
-          onClick={onPlanetClick}
-          className="cursor-pointer relative z-10 w-full h-full rounded-full flex items-center justify-center filter drop-shadow-[0_8px_24px_rgba(244,143,177,0.3)] touch-manipulation"
-        >
-          {/* Level Up Flash / Glow Aura */}
-          <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
-
-          {/* Planet SVG representation */}
-          <svg
-            viewBox="0 0 200 200"
-            className="w-full h-full select-none"
-            xmlns="http://www.w3.org/2000/svg"
+          {/* Main Interactive Planet Wrapper */}
+          <motion.div
+            id="planet-container"
+            whileTap={{ scale: 0.94 }}
+            whileHover={{ scale: 1.03 }}
+            transition={{ type: "spring", stiffness: 450, damping: 15 }}
+            onClick={onPlanetClick}
+            className="cursor-pointer relative z-10 w-full h-full rounded-full flex items-center justify-center filter drop-shadow-[0_8px_24px_rgba(244,143,177,0.3)] touch-manipulation"
           >
-          <defs>
-            <clipPath id="planetClip">
-              <circle cx="100" cy="100" r="90" />
-            </clipPath>
-          </defs>
+            {/* Level Up Flash / Glow Aura */}
+            <div className="absolute inset-0 rounded-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
 
-          <image
-            href={theme.image}
-            x="10"
-            y="10"
-            width="180"
-            height="180"
-            clipPath="url(#planetClip)"
-          />
+            {/* Planet SVG representation */}
+            <svg
+              viewBox="0 0 200 200"
+              className="w-full h-full select-none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <clipPath id="planetClip">
+                  <circle cx="100" cy="100" r="90" />
+                </clipPath>
+              </defs>
 
-          {/* Render Active Cosmetic Accessory */}
-          <PlanetAccessory activeAccessory={activeAccessory} />
-</svg>
-</motion.div>
-</div>
-      
-      {/* Planet Info Display & Level-Bar */}
-      <div className={`mt-6 flex flex-col items-center w-full max-w-md relative z-10 rounded-2.5xl p-6 border-3 transition-colors duration-500 shadow-md ${
-        isNight 
-          ? "bg-[#130f2c]/95 border-cosmic-accent/60 text-cosmic-text" 
-          : "bg-[#fffdf2]/95 border-amber-300 text-slate-800"
-      }`}>
-        <div className="flex items-center gap-2">
-          <span className={`font-sans text-xs font-black px-2.5 py-0.5 rounded-full border-2 transition-colors duration-500 ${
-            isNight 
-              ? "bg-cosmic-accent border-cosmic-bg text-cosmic-bg" 
-              : "bg-amber-200 border-amber-500 text-amber-950"
-          }`}>
-            Lv. {level}
-          </span>
-          <h2 className={`font-sans font-black uppercase text-sm sm:text-base tracking-wide ${
-            isNight ? "text-cosmic-text" : "text-amber-950"
-          }`}>
-            {theme.name}
-          </h2>
-        </div>
-        <p className={`font-sans text-[11px] text-center mt-2 leading-relaxed font-semibold transition-colors duration-500 ${
-          isNight ? "text-cosmic-accent-muted" : "text-slate-600"
-        }`}>
-          {theme.subName}
-        </p>
+              <image
+                href={theme.image}
+                x="10"
+                y="10"
+                width="180"
+                height="180"
+                clipPath="url(#planetClip)"
+              />
 
-        {/* Planet level task container instead of legacy EXP bar */}
-        <div className="w-full mt-3 flex flex-col">
-          <div className="flex justify-between items-center text-[10px] font-mono mb-1 transition-colors duration-500">
-            <span className={`uppercase font-black text-xs tracking-wider flex items-center gap-1 ${
-              isNight ? "text-cosmic-pink" : "text-amber-805"
-            }`}>
-              🎯 LEVELAUFGABE
-            </span>
-            <span className={`font-black text-xs ${isNight ? "text-violet-200" : "text-amber-950"}`}>
-              {planetTask ? `${planetTask.progress} / ${planetTask.target}` : "0 / 0"}
-            </span>
-          </div>
-          
-          <p className={`font-sans text-xs font-semibold mb-2 mt-0.5 transition-colors leading-relaxed ${
-            isNight ? "text-purple-200" : "text-slate-800"
-          }`}>
-            {planetTask ? planetTask.description : "Galaktische Aufgabe wird generiert..."}
-          </p>
-
-          <div className={`w-full h-4 border-2 rounded-full overflow-hidden p-[1px] transition-colors duration-500 ${
-            isNight ? "border-cosmic-accent/45 bg-[#090715]" : "border-amber-305 bg-amber-50"
-          }`}>
-            <motion.div
-              initial={{ width: 1 }}
-              animate={{ width: `${planetTask ? Math.min(100, (planetTask.progress / planetTask.target) * 100) : 0}%` }}
-              transition={{ type: "spring", stiffness: 80, damping: 15 }}
-              className={`h-full rounded-full border-r ${
-                isNight 
-                  ? "bg-gradient-to-r from-cosmic-accent via-violet-400 to-cosmic-pink border-cosmic-bg" 
-                  : "bg-gradient-to-r from-yellow-300 to-amber-500 border-amber-950"
-              }`}
-            />
-          </div>
+              {/* Render Active Cosmetic Accessory */}
+              <PlanetAccessory activeAccessory={activeAccessory} />
+            </svg>
+          </motion.div>
         </div>
 
-        {(() => {
-          const resolvedZodiacId = activeZodiacId || "katze";
-          const zodiacObj = ZODIACS.find((z) => z.id === resolvedZodiacId);
-          if (!zodiacObj) return null;
-          return (
-            <button
-              onClick={onOpenZodiacModal}
-              title="Klicke für Details"
-              className={`mt-4 w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-[11px] font-bold border shadow-sm transition-all hover:scale-[1.01] active:scale-95 cursor-pointer ${
+        {/* Planet Info Display & Level-Bar */}
+        <div
+          className={`mt-6 flex flex-col items-center w-full max-w-md relative z-10 rounded-2.5xl p-6 border-3 transition-colors duration-500 shadow-md ${
+            isNight
+              ? "bg-[#130f2c]/95 border-cosmic-accent/60 text-cosmic-text"
+              : "bg-[#fffdf2]/95 border-amber-300 text-slate-800"
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <span
+              className={`font-sans text-xs font-black px-2.5 py-0.5 rounded-full border-2 transition-colors duration-500 ${
                 isNight
-                  ? "bg-[#251f4d]/85 hover:bg-[#322769] text-purple-200 border-purple-500/30 hover:border-purple-400/50"
-                  : "bg-amber-50/90 hover:bg-amber-100/90 text-amber-900 border-amber-200 hover:border-amber-300"
+                  ? "bg-cosmic-accent border-cosmic-bg text-cosmic-bg"
+                  : "bg-amber-200 border-amber-500 text-amber-950"
               }`}
             >
-              <span className="text-xs">{zodiacObj.emoji}</span>
-              <span className={isNight ? "text-purple-300 font-semibold" : "text-amber-800 font-semibold"}>Sternzeichen {zodiacObj.name}:</span>
-              <span className={isNight ? "text-amber-200 font-black" : "text-amber-950 font-black"}>
-                {zodiacObj.bonusDesc}
+              Lv. {level}
+            </span>
+            <h2
+              className={`font-sans font-black uppercase text-sm sm:text-base tracking-wide ${
+                isNight ? "text-cosmic-text" : "text-amber-950"
+              }`}
+            >
+              {theme.name}
+            </h2>
+          </div>
+          <p
+            className={`font-sans text-[11px] text-center mt-2 leading-relaxed font-semibold transition-colors duration-500 ${
+              isNight ? "text-cosmic-accent-muted" : "text-slate-600"
+            }`}
+          >
+            {theme.subName}
+          </p>
+
+          {/* Planet level task container instead of legacy EXP bar */}
+          <div className="w-full mt-3 flex flex-col">
+            <div className="flex justify-between items-center text-[10px] font-mono mb-1 transition-colors duration-500">
+              <span
+                className={`uppercase font-black text-xs tracking-wider flex items-center gap-1 ${
+                  isNight ? "text-cosmic-pink" : "text-amber-805"
+                }`}
+              >
+                🎯 LEVELAUFGABE
               </span>
-              <span className={`text-[9px] uppercase font-black px-1.5 py-0.5 rounded ml-1 animate-pulse ${
-                isNight ? "bg-purple-500/20 text-purple-300" : "bg-amber-100 text-[#7c2d12]"
-              }`}>ℹ️ Info</span>
-            </button>
-          );
-        })()}
+              <span
+                className={`font-black text-xs ${isNight ? "text-violet-200" : "text-amber-950"}`}
+              >
+                {planetTask ? `${planetTask.progress} / ${planetTask.target}` : "0 / 0"}
+              </span>
+            </div>
+
+            <p
+              className={`font-sans text-xs font-semibold mb-2 mt-0.5 transition-colors leading-relaxed ${
+                isNight ? "text-purple-200" : "text-slate-800"
+              }`}
+            >
+              {planetTask ? planetTask.description : "Galaktische Aufgabe wird generiert..."}
+            </p>
+
+            <div
+              className={`w-full h-4 border-2 rounded-full overflow-hidden p-[1px] transition-colors duration-500 ${
+                isNight ? "border-cosmic-accent/45 bg-[#090715]" : "border-amber-305 bg-amber-50"
+              }`}
+            >
+              <motion.div
+                initial={{ width: 1 }}
+                animate={{
+                  width: `${planetTask ? Math.min(100, (planetTask.progress / planetTask.target) * 100) : 0}%`,
+                }}
+                transition={{ type: "spring", stiffness: 80, damping: 15 }}
+                className={`h-full rounded-full border-r ${
+                  isNight
+                    ? "bg-gradient-to-r from-cosmic-accent via-violet-400 to-cosmic-pink border-cosmic-bg"
+                    : "bg-gradient-to-r from-yellow-300 to-amber-500 border-amber-950"
+                }`}
+              />
+            </div>
+          </div>
+
+          {(() => {
+            const resolvedZodiacId = activeZodiacId || "katze";
+            const zodiacObj = ZODIACS.find((z) => z.id === resolvedZodiacId);
+            if (!zodiacObj) return null;
+            return (
+              <button
+                onClick={onOpenZodiacModal}
+                title="Klicke für Details"
+                className={`mt-4 w-full flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-[11px] font-bold border shadow-sm transition-all hover:scale-[1.01] active:scale-95 cursor-pointer ${
+                  isNight
+                    ? "bg-[#251f4d]/85 hover:bg-[#322769] text-purple-200 border-purple-500/30 hover:border-purple-400/50"
+                    : "bg-amber-50/90 hover:bg-amber-100/90 text-amber-900 border-amber-200 hover:border-amber-300"
+                }`}
+              >
+                <span className="text-xs">{zodiacObj.emoji}</span>
+                <span
+                  className={
+                    isNight ? "text-purple-300 font-semibold" : "text-amber-800 font-semibold"
+                  }
+                >
+                  Sternzeichen {zodiacObj.name}:
+                </span>
+                <span
+                  className={isNight ? "text-amber-200 font-black" : "text-amber-950 font-black"}
+                >
+                  {zodiacObj.bonusDesc}
+                </span>
+                <span
+                  className={`text-[9px] uppercase font-black px-1.5 py-0.5 rounded ml-1 animate-pulse ${
+                    isNight ? "bg-purple-500/20 text-purple-300" : "bg-amber-100 text-[#7c2d12]"
+                  }`}
+                >
+                  ℹ️ Info
+                </span>
+              </button>
+            );
+          })()}
+        </div>
       </div>
-    </div>
-  );
-});
+    );
+  },
+);
 Planet.displayName = "Planet";

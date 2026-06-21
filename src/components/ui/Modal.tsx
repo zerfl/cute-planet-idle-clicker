@@ -18,14 +18,7 @@
  *   </Modal>
  */
 
-import React, {
-  useEffect,
-  useRef,
-  useCallback,
-  useContext,
-  createContext,
-  ReactNode,
-} from "react";
+import React, { useEffect, useRef, useCallback, useContext, createContext, ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -39,10 +32,10 @@ interface ModalSettings {
 
 const ModalSettingsContext = createContext<ModalSettings>({ disableAnimations: false });
 
-export const ModalSettingsProvider: React.FC<{ disableAnimations: boolean; children: ReactNode }> = ({
-  disableAnimations,
-  children,
-}) => (
+export const ModalSettingsProvider: React.FC<{
+  disableAnimations: boolean;
+  children: ReactNode;
+}> = ({ disableAnimations, children }) => (
   <ModalSettingsContext.Provider value={{ disableAnimations }}>
     {children}
   </ModalSettingsContext.Provider>
@@ -85,7 +78,7 @@ const FOCUSABLE =
 
 function getFocusable(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
-    (el) => !el.closest("[aria-hidden='true']")
+    (el) => !el.closest("[aria-hidden='true']"),
   );
 }
 
@@ -186,27 +179,24 @@ export const Modal: React.FC<ModalProps> = ({
   }, [isOpen, onClose]);
 
   // --- Focus trap ---
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key !== "Tab" || !panelRef.current) return;
-      const focusable = getFocusable(panelRef.current);
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.shiftKey) {
-        if (document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        }
-      } else {
-        if (document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key !== "Tab" || !panelRef.current) return;
+    const focusable = getFocusable(panelRef.current);
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
       }
-    },
-    []
-  );
+    } else {
+      if (document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }, []);
 
   // --- Backdrop click ---
   const handleBackdropClick = useCallback(
@@ -215,16 +205,17 @@ export const Modal: React.FC<ModalProps> = ({
         onClose();
       }
     },
-    [closeOnBackdrop, onClose]
+    [closeOnBackdrop, onClose],
   );
 
   // Render into portal
   const portalTarget =
     typeof document !== "undefined"
-      ? document.getElementById("modal-root") ?? document.body
+      ? (document.getElementById("modal-root") ?? document.body)
       : null;
 
-  const isGlitchedCtx = typeof document !== "undefined" && document.body.classList.contains("glitch-galaxy-active");
+  const isGlitchedCtx =
+    typeof document !== "undefined" && document.body.classList.contains("glitch-galaxy-active");
 
   if (!portalTarget) return null;
 
@@ -233,7 +224,10 @@ export const Modal: React.FC<ModalProps> = ({
       {isOpen && (
         // Overlay — single backdrop-blur-sm; NO panel-level blur
         <div
-          className={backdropClassName ?? `fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/65 ${disableAnimations ? "" : "backdrop-blur-sm"}`}
+          className={
+            backdropClassName ??
+            `fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-950/65 ${disableAnimations ? "" : "backdrop-blur-sm"}`
+          }
           onClick={handleBackdropClick}
           aria-modal="true"
           role="dialog"
@@ -246,8 +240,8 @@ export const Modal: React.FC<ModalProps> = ({
             exit={disableAnimations ? {} : { scale: 0.95, opacity: 0, y: 10 }}
             transition={{ duration: 0.18, ease: "easeOut" }}
             className={`${skipFrameTarget ? "" : "modal-frame-target "}${panelClassName} ${
-              isGlitchedCtx 
-                ? " !bg-black !text-cyan-400 !border-cyan-500 shadow-[0_0_35px_rgba(6,182,212,0.6)] border-4 select-none glitch-text-anim font-mono " 
+              isGlitchedCtx
+                ? " !bg-black !text-cyan-400 !border-cyan-500 shadow-[0_0_35px_rgba(6,182,212,0.6)] border-4 select-none glitch-text-anim font-mono "
                 : ""
             }`}
             style={panelStyle}
@@ -258,6 +252,6 @@ export const Modal: React.FC<ModalProps> = ({
         </div>
       )}
     </AnimatePresence>,
-    portalTarget
+    portalTarget,
   );
 };

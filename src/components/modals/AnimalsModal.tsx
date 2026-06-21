@@ -52,90 +52,91 @@ interface AnimalsModalProps {
   };
 }
 
-export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
-  isOpen,
-  onClose,
-  purchasedAnimals,
-  animalDefs,
-  onBuyAnimal,
-  calculateCost,
-  formatCompactNumber,
-  upgradesSpecs,
-}) => {
-  const { life, totalAnimalsLps } = useGameState();
-  const [buyAmount, setBuyAmount] = useState<1 | 10 | 25 | "max">(1);
-  const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
+export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(
+  ({
+    isOpen,
+    onClose,
+    purchasedAnimals,
+    animalDefs,
+    onBuyAnimal,
+    calculateCost,
+    formatCompactNumber,
+    upgradesSpecs,
+  }) => {
+    const { life, totalAnimalsLps } = useGameState();
+    const [buyAmount, setBuyAmount] = useState<1 | 10 | 25 | "max">(1);
+    const [selectedAnimal, setSelectedAnimal] = useState<Animal | null>(null);
 
-  // Smart Helpers math calculations
-  const getCheapestAnimal = () => {
-    let cheapest: typeof animalDefs[0] | null = null;
-    let cheapestCost = Infinity;
+    // Smart Helpers math calculations
+    const getCheapestAnimal = () => {
+      let cheapest: (typeof animalDefs)[0] | null = null;
+      let cheapestCost = Infinity;
 
-    animalDefs.forEach((animal) => {
-      const count = purchasedAnimals[animal.id] || 0;
-      const cost = Math.floor(animal.baseCost * Math.pow(animal.costMultiplier, count));
-      if (cost < cheapestCost) {
-        cheapestCost = cost;
-        cheapest = animal;
+      animalDefs.forEach((animal) => {
+        const count = purchasedAnimals[animal.id] || 0;
+        const cost = Math.floor(animal.baseCost * Math.pow(animal.costMultiplier, count));
+        if (cost < cheapestCost) {
+          cheapestCost = cost;
+          cheapest = animal;
+        }
+      });
+
+      return cheapest ? { animal: cheapest, cost: cheapestCost } : null;
+    };
+
+    const getBestRatioAnimal = () => {
+      let best: (typeof animalDefs)[0] | null = null;
+      let bestRatio = -1;
+      let bestCost = 0;
+
+      animalDefs.forEach((animal) => {
+        const count = purchasedAnimals[animal.id] || 0;
+        const cost = Math.floor(animal.baseCost * Math.pow(animal.costMultiplier, count));
+
+        let multiplier = 1.0;
+        if (animal.id === "bunny" && upgradesSpecs.bunnyBoost) multiplier *= 2.0;
+        if (animal.id === "chick" && upgradesSpecs.chickBoost) multiplier *= 2.0;
+        if (animal.id === "cat" && upgradesSpecs.catBoost) multiplier *= 2.0;
+        if (animal.id === "frog" && upgradesSpecs.frogBoost) multiplier *= 2.0;
+        if (animal.id === "koala" && upgradesSpecs.koalaBoost) multiplier *= 2.0;
+        if (animal.id === "panda" && upgradesSpecs.pandaBoost) multiplier *= 2.0;
+        if (animal.id === "unicorn" && upgradesSpecs.unicornBoost) multiplier *= 2.0;
+        if (upgradesSpecs.globalAnimalsBoost) multiplier *= 1.5;
+
+        const lpsDisplay = animal.baseLps * multiplier;
+        const ratio = lpsDisplay / cost;
+
+        if (ratio > bestRatio) {
+          bestRatio = ratio;
+          best = animal;
+          bestCost = cost;
+        }
+      });
+
+      return best ? { animal: best, cost: bestCost } : null;
+    };
+
+    const cheapestInfo = getCheapestAnimal();
+    const bestRatioInfo = getBestRatioAnimal();
+
+    const buyCheapest = () => {
+      if (cheapestInfo && life >= cheapestInfo.cost) {
+        onBuyAnimal(cheapestInfo.animal.id, cheapestInfo.cost, 1);
       }
-    });
+    };
 
-    return cheapest ? { animal: cheapest, cost: cheapestCost } : null;
-  };
-
-  const getBestRatioAnimal = () => {
-    let best: typeof animalDefs[0] | null = null;
-    let bestRatio = -1;
-    let bestCost = 0;
-
-    animalDefs.forEach((animal) => {
-      const count = purchasedAnimals[animal.id] || 0;
-      const cost = Math.floor(animal.baseCost * Math.pow(animal.costMultiplier, count));
-
-      let multiplier = 1.0;
-      if (animal.id === "bunny" && upgradesSpecs.bunnyBoost) multiplier *= 2.0;
-      if (animal.id === "chick" && upgradesSpecs.chickBoost) multiplier *= 2.0;
-      if (animal.id === "cat" && upgradesSpecs.catBoost) multiplier *= 2.0;
-      if (animal.id === "frog" && upgradesSpecs.frogBoost) multiplier *= 2.0;
-      if (animal.id === "koala" && upgradesSpecs.koalaBoost) multiplier *= 2.0;
-      if (animal.id === "panda" && upgradesSpecs.pandaBoost) multiplier *= 2.0;
-      if (animal.id === "unicorn" && upgradesSpecs.unicornBoost) multiplier *= 2.0;
-      if (upgradesSpecs.globalAnimalsBoost) multiplier *= 1.5;
-
-      const lpsDisplay = animal.baseLps * multiplier;
-      const ratio = lpsDisplay / cost;
-
-      if (ratio > bestRatio) {
-        bestRatio = ratio;
-        best = animal;
-        bestCost = cost;
+    const buyBestRatio = () => {
+      if (bestRatioInfo && life >= bestRatioInfo.cost) {
+        onBuyAnimal(bestRatioInfo.animal.id, bestRatioInfo.cost, 1);
       }
-    });
+    };
 
-    return best ? { animal: best, cost: bestCost } : null;
-  };
-
-  const cheapestInfo = getCheapestAnimal();
-  const bestRatioInfo = getBestRatioAnimal();
-
-  const buyCheapest = () => {
-    if (cheapestInfo && life >= cheapestInfo.cost) {
-      onBuyAnimal(cheapestInfo.animal.id, cheapestInfo.cost, 1);
-    }
-  };
-
-  const buyBestRatio = () => {
-    if (bestRatioInfo && life >= bestRatioInfo.cost) {
-      onBuyAnimal(bestRatioInfo.animal.id, bestRatioInfo.cost, 1);
-    }
-  };
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      panelClassName="bg-[#1a163a]/95 rounded-3.5xl border-3 border-cosmic-accent flex flex-col max-w-xl w-full max-h-[85vh] shadow-2xl overflow-hidden text-cosmic-text"
-    >
+    return (
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        panelClassName="bg-[#1a163a]/95 rounded-3.5xl border-3 border-cosmic-accent flex flex-col max-w-xl w-full max-h-[85vh] shadow-2xl overflow-hidden text-cosmic-text"
+      >
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b-3 border-cosmic-accent/60 bg-gradient-to-r from-[#171430] via-[#211a3d] to-[#171430] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
@@ -167,7 +168,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
           <div className="p-3 bg-[#13112a]/90 border-b border-cosmic-accent/30 flex flex-col gap-2 shrink-0 px-4 sm:px-5">
             {/* Purchase Amount Selection */}
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[10px] font-bold text-[#b4a8e2] uppercase tracking-wider font-mono">Kauf-Menge:</span>
+              <span className="text-[10px] font-bold text-[#b4a8e2] uppercase tracking-wider font-mono">
+                Kauf-Menge:
+              </span>
               <div className="flex rounded-full bg-[#1c193b] border border-cosmic-accent/40 p-0.5 shadow-sm">
                 {([1, 10, 25, "max"] as const).map((amt) => (
                   <button
@@ -275,43 +278,71 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full mt-5">
                 {/* Box 1: Einnahmen-Statistik */}
                 <div className="bg-[#201c46]/60 p-3.5 rounded-2xl border border-cosmic-accent/30 flex flex-col justify-between">
-                  <span className="text-[10px] uppercase font-black tracking-wider text-purple-300 block mb-2">📊 Produktion</span>
+                  <span className="text-[10px] uppercase font-black tracking-wider text-purple-300 block mb-2">
+                    📊 Produktion
+                  </span>
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-cosmic-accent-muted font-semibold">Ertrag / Tier:</span>
                       <span className="font-mono font-black text-rose-300">
-                        +{formatCompactNumber(
+                        +
+                        {formatCompactNumber(
                           selectedAnimal.baseLps *
-                            (selectedAnimal.id === "bunny" && upgradesSpecs.bunnyBoost ? 2.0 : 1.0) *
-                            (selectedAnimal.id === "chick" && upgradesSpecs.chickBoost ? 2.0 : 1.0) *
+                            (selectedAnimal.id === "bunny" && upgradesSpecs.bunnyBoost
+                              ? 2.0
+                              : 1.0) *
+                            (selectedAnimal.id === "chick" && upgradesSpecs.chickBoost
+                              ? 2.0
+                              : 1.0) *
                             (selectedAnimal.id === "cat" && upgradesSpecs.catBoost ? 2.0 : 1.0) *
                             (selectedAnimal.id === "frog" && upgradesSpecs.frogBoost ? 2.0 : 1.0) *
-                            (selectedAnimal.id === "koala" && upgradesSpecs.koalaBoost ? 2.0 : 1.0) *
-                            (selectedAnimal.id === "panda" && upgradesSpecs.pandaBoost ? 2.0 : 1.0) *
-                            (selectedAnimal.id === "unicorn" && upgradesSpecs.unicornBoost ? 2.0 : 1.0) *
-                            (upgradesSpecs.globalAnimalsBoost ? 1.5 : 1.0)
-                        )} 💖/s
+                            (selectedAnimal.id === "koala" && upgradesSpecs.koalaBoost
+                              ? 2.0
+                              : 1.0) *
+                            (selectedAnimal.id === "panda" && upgradesSpecs.pandaBoost
+                              ? 2.0
+                              : 1.0) *
+                            (selectedAnimal.id === "unicorn" && upgradesSpecs.unicornBoost
+                              ? 2.0
+                              : 1.0) *
+                            (upgradesSpecs.globalAnimalsBoost ? 1.5 : 1.0),
+                        )}{" "}
+                        💖/s
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-cosmic-accent-muted font-semibold">Bestand:</span>
-                      <span className="font-mono font-black text-white">{purchasedAnimals[selectedAnimal.id] || 0}x</span>
+                      <span className="font-mono font-black text-white">
+                        {purchasedAnimals[selectedAnimal.id] || 0}x
+                      </span>
                     </div>
                     <div className="border-t border-cosmic-accent/20 my-1 pt-1.5 flex justify-between items-center text-xs">
                       <span className="text-pink-300 font-bold">Gesamtertrag:</span>
                       <span className="font-mono font-black text-pink-300">
-                        +{formatCompactNumber(
+                        +
+                        {formatCompactNumber(
                           (purchasedAnimals[selectedAnimal.id] || 0) *
                             selectedAnimal.baseLps *
-                            (selectedAnimal.id === "bunny" && upgradesSpecs.bunnyBoost ? 2.0 : 1.0) *
-                            (selectedAnimal.id === "chick" && upgradesSpecs.chickBoost ? 2.0 : 1.0) *
+                            (selectedAnimal.id === "bunny" && upgradesSpecs.bunnyBoost
+                              ? 2.0
+                              : 1.0) *
+                            (selectedAnimal.id === "chick" && upgradesSpecs.chickBoost
+                              ? 2.0
+                              : 1.0) *
                             (selectedAnimal.id === "cat" && upgradesSpecs.catBoost ? 2.0 : 1.0) *
                             (selectedAnimal.id === "frog" && upgradesSpecs.frogBoost ? 2.0 : 1.0) *
-                            (selectedAnimal.id === "koala" && upgradesSpecs.koalaBoost ? 2.0 : 1.0) *
-                            (selectedAnimal.id === "panda" && upgradesSpecs.pandaBoost ? 2.0 : 1.0) *
-                            (selectedAnimal.id === "unicorn" && upgradesSpecs.unicornBoost ? 2.0 : 1.0) *
-                            (upgradesSpecs.globalAnimalsBoost ? 1.5 : 1.0)
-                        )} 💖/s
+                            (selectedAnimal.id === "koala" && upgradesSpecs.koalaBoost
+                              ? 2.0
+                              : 1.0) *
+                            (selectedAnimal.id === "panda" && upgradesSpecs.pandaBoost
+                              ? 2.0
+                              : 1.0) *
+                            (selectedAnimal.id === "unicorn" && upgradesSpecs.unicornBoost
+                              ? 2.0
+                              : 1.0) *
+                            (upgradesSpecs.globalAnimalsBoost ? 1.5 : 1.0),
+                        )}{" "}
+                        💖/s
                       </span>
                     </div>
                   </div>
@@ -319,28 +350,53 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
 
                 {/* Box 2: Upgrade-Bündnisse */}
                 <div className="bg-[#201c46]/60 p-3.5 rounded-2xl border border-cosmic-accent/30 flex flex-col justify-between">
-                  <span className="text-[10px] uppercase font-black tracking-wider text-purple-300 block mb-2">✨ Booster & Boni</span>
+                  <span className="text-[10px] uppercase font-black tracking-wider text-purple-300 block mb-2">
+                    ✨ Booster & Boni
+                  </span>
                   <div className="space-y-1.5 text-xs font-semibold">
                     {[
-                      { key: "bunny", name: "Wattebausch-Schuhe", active: upgradesSpecs.bunnyBoost },
-                      { key: "chick", name: "Luxus-Sternenkörner", active: upgradesSpecs.chickBoost },
+                      {
+                        key: "bunny",
+                        name: "Wattebausch-Schuhe",
+                        active: upgradesSpecs.bunnyBoost,
+                      },
+                      {
+                        key: "chick",
+                        name: "Luxus-Sternenkörner",
+                        active: upgradesSpecs.chickBoost,
+                      },
                       { key: "cat", name: "Baldrian-Kissen", active: upgradesSpecs.catBoost },
                       { key: "frog", name: "Seerosen-Heizung", active: upgradesSpecs.frogBoost },
-                      { key: "koala", name: "Gold-Eukalyptusblatt", active: upgradesSpecs.koalaBoost },
-                      { key: "panda", name: "Riesen-Bambustorte", active: upgradesSpecs.pandaBoost },
-                      { key: "unicorn", name: "Prisma-Glimmerhorn", active: upgradesSpecs.unicornBoost },
+                      {
+                        key: "koala",
+                        name: "Gold-Eukalyptusblatt",
+                        active: upgradesSpecs.koalaBoost,
+                      },
+                      {
+                        key: "panda",
+                        name: "Riesen-Bambustorte",
+                        active: upgradesSpecs.pandaBoost,
+                      },
+                      {
+                        key: "unicorn",
+                        name: "Prisma-Glimmerhorn",
+                        active: upgradesSpecs.unicornBoost,
+                      },
                     ].some((u) => u.key === selectedAnimal.id) ? (
                       <div className="flex justify-between items-center">
                         <span className="text-cosmic-accent-muted truncate mr-2">
-                          {[
-                            { key: "bunny", name: "Wattebausch-Schuhe" },
-                            { key: "chick", name: "Luxus-Sternenkörner" },
-                            { key: "cat", name: "Baldrian-Kissen" },
-                            { key: "frog", name: "Seerosen-Heizung" },
-                            { key: "koala", name: "Gold-Eukalyptusblatt" },
-                            { key: "panda", name: "Riesen-Bambustorte" },
-                            { key: "unicorn", name: "Prisma-Glimmerhorn" },
-                          ].find((u) => u.key === selectedAnimal.id)?.name}:
+                          {
+                            [
+                              { key: "bunny", name: "Wattebausch-Schuhe" },
+                              { key: "chick", name: "Luxus-Sternenkörner" },
+                              { key: "cat", name: "Baldrian-Kissen" },
+                              { key: "frog", name: "Seerosen-Heizung" },
+                              { key: "koala", name: "Gold-Eukalyptusblatt" },
+                              { key: "panda", name: "Riesen-Bambustorte" },
+                              { key: "unicorn", name: "Prisma-Glimmerhorn" },
+                            ].find((u) => u.key === selectedAnimal.id)?.name
+                          }
+                          :
                         </span>
                         <span
                           className={
@@ -393,13 +449,15 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                       <span className="font-mono font-black text-indigo-300">
                         x
                         {(
-                          ((selectedAnimal.id === "bunny" && upgradesSpecs.bunnyBoost) ? 2.0 : 1.0) *
-                          ((selectedAnimal.id === "chick" && upgradesSpecs.chickBoost) ? 2.0 : 1.0) *
-                          ((selectedAnimal.id === "cat" && upgradesSpecs.catBoost) ? 2.0 : 1.0) *
-                          ((selectedAnimal.id === "frog" && upgradesSpecs.frogBoost) ? 2.0 : 1.0) *
-                          ((selectedAnimal.id === "koala" && upgradesSpecs.koalaBoost) ? 2.0 : 1.0) *
-                          ((selectedAnimal.id === "panda" && upgradesSpecs.pandaBoost) ? 2.0 : 1.0) *
-                          ((selectedAnimal.id === "unicorn" && upgradesSpecs.unicornBoost) ? 2.0 : 1.0) *
+                          (selectedAnimal.id === "bunny" && upgradesSpecs.bunnyBoost ? 2.0 : 1.0) *
+                          (selectedAnimal.id === "chick" && upgradesSpecs.chickBoost ? 2.0 : 1.0) *
+                          (selectedAnimal.id === "cat" && upgradesSpecs.catBoost ? 2.0 : 1.0) *
+                          (selectedAnimal.id === "frog" && upgradesSpecs.frogBoost ? 2.0 : 1.0) *
+                          (selectedAnimal.id === "koala" && upgradesSpecs.koalaBoost ? 2.0 : 1.0) *
+                          (selectedAnimal.id === "panda" && upgradesSpecs.pandaBoost ? 2.0 : 1.0) *
+                          (selectedAnimal.id === "unicorn" && upgradesSpecs.unicornBoost
+                            ? 2.0
+                            : 1.0) *
                           (upgradesSpecs.globalAnimalsBoost ? 1.5 : 1.0)
                         ).toFixed(1)}
                       </span>
@@ -418,7 +476,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                   {/* Buy 1 */}
                   {(() => {
                     const cNow = purchasedAnimals[selectedAnimal.id] || 0;
-                    const cost1 = Math.floor(selectedAnimal.baseCost * Math.pow(selectedAnimal.costMultiplier, cNow));
+                    const cost1 = Math.floor(
+                      selectedAnimal.baseCost * Math.pow(selectedAnimal.costMultiplier, cNow),
+                    );
                     return (
                       <button
                         disabled={life < cost1}
@@ -429,7 +489,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                             : "bg-[#18162e]/40 border-slate-700/30 text-cosmic-accent-muted/40 cursor-not-allowed opacity-50"
                         }`}
                       >
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Kaufe x1</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">
+                          Kaufe x1
+                        </span>
                         <span className="text-[10px] font-mono font-black text-cosmic-pink mt-0.5">
                           {formatCompactNumber(cost1)} 💖
                         </span>
@@ -441,7 +503,10 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                   {(() => {
                     const cNow = purchasedAnimals[selectedAnimal.id] || 0;
                     let cost10 = 0;
-                    for (let i = 0; i < 10; i++) cost10 += Math.floor(selectedAnimal.baseCost * Math.pow(selectedAnimal.costMultiplier, cNow + i));
+                    for (let i = 0; i < 10; i++)
+                      cost10 += Math.floor(
+                        selectedAnimal.baseCost * Math.pow(selectedAnimal.costMultiplier, cNow + i),
+                      );
                     return (
                       <button
                         disabled={life < cost10}
@@ -452,7 +517,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                             : "bg-[#18162e]/40 border-slate-700/30 text-cosmic-accent-muted/40 cursor-not-allowed opacity-50"
                         }`}
                       >
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Kaufe x10</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">
+                          Kaufe x10
+                        </span>
                         <span className="text-[10px] font-mono font-black text-cosmic-pink mt-0.5">
                           {formatCompactNumber(cost10)} 💖
                         </span>
@@ -464,7 +531,10 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                   {(() => {
                     const cNow = purchasedAnimals[selectedAnimal.id] || 0;
                     let cost25 = 0;
-                    for (let i = 0; i < 25; i++) cost25 += Math.floor(selectedAnimal.baseCost * Math.pow(selectedAnimal.costMultiplier, cNow + i));
+                    for (let i = 0; i < 25; i++)
+                      cost25 += Math.floor(
+                        selectedAnimal.baseCost * Math.pow(selectedAnimal.costMultiplier, cNow + i),
+                      );
                     return (
                       <button
                         disabled={life < cost25}
@@ -475,7 +545,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                             : "bg-[#18162e]/40 border-slate-700/30 text-cosmic-accent-muted/40 cursor-not-allowed opacity-50"
                         }`}
                       >
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Kaufe x25</span>
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">
+                          Kaufe x25
+                        </span>
                         <span className="text-[10px] font-mono font-black text-cosmic-pink mt-0.5">
                           {formatCompactNumber(cost25)} 💖
                         </span>
@@ -490,7 +562,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                     let totalCostMax = 0;
                     let countToBuyMax = 0;
                     while (true) {
-                      const nextCost = Math.floor(selectedAnimal.baseCost * Math.pow(selectedAnimal.costMultiplier, tempC));
+                      const nextCost = Math.floor(
+                        selectedAnimal.baseCost * Math.pow(selectedAnimal.costMultiplier, tempC),
+                      );
                       if (totalCostMax + nextCost <= life) {
                         totalCostMax += nextCost;
                         tempC++;
@@ -501,7 +575,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                     }
                     if (countToBuyMax === 0) {
                       countToBuyMax = 1;
-                      totalCostMax = Math.floor(selectedAnimal.baseCost * Math.pow(selectedAnimal.costMultiplier, cNow));
+                      totalCostMax = Math.floor(
+                        selectedAnimal.baseCost * Math.pow(selectedAnimal.costMultiplier, cNow),
+                      );
                     }
                     return (
                       <button
@@ -513,7 +589,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                             : "bg-[#18162e]/40 border-slate-700/30 text-cosmic-accent-muted/40 cursor-not-allowed opacity-50"
                         }`}
                       >
-                        <span className="text-[9px] font-bold uppercase tracking-wide text-white">MAX (x{countToBuyMax})</span>
+                        <span className="text-[9px] font-bold uppercase tracking-wide text-white">
+                          MAX (x{countToBuyMax})
+                        </span>
                         <span className="text-[10px] font-mono font-black text-white mt-0.5">
                           {formatCompactNumber(totalCostMax)} 💖
                         </span>
@@ -535,7 +613,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
 
                 if (buyAmount === "max") {
                   while (true) {
-                    const nextCost = Math.floor(animal.baseCost * Math.pow(animal.costMultiplier, tempCount));
+                    const nextCost = Math.floor(
+                      animal.baseCost * Math.pow(animal.costMultiplier, tempCount),
+                    );
                     if (totalCost + nextCost <= life) {
                       totalCost += nextCost;
                       tempCount++;
@@ -546,12 +626,16 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                   }
                   if (countToBuy === 0) {
                     countToBuy = 1;
-                    totalCost = Math.floor(animal.baseCost * Math.pow(animal.costMultiplier, count));
+                    totalCost = Math.floor(
+                      animal.baseCost * Math.pow(animal.costMultiplier, count),
+                    );
                   }
                 } else {
                   countToBuy = buyAmount;
                   for (let i = 0; i < buyAmount; i++) {
-                    totalCost += Math.floor(animal.baseCost * Math.pow(animal.costMultiplier, tempCount + i));
+                    totalCost += Math.floor(
+                      animal.baseCost * Math.pow(animal.costMultiplier, tempCount + i),
+                    );
                   }
                 }
 
@@ -603,7 +687,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
                           </h5>
                           {count > 0 && (
                             <span className="text-[10.5px] font-black text-cosmic-pink font-sans italic truncate">
-                              {count * lpsDisplay > 0 ? `(+${formatCompactNumber(count * lpsDisplay)}/s)` : ""}
+                              {count * lpsDisplay > 0
+                                ? `(+${formatCompactNumber(count * lpsDisplay)}/s)`
+                                : ""}
                             </span>
                           )}
                         </div>
@@ -652,7 +738,10 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
         {/* Modal Footer helper summary info */}
         <div className="p-3 bg-[#13112a] border-t border-cosmic-accent/40 flex justify-between items-center text-[10px] text-cosmic-accent-muted font-semibold px-5 shrink-0">
           <span>
-            Hintergrund-Einnahmen: <b className="text-cosmic-pink font-black">+{formatCompactNumber(totalAnimalsLps)} 💖/s</b>
+            Hintergrund-Einnahmen:{" "}
+            <b className="text-cosmic-pink font-black">
+              +{formatCompactNumber(totalAnimalsLps)} 💖/s
+            </b>
           </span>
           <span>
             Aktuelles Guthaben:{" "}
@@ -661,8 +750,9 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(({
             </b>
           </span>
         </div>
-    </Modal>
-  );
-});
+      </Modal>
+    );
+  },
+);
 
 AnimalsModal.displayName = "AnimalsModal";

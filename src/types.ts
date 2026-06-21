@@ -125,4 +125,3 @@ export interface ActiveCosmicEvent {
   emoji: string;
   options: CosmicEventOption[];
 }
-

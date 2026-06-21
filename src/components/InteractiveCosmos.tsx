@@ -119,10 +119,11 @@ export const InteractiveCosmos: React.FC<InteractiveCosmosProps> = ({
   activeConstellationsCount,
 }) => {
   return (
-    <main className={`flex-grow w-full max-w-4xl mx-auto px-4 py-6 flex flex-col items-center justify-center gap-5 relative z-10 transition-all duration-500 ${
-      showTutorial ? "blur-md pointer-events-none select-none" : ""
-    }`}>
-      
+    <main
+      className={`flex-grow w-full max-w-4xl mx-auto px-4 py-6 flex flex-col items-center justify-center gap-5 relative z-10 transition-all duration-500 ${
+        showTutorial ? "blur-md pointer-events-none select-none" : ""
+      }`}
+    >
       {/* Real-time compact live HUD metrics - Positioned at the very top and smaller to save space */}
       <CosmicHUD
         isNightStyle={isNightStyle}
@@ -154,10 +155,17 @@ export const InteractiveCosmos: React.FC<InteractiveCosmosProps> = ({
             🌌 COSMIC_CORRUPTION DETECTED 🌌
           </h3>
           <p className="text-[11px] sm:text-xs text-rose-300 font-bold mb-3 border border-cyan-500/20 py-1.5 px-2 bg-cyan-950/20 rounded">
-            Aktivierte Instabilität: <span className="text-cyan-300 font-extrabold glitch-chromatic-text">x7.77 LPS & Klick-Energie</span>. Zahlenwerte sind instabil!
+            Aktivierte Instabilität:{" "}
+            <span className="text-cyan-300 font-extrabold glitch-chromatic-text">
+              x7.77 LPS & Klick-Energie
+            </span>
+            . Zahlenwerte sind instabil!
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 animate-pulse">
-            <span className="text-[10px] text-cyan-400 font-bold">Kernstabilität bei {Math.min(100, Math.floor(planetLevel / 20 * 100))}% (Planet Level {planetLevel}/20)</span>
+            <span className="text-[10px] text-cyan-400 font-bold">
+              Kernstabilität bei {Math.min(100, Math.floor((planetLevel / 20) * 100))}% (Planet
+              Level {planetLevel}/20)
+            </span>
             {planetLevel >= 20 ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -218,7 +226,9 @@ export const InteractiveCosmos: React.FC<InteractiveCosmosProps> = ({
 
         {/* Subtitle technical decoration lines */}
         <div className="mt-4 flex justify-center opacity-60 font-mono text-[9.5px] sm:text-[11px] font-bold text-rose-300/40 tracking-wide pointer-events-none">
-          <span>SATELLITE SYST. LEVEL {planetLevel} // CLICK MULTIPLIER {clickPower}x</span>
+          <span>
+            SATELLITE SYST. LEVEL {planetLevel} // CLICK MULTIPLIER {clickPower}x
+          </span>
         </div>
       </section>
 

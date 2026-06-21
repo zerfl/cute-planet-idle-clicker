@@ -21,7 +21,7 @@ export function handleWorkerAction(
     rollNewZodiac: (exclude?: string) => string;
     postMessage: (msg: any) => void;
     stopTimers: () => void;
-  }
+  },
 ): any {
   const {
     getLpsAndStats,
@@ -73,7 +73,7 @@ export function handleWorkerAction(
       if (state.life >= cost) {
         state.life -= cost;
         const doubleStellarLvl = state.doubleStellarLevel || 0;
-        const amountGained = (doubleStellarLvl > 0 && Math.random() < doubleStellarLvl * 0.10) ? 2 : 1;
+        const amountGained = doubleStellarLvl > 0 && Math.random() < doubleStellarLvl * 0.1 ? 2 : 1;
         state.starsCount += amountGained;
         broadcastStateUpdate(true);
       }
@@ -97,7 +97,7 @@ export function handleWorkerAction(
       state.purchasedAnimals.cat = (state.purchasedAnimals.cat || 0) + 1;
       state.purchasedAnimals.frog = (state.purchasedAnimals.frog || 0) + 1;
       state.prestigeCount = (state.prestigeCount || 0) + 5;
-      
+
       state.planetLevel += 1;
       postMessage({
         type: "LEVEL_UP",
@@ -125,7 +125,14 @@ export function handleWorkerAction(
       const recipe = CRAFTING_RECIPES.find((r) => r.id === recipeId);
       if (!recipe) break;
 
-      const { life: reqLife, stars: reqStars, moons: reqMoons, glitter: reqGlitter, lootboxes: reqLootboxes, items: reqItems } = recipe.ingredients;
+      const {
+        life: reqLife,
+        stars: reqStars,
+        moons: reqMoons,
+        glitter: reqGlitter,
+        lootboxes: reqLootboxes,
+        items: reqItems,
+      } = recipe.ingredients;
 
       let canCraft = true;
       if (reqLife && state.life < reqLife * count) canCraft = false;
@@ -154,7 +161,7 @@ export function handleWorkerAction(
 
         if (reqItems) {
           for (const [itemId, qty] of Object.entries(reqItems)) {
-            state.craftedItems[itemId] = (state.craftedItems[itemId] || 0) - (qty * count);
+            state.craftedItems[itemId] = (state.craftedItems[itemId] || 0) - qty * count;
           }
         }
 
@@ -194,7 +201,14 @@ export function handleWorkerAction(
       for (const step of planR) {
         const recipe = RECIPE_BY_RESULT.get(step.id);
         if (!recipe) continue;
-        const { life: rl, stars: rs, moons: rm, glitter: rg, lootboxes: rlb, items: ri } = recipe.ingredients;
+        const {
+          life: rl,
+          stars: rs,
+          moons: rm,
+          glitter: rg,
+          lootboxes: rlb,
+          items: ri,
+        } = recipe.ingredients;
         const ops = step.ops;
         if (rl) state.life -= rl * ops;
         if (rs) state.starsCount -= rs * ops;
@@ -231,7 +245,7 @@ export function handleWorkerAction(
         requestedCount,
         getLpsAndStats,
         setupActiveEvent,
-        addPlanetExp
+        addPlanetExp,
       );
 
       postMessage({
@@ -250,7 +264,7 @@ export function handleWorkerAction(
           animalsSpawned: res.animalsSpawned,
           eventsTriggered: res.eventsTriggered,
         },
-        text: res.summaryText
+        text: res.summaryText,
       });
 
       broadcastStateUpdate(true);
@@ -320,11 +334,11 @@ export function handleWorkerAction(
       state.galaxyShards = (state.galaxyShards || 0) + 2;
       state.glitterDust = (state.glitterDust || 0) + 77;
       state.prestigeCount = (state.prestigeCount || 0) + 1;
-      
+
       state.glitchBenchmarks = {
         prestigeTarget: (state.prestigeCount || 0) + 10,
         stardustTarget: (state.craftedItems?.["mat_stardust"] || 0) + 150,
-        shardsTarget: ((state.galaxyShards || 0) + (state.spentGalaxyShards || 0)) + 10,
+        shardsTarget: (state.galaxyShards || 0) + (state.spentGalaxyShards || 0) + 10,
         phoenixTarget: (state.purchasedAnimals?.["phoenix"] || 0) + 5,
         glitterTarget: (state.glitterDust || 0) + 150,
       };
@@ -353,11 +367,11 @@ export function handleWorkerAction(
         state.galaxyShards = (state.galaxyShards || 0) + 1;
       }
       state.prestigeCount = (state.prestigeCount || 0) + 1;
-      
+
       state.glitchBenchmarks = {
         prestigeTarget: (state.prestigeCount || 0) + 10,
         stardustTarget: (state.craftedItems?.["mat_stardust"] || 0) + 150,
-        shardsTarget: ((state.galaxyShards || 0) + (state.spentGalaxyShards || 0)) + 10,
+        shardsTarget: (state.galaxyShards || 0) + (state.spentGalaxyShards || 0) + 10,
         phoenixTarget: (state.purchasedAnimals?.["phoenix"] || 0) + 5,
         glitterTarget: (state.glitterDust || 0) + 150,
       };
@@ -473,12 +487,12 @@ export function handleWorkerAction(
     case "ADD_GLITTER_DUST": {
       let { amount } = data;
       const doubleStellarLvl = state.doubleStellarLevel || 0;
-      if (doubleStellarLvl > 0 && Math.random() < doubleStellarLvl * 0.10) {
+      if (doubleStellarLvl > 0 && Math.random() < doubleStellarLvl * 0.1) {
         amount = amount * 2;
       }
 
-      const phoenixLvl = (state.zodiacLevels?.phoenix) || 1;
-      const phoenixMultiplier = state.zodiac === "phoenix" ? (1.50 + (phoenixLvl - 1) * 0.15) : 1.0;
+      const phoenixLvl = state.zodiacLevels?.phoenix || 1;
+      const phoenixMultiplier = state.zodiac === "phoenix" ? 1.5 + (phoenixLvl - 1) * 0.15 : 1.0;
       state.glitterDust = (state.glitterDust || 0) + Math.ceil(Number(amount) * phoenixMultiplier);
       broadcastStateUpdate(true);
       break;
@@ -532,7 +546,7 @@ export function handleWorkerAction(
     case "SET_EVENT_DECISION": {
       const { decision } = data;
       const previous = state.activeEventDecision;
-      
+
       if (state.activeEventInstantClaimed) {
         break;
       }
@@ -545,7 +559,7 @@ export function handleWorkerAction(
           const eff = option.effectType;
           let rewardDesc = "";
           let claimed = false;
-          
+
           if (eff === "instant_stars" && option.bonusStars !== undefined) {
             const amount = option.bonusStars;
             state.starsCount += amount;
@@ -567,7 +581,11 @@ export function handleWorkerAction(
             state.totalLifeEarned += amount;
             rewardDesc = `+${formatCompactNumber(amount)} Lebenskraft erhalten!`;
             claimed = true;
-          } else if (eff === "instant_hybrid" && option.bonusDust !== undefined && option.bonusStars !== undefined) {
+          } else if (
+            eff === "instant_hybrid" &&
+            option.bonusDust !== undefined &&
+            option.bonusStars !== undefined
+          ) {
             state.starsCount += option.bonusStars;
             state.glitterDust += option.bonusDust;
             rewardDesc = `+${option.bonusStars} ⭐ Sterne und +${option.bonusDust} ✨ Glitzerstaub erhalten!`;
@@ -602,7 +620,7 @@ export function handleWorkerAction(
             rewardDesc = `+50 ⭐ Sterne und +20 ✨ Glitzerstaub erhalten!`;
             claimed = true;
           }
-          
+
           if (claimed) {
             state.activeEventInstantClaimed = true;
             state.eventTimeRemaining = Math.min(5, state.eventTimeRemaining);
@@ -633,12 +651,7 @@ export function handleWorkerAction(
     }
     case "BLACK_HOLE_GAMBLE": {
       const { sacrificeType } = data;
-      const res = executeBlackHoleGamble(
-        state,
-        sacrificeType,
-        getLpsAndStats,
-        setupActiveEvent
-      );
+      const res = executeBlackHoleGamble(state, sacrificeType, getLpsAndStats, setupActiveEvent);
 
       if (res.success) {
         if (state.activeEvent === "black_hole") {

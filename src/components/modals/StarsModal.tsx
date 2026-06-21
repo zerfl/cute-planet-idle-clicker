@@ -26,7 +26,8 @@ export const CONSTELLATIONS_LIST: ConstellationDef[] = [
     baseMoonsCost: 0,
     maxLevel: 5,
     bonusText: "+10% Tier-Produktion pro Stufe",
-    germanDescription: "Eine kuschelige Himmelsgruppe, die eine schützende Aura spendet. Sie ermutigt alle deine Tiere, glücklicher zu sein und passive Lebensenergie zu produzieren.",
+    germanDescription:
+      "Eine kuschelige Himmelsgruppe, die eine schützende Aura spendet. Sie ermutigt alle deine Tiere, glücklicher zu sein und passive Lebensenergie zu produzieren.",
   },
   {
     id: "mondhasen",
@@ -37,7 +38,8 @@ export const CONSTELLATIONS_LIST: ConstellationDef[] = [
     baseMoonsCost: 1,
     maxLevel: 3,
     bonusText: "+25% längere Nachtphase pro Stufe",
-    germanDescription: "Die Gestalt eines flinken Mondhasen. Verlängert die wunderschöne Nacht-Phase, in der deine Sterne mit +50% erhöhter Kraft leuchten.",
+    germanDescription:
+      "Die Gestalt eines flinken Mondhasen. Verlängert die wunderschöne Nacht-Phase, in der deine Sterne mit +50% erhöhter Kraft leuchten.",
   },
   {
     id: "supernova",
@@ -48,7 +50,8 @@ export const CONSTELLATIONS_LIST: ConstellationDef[] = [
     baseMoonsCost: 0,
     maxLevel: 3,
     bonusText: "+20% stärkere kosmische Events pro Stufe",
-    germanDescription: "Eine energetische Kraftquelle am Himmelszelt. verstärkt die Erträge und Effekte aller aktiven Events (z.B. Sternschnuppen, Polarlichter und Meteoritenstürme).",
+    germanDescription:
+      "Eine energetische Kraftquelle am Himmelszelt. verstärkt die Erträge und Effekte aller aktiven Events (z.B. Sternschnuppen, Polarlichter und Meteoritenstürme).",
   },
   {
     id: "stardust_rain",
@@ -59,7 +62,8 @@ export const CONSTELLATIONS_LIST: ConstellationDef[] = [
     baseMoonsCost: 0,
     maxLevel: 5,
     bonusText: "+15% mehr Planeten-EXP pro Stufe",
-    germanDescription: "Eine funkelnde Kaskade von Sternenlicht. Lässt deinen Planeten beim Klicken und automatischen Tappen deutlich schneller Erfahrung sammeln.",
+    germanDescription:
+      "Eine funkelnde Kaskade von Sternenlicht. Lässt deinen Planeten beim Klicken und automatischen Tappen deutlich schneller Erfahrung sammeln.",
   },
   {
     id: "cosmic_harmony",
@@ -70,7 +74,8 @@ export const CONSTELLATIONS_LIST: ConstellationDef[] = [
     baseMoonsCost: 2,
     maxLevel: 3,
     bonusText: "+8% Klick- & Star-Schlagkraft pro Stufe",
-    germanDescription: "Die perfekte Ausrichtung von Sternen und Monden im Einklang. Erhöht die manuelle Schlagkraft deiner Klicks sowie den Ertrag deiner Gravitations-Sterne.",
+    germanDescription:
+      "Die perfekte Ausrichtung von Sternen und Monden im Einklang. Erhöht die manuelle Schlagkraft deiner Klicks sowie den Ertrag deiner Gravitations-Sterne.",
   },
   {
     id: "ewiges_polarlicht",
@@ -81,7 +86,8 @@ export const CONSTELLATIONS_LIST: ConstellationDef[] = [
     baseMoonsCost: 0,
     maxLevel: 3,
     bonusText: "-15% Wartezeit zwischen Events pro Stufe",
-    germanDescription: "Ein unaufhörliches kosmisches Leuchten. Zieht kosmische Ereignisse magisch an, sodass die coolen Events deutlich schneller hintereinander auftreten.",
+    germanDescription:
+      "Ein unaufhörliches kosmisches Leuchten. Zieht kosmische Ereignisse magisch an, sodass die coolen Events deutlich schneller hintereinander auftreten.",
   },
 ];
 
@@ -95,38 +101,48 @@ interface StarsModalProps {
   onInvestConstellation: (constellationId: string, starsCost: number, moonsCost: number) => void;
 }
 
-export const StarsModal: React.FC<StarsModalProps> = React.memo(({
-  isOpen,
-  onClose,
-  onBuyStar,
-  formatCompactNumber,
-  onMergeMoons,
-  constellations,
-  onInvestConstellation,
-}) => {
-  const {
-    life, starsCount, starPowerPerStar, starClicksTriggered,
-    starCost, totalStarsLps, moonsCount, prestigeCount, maxMoons,
-  } = useGameState();
-  const [activeTab, setActiveTab] = useState<"stars_call" | "constellations">("stars_call");
+export const StarsModal: React.FC<StarsModalProps> = React.memo(
+  ({
+    isOpen,
+    onClose,
+    onBuyStar,
+    formatCompactNumber,
+    onMergeMoons,
+    constellations,
+    onInvestConstellation,
+  }) => {
+    const {
+      life,
+      starsCount,
+      starPowerPerStar,
+      starClicksTriggered,
+      starCost,
+      totalStarsLps,
+      moonsCount,
+      prestigeCount,
+      maxMoons,
+    } = useGameState();
+    const [activeTab, setActiveTab] = useState<"stars_call" | "constellations">("stars_call");
 
-  const canMerge = starsCount >= 50 && moonsCount < maxMoons;
-  const prestigeMultiplier = 1 + prestigeCount * 0.10;
-  const singleMoonPower = 15000 * prestigeMultiplier;
-  const totalMoonPower = moonsCount * singleMoonPower;
+    const canMerge = starsCount >= 50 && moonsCount < maxMoons;
+    const prestigeMultiplier = 1 + prestigeCount * 0.1;
+    const singleMoonPower = 15000 * prestigeMultiplier;
+    const totalMoonPower = moonsCount * singleMoonPower;
 
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      panelClassName="bg-[#141235]/95 rounded-3.5xl border-3 border-amber-300 flex flex-col max-w-xl w-full max-h-[85vh] shadow-2xl overflow-hidden text-cosmic-text"
-    >
+    return (
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        panelClassName="bg-[#141235]/95 rounded-3.5xl border-3 border-amber-300 flex flex-col max-w-xl w-full max-h-[85vh] shadow-2xl overflow-hidden text-cosmic-text"
+      >
         {/* Modal Header */}
         <div className="p-4 sm:p-5 border-b-3 border-amber-300/60 bg-gradient-to-r from-[#110e2f] via-[#1b1747] to-[#110e2f] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
             <span className="text-2xl select-none animate-pulse">🌌</span>
             <div>
-              <span className="text-[10px] uppercase font-black tracking-wider text-amber-300 block">Kosmisches Gewölbe</span>
+              <span className="text-[10px] uppercase font-black tracking-wider text-amber-300 block">
+                Kosmisches Gewölbe
+              </span>
               <h4 className="font-sans font-black text-cosmic-text text-sm uppercase tracking-wide">
                 Umlaufbahnen &amp; Sternzeichen
               </h4>
@@ -199,7 +215,9 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
                     ⭐ Wie funktionieren Sterne?
                   </span>
                   <p className="font-semibold text-[11px] text-cosmic-accent-muted leading-relaxed">
-                    Sterne kreisen zierlich um deinen Planeten und tippen ihn passiv an. <b>Synergie:</b> Deine Klick-Stärken-Upgrades verstärken deine Sterne zusätzlich (+20% der Klick-Upgrades)!
+                    Sterne kreisen zierlich um deinen Planeten und tippen ihn passiv an.{" "}
+                    <b>Synergie:</b> Deine Klick-Stärken-Upgrades verstärken deine Sterne zusätzlich
+                    (+20% der Klick-Upgrades)!
                   </p>
                   <div className="pt-1.5 text-[11.5px] font-mono font-black flex items-center justify-between border-t border-cosmic-accent/25 text-amber-200">
                     <span>Stern-Schlagkraft:</span>
@@ -238,7 +256,9 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
                         : "bg-[#18162f]/80 text-cosmic-accent-muted/40 border-cosmic-accent/20 shadow-none cursor-not-allowed opacity-40"
                     }`}
                   >
-                    <span className="text-[9px] uppercase font-mono tracking-wider font-extrabold text-cosmic-accent-muted">Herbeirufen</span>
+                    <span className="text-[9px] uppercase font-mono tracking-wider font-extrabold text-cosmic-accent-muted">
+                      Herbeirufen
+                    </span>
                     <span className="font-mono text-xs font-black mt-0.5 text-white">
                       {formatCompactNumber(starCost)} 💖
                     </span>
@@ -248,7 +268,7 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
                 {/* Mond-Verschmelzung / Moon Merger Row */}
                 <div className="bg-gradient-to-b from-[#2a174d] to-[#171131] p-4 rounded-2.5xl border-2 border-fuchsia-400/50 flex flex-col items-center justify-between gap-4 shadow-lg relative overflow-hidden">
                   <div className="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-purple-500/10 blur-xl pointer-events-none" />
-                  
+
                   <div className="flex items-center gap-3 w-full relative z-10">
                     <div className="p-3 rounded-xl bg-cosmic-surface border-2 border-purple-400 flex items-center justify-center text-3xl shadow-md shrink-0 select-none animate-pulse">
                       🌙
@@ -263,13 +283,16 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
                         </span>
                       </div>
                       <p className="font-sans text-[11.5px] font-semibold text-[#c8bdf4] mt-0.5 leading-tight">
-                        Verschmelze <b className="text-white">50 Sterne</b> zu einem mächtigen umkreisenden Mond (Trabant).
+                        Verschmelze <b className="text-white">50 Sterne</b> zu einem mächtigen
+                        umkreisenden Mond (Trabant).
                       </p>
                       <div className="mt-2 text-xs text-purple-300 font-mono font-black border-b border-purple-500/20 pb-1.5 flex justify-between">
                         <span>Erschaffene Monde:</span>
-                        <span className="text-purple-200">{moonsCount} / {maxMoons}</span>
+                        <span className="text-purple-200">
+                          {moonsCount} / {maxMoons}
+                        </span>
                       </div>
-                      
+
                       <div className="mt-2.5 w-full text-[10.5px] font-mono leading-relaxed space-y-1">
                         <div className="flex items-center justify-between">
                           <span className="font-black text-purple-300">🌙 Leben pro Sekunde:</span>
@@ -283,7 +306,9 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
                         </div>
                         <div className="flex items-center justify-between text-[10px]">
                           <span className="text-purple-450 font-bold">• Globaler Booster:</span>
-                          <span className="text-amber-300 font-black">+150% Gesamt-LPS pro Mond! 🚀</span>
+                          <span className="text-amber-300 font-black">
+                            +150% Gesamt-LPS pro Mond! 🚀
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -305,8 +330,8 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
                       {moonsCount >= maxMoons
                         ? `${maxMoons}/${maxMoons} Monde aktiv 🌙`
                         : starsCount >= 50
-                        ? "Fliegenden Mond schmieden! ✨"
-                        : `Benötigt 50 Sterne (${starsCount}/50)`}
+                          ? "Fliegenden Mond schmieden! ✨"
+                          : `Benötigt 50 Sterne (${starsCount}/50)`}
                     </span>
                   </button>
                 </div>
@@ -328,7 +353,9 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
                     Sterne &amp; Monde dauerhaft investieren!
                   </b>
                   <p className="text-cosmic-accent-muted text-[10.5px] mt-0.5 leading-tight">
-                    Investiere deine gesammelten Sterne und Monde permanent in wunderschöne kosmische Konstellationen. Sie geben dir mächtige, dauerhafte Multiplikatoren, die auch nach einem Prestige aktiv bleiben!
+                    Investiere deine gesammelten Sterne und Monde permanent in wunderschöne
+                    kosmische Konstellationen. Sie geben dir mächtige, dauerhafte Multiplikatoren,
+                    die auch nach einem Prestige aktiv bleiben!
                   </p>
                 </div>
 
@@ -351,8 +378,8 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
                           isMaxed
                             ? "border-emerald-500/50 bg-[#16272b]/50"
                             : currentLevel > 0
-                            ? "border-cyan-400/50 bg-[#192248]/55"
-                            : "border-cosmic-accent/25 bg-[#1b193f]/40 hover:bg-[#1b193f]/70"
+                              ? "border-cyan-400/50 bg-[#192248]/55"
+                              : "border-cosmic-accent/25 bg-[#1b193f]/40 hover:bg-[#1b193f]/70"
                         }`}
                       >
                         {isMaxed && (
@@ -363,11 +390,13 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
 
                         {/* Left Details */}
                         <div className="flex items-start gap-3 min-w-0 flex-grow">
-                          <div className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center text-2xl shadow-lg shrink-0 select-none ${
-                            isMaxed 
-                              ? "bg-slate-900 border-emerald-400" 
-                              : "bg-[#18153d] border-cyan-400/60"
-                          }`}>
+                          <div
+                            className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center text-2xl shadow-lg shrink-0 select-none ${
+                              isMaxed
+                                ? "bg-slate-900 border-emerald-400"
+                                : "bg-[#18153d] border-cyan-400/60"
+                            }`}
+                          >
                             {constell.emoji}
                           </div>
                           <div className="min-w-0">
@@ -375,27 +404,45 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
                               <h5 className="font-sans font-black text-xs text-cosmic-text uppercase tracking-wider">
                                 {constell.germanName}
                               </h5>
-                              <span className={`px-1.5 py-0.2 rounded text-[8px] font-mono font-black ${
-                                isMaxed 
-                                  ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" 
-                                  : currentLevel > 0 
-                                  ? "bg-cyan-500/10 text-cyan-300 border border-cyan-500/30" 
-                                  : "bg-slate-500/10 text-slate-400"
-                              }`}>
+                              <span
+                                className={`px-1.5 py-0.2 rounded text-[8px] font-mono font-black ${
+                                  isMaxed
+                                    ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                                    : currentLevel > 0
+                                      ? "bg-cyan-500/10 text-cyan-300 border border-cyan-500/30"
+                                      : "bg-slate-500/10 text-slate-400"
+                                }`}
+                              >
                                 {currentLevel}/{constell.maxLevel}
                               </span>
                             </div>
                             <p className="font-sans text-[10px] text-[#a599d1] mt-1 leading-normal">
                               {constell.germanDescription}
                             </p>
-                            
+
                             <div className="flex flex-col gap-0.5 mt-1.5 font-mono text-[9px]">
                               <div className="text-cyan-300 font-bold">
-                                Effekt: <span className="text-cyan-100 font-normal">{constell.bonusText}</span>
+                                Effekt:{" "}
+                                <span className="text-cyan-100 font-normal">
+                                  {constell.bonusText}
+                                </span>
                               </div>
                               {currentLevel > 0 && (
                                 <div className="text-emerald-400 font-bold">
-                                  Aktiver Bonus: +{currentLevel * (constell.id === "kuschel" ? 10 : constell.id === "mondhasen" ? 25 : constell.id === "supernova" ? 20 : constell.id === "stardust_rain" ? 15 : constell.id === "cosmic_harmony" ? 8 : 15)}%
+                                  Aktiver Bonus: +
+                                  {currentLevel *
+                                    (constell.id === "kuschel"
+                                      ? 10
+                                      : constell.id === "mondhasen"
+                                        ? 25
+                                        : constell.id === "supernova"
+                                          ? 20
+                                          : constell.id === "stardust_rain"
+                                            ? 15
+                                            : constell.id === "cosmic_harmony"
+                                              ? 8
+                                              : 15)}
+                                  %
                                 </div>
                               )}
                             </div>
@@ -411,20 +458,28 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
                           ) : (
                             <button
                               disabled={!canAfford}
-                              onClick={() => onInvestConstellation(constell.id, starsCost, moonsCost)}
+                              onClick={() =>
+                                onInvestConstellation(constell.id, starsCost, moonsCost)
+                              }
                               className={`w-full sm:w-auto px-3 py-2 rounded-xl font-black flex flex-col items-center justify-center transition-all select-none border-2 cursor-pointer ${
                                 canAfford
                                   ? "bg-gradient-to-b from-[#213f56] to-[#0f1d2a] text-cosmic-text border-cyan-400 hover:from-[#2e5a7b] hover:to-[#172d3e] hover:scale-103 shadow-[2px_2px_0px_#22d3ee] active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_#22d3ee]"
                                   : "bg-[#18162f]/80 text-cosmic-accent-muted/40 border-cyan-400/20 shadow-none cursor-not-allowed opacity-40"
                               }`}
                             >
-                              <span className="text-[8px] uppercase font-mono tracking-wider font-semibold text-cyan-300">Sternbild füllen</span>
+                              <span className="text-[8px] uppercase font-mono tracking-wider font-semibold text-cyan-300">
+                                Sternbild füllen
+                              </span>
                               <div className="flex gap-1.5 items-center mt-0.5 text-[9px] font-mono font-black text-white">
-                                <span className={hasEnoughStars ? "text-amber-200" : "text-rose-300"}>
+                                <span
+                                  className={hasEnoughStars ? "text-amber-200" : "text-rose-300"}
+                                >
                                   ⭐ {starsCost}
                                 </span>
                                 {moonsCost > 0 && (
-                                  <span className={hasEnoughMoons ? "text-purple-300" : "text-rose-300"}>
+                                  <span
+                                    className={hasEnoughMoons ? "text-purple-300" : "text-rose-300"}
+                                  >
                                     🌙 {moonsCost}
                                   </span>
                                 )}
@@ -444,14 +499,27 @@ export const StarsModal: React.FC<StarsModalProps> = React.memo(({
         {/* Modal Footer */}
         <div className="p-3 bg-[#13112a] border-t border-amber-300/40 flex flex-col sm:flex-row justify-between items-center text-[10px] text-cosmic-accent-muted font-semibold px-5 gap-1.5 shrink-0">
           <div className="flex flex-col sm:flex-row gap-1 sm:gap-3">
-            <span>Sterne: <b className="text-amber-300 font-black">+{formatCompactNumber(totalStarsLps)} 💖/s</b></span>
+            <span>
+              Sterne:{" "}
+              <b className="text-amber-300 font-black">
+                +{formatCompactNumber(totalStarsLps)} 💖/s
+              </b>
+            </span>
             <span className="hidden sm:inline text-purple-400">|</span>
-            <span>Trabanten: <b className="text-purple-300 font-black">+{formatCompactNumber(totalMoonPower)} 💖/s</b></span>
+            <span>
+              Trabanten:{" "}
+              <b className="text-purple-300 font-black">
+                +{formatCompactNumber(totalMoonPower)} 💖/s
+              </b>
+            </span>
           </div>
-          <span>Guthaben: <b className="text-cosmic-pink font-black">{formatCompactNumber(life)} 💖</b></span>
+          <span>
+            Guthaben: <b className="text-cosmic-pink font-black">{formatCompactNumber(life)} 💖</b>
+          </span>
         </div>
-    </Modal>
-  );
-});
+      </Modal>
+    );
+  },
+);
 
 StarsModal.displayName = "StarsModal";

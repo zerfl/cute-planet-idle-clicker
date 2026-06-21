@@ -11,25 +11,8 @@
 
 /** EXP required to advance from level N to N+1 (index = current level). */
 export const EXP_PER_LEVEL: readonly number[] = [
-  0,
-  1500,
-  5000,
-  18000,
-  60000,
-  220000,
-  850000,
-  3200000,
-  12000000,
-  45000000,
-  160000000,
-  550000000,
-  1800000000,
-  6000000000,
-  20000000000,
-  65000000000,
-  200000000000,
-  600000000000,
-  1800000000000,
+  0, 1500, 5000, 18000, 60000, 220000, 850000, 3200000, 12000000, 45000000, 160000000, 550000000,
+  1800000000, 6000000000, 20000000000, 65000000000, 200000000000, 600000000000, 1800000000000,
   5000000000000,
 ];
 
@@ -47,7 +30,7 @@ export function expForLevel(level: number, prestigeCount: number = 0): number {
     baseExp = 5_000_000_000_000 + (level - 19) * 2_000_000_000_000;
   }
   // Slower leveling: require +50% extra EXP per Prestige level
-  const scale = 1.0 + (prestigeCount || 0) * 0.50;
+  const scale = 1.0 + (prestigeCount || 0) * 0.5;
   return Math.round(baseExp * scale);
 }
 
@@ -78,7 +61,7 @@ export function computeLevelUpResult(
   planetLevel: number,
   planetExp: number,
   xpAmount: number,
-  prestigeCount: number = 0
+  prestigeCount: number = 0,
 ): LevelUpResult {
   let currentExp = planetExp + xpAmount;
   let currentLevel = planetLevel;
