@@ -48,7 +48,7 @@ test.describe("cute planet smoke", () => {
       return raw ? JSON.parse(raw) : null;
     }, SAVE_KEY);
     expect(saved).not.toBeNull();
-    expect(saved.version).toBe(1); // client-localstorage-schema versioning
+    expect(saved.version).toBe(2); // client-localstorage-schema versioning
     const clicksBefore: number = saved.clicksCount;
     expect(clicksBefore).toBeGreaterThan(0);
 
