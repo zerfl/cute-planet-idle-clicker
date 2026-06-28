@@ -16,6 +16,7 @@ import { OpeningResultModal } from "./modals/OpeningResultModal";
 import { InventoryModal } from "./modals/InventoryModal";
 import { ZodiacModal } from "./modals/ZodiacModal";
 import { LeaderboardModal } from "./modals/LeaderboardModal";
+import { ProfileModal } from "./modals/ProfileModal";
 import { PrestigeModal } from "./modals/PrestigeModal";
 import type { FontScaleOption } from "../hooks/useDisplayPreferences";
 import type { AccountSwitchPrompt } from "../hooks/useFirebaseSync";
@@ -248,6 +249,10 @@ export const GameModalsContainer: React.FC<GameModalsContainerProps> = React.mem
     cosmeticRarityLevels,
     upgradesSpecs,
   }) => {
+    // The public profile is only ever opened from within the leaderboard, so its selection lives
+    // here rather than in the shared modal state.
+    const [profileUserId, setProfileUserId] = React.useState<string | null>(null);
+
     return (
       <>
         {showResetDialog && (
@@ -478,6 +483,18 @@ export const GameModalsContainer: React.FC<GameModalsContainerProps> = React.mem
             onClose={() => setShowLeaderboardModal(false)}
             currentUserId={user?.uid}
             formatCompactNumber={formatCompactNumber}
+            onOpenProfile={setProfileUserId}
+          />
+        )}
+
+        {profileUserId && (
+          <ProfileModal
+            isOpen={profileUserId !== null}
+            onClose={() => setProfileUserId(null)}
+            userId={profileUserId}
+            currentUserId={user?.uid}
+            formatCompactNumber={formatCompactNumber}
+            animalDefs={INITIAL_ANIMALS}
           />
         )}
 

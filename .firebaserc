@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "cute-gay-planet-local-uwu",
+    "dev": "cute-gay-planet-local-uwu",
+    "prod": "cute-planet-6096c"
+  }
+}

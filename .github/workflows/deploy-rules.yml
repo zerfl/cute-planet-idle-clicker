@@ -1,0 +1,45 @@
+name: Deploy Firestore Rules
+
+# Replaces the old AI Studio auto-deploy: when the rules (or related config) land on main,
+# push them to the production Firebase project.
+#
+# Requires a repository secret FIREBASE_SERVICE_ACCOUNT containing the JSON key of a service
+# account in the prod project (cute-planet-6096c) with the "Firebase Rules Admin"
+# (roles/firebaserules.admin) role.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - firestore.rules
+      - firebase.json
+      - .firebaserc
+      - .github/workflows/deploy-rules.yml
+
+concurrency:
+  group: deploy-firestore-rules
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy firestore rules (prod)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Deploy Firestore rules to prod
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          printf '%s' "$FIREBASE_SERVICE_ACCOUNT" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npm run deploy:rules -- --project prod --non-interactive

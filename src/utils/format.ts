@@ -43,3 +43,24 @@ export function formatCompactNumber(num: number): string {
   }
   return num.toString();
 }
+
+/**
+ * Human-readable playtime from a second count, German units. Shows the two most
+ * significant non-zero units (e.g. "3 Tage 4 Std", "12 Std 30 Min", "45 Min").
+ * Returns "0 Min" for null/undefined/NaN/negative.
+ */
+export function formatPlaytime(seconds: number): string {
+  if (seconds === null || isNaN(seconds) || seconds <= 0) return "0 Min";
+
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+
+  const parts: string[] = [];
+  if (days > 0) parts.push(`${days} ${days === 1 ? "Tag" : "Tage"}`);
+  if (hours > 0) parts.push(`${hours} Std`);
+  if (minutes > 0) parts.push(`${minutes} Min`);
+  if (parts.length === 0) return "< 1 Min";
+
+  return parts.slice(0, 2).join(" ");
+}

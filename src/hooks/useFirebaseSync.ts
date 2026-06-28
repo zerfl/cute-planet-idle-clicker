@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut, User } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { auth, db, googleProvider, OperationType, handleFirestoreError } from "../lib/firebase";
+import { buildPublicProfile } from "../utils/publicProfile";
 import {
   type RawSave,
   type SaveOwnerId,
@@ -10,6 +11,9 @@ import {
   readSave,
   writeSave,
 } from "../utils/persistence";
+
+const resolveDisplayName = (user: User | null): string =>
+  user?.displayName || (user?.email ? user.email.split("@")[0] : "Anonymes Wesen");
 
 export interface CloudSaveData {
   userId: string;
@@ -158,10 +162,7 @@ export function useFirebaseSync() {
   const syncLeaderboard = async (uid: string, payload: Record<string, unknown>) => {
     try {
       const leaderboardRef = doc(db, "leaderboard", uid);
-      const activeUser = userRef.current;
-      const displayName =
-        activeUser?.displayName ||
-        (activeUser?.email ? activeUser.email.split("@")[0] : "Anonymes Wesen");
+      const displayName = resolveDisplayName(userRef.current);
 
       await setDoc(leaderboardRef, {
         userId: uid,
@@ -172,6 +173,20 @@ export function useFirebaseSync() {
       });
     } catch (error) {
       console.error("Leaderboard sync failed:", error);
+    }
+  };
+
+  const syncPublicProfile = async (uid: string, payload: Record<string, unknown>) => {
+    try {
+      const profileRef = doc(db, "profiles", uid);
+      const displayName = resolveDisplayName(userRef.current);
+
+      await setDoc(profileRef, {
+        ...buildPublicProfile(payload, uid, displayName),
+        updatedAt: serverTimestamp(),
+      });
+    } catch (error) {
+      console.error("Profile sync failed:", error);
     }
   };
 
@@ -188,6 +203,7 @@ export function useFirebaseSync() {
 
       await setDoc(docRef, payload);
       await syncLeaderboard(uid, localSave);
+      await syncPublicProfile(uid, localSave);
 
       setCloudSaveFound(payload);
       setLastSynced(new Date());
@@ -348,6 +364,7 @@ export function useFirebaseSync() {
       const payload = buildCloudPayload(state, activeUser.uid, resolvedCreatedAt);
       await setDoc(docRef, payload);
       await syncLeaderboard(activeUser.uid, state);
+      await syncPublicProfile(activeUser.uid, state);
 
       setCloudSaveFound(payload);
       setLastSynced(new Date());

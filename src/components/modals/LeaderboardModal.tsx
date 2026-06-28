@@ -17,10 +17,11 @@ interface LeaderboardModalProps {
   onClose: () => void;
   currentUserId: string | undefined;
   formatCompactNumber: (num: number) => string;
+  onOpenProfile?: (userId: string) => void;
 }
 
 export const LeaderboardModal: React.FC<LeaderboardModalProps> = React.memo(
-  ({ isOpen, onClose, currentUserId, formatCompactNumber }) => {
+  ({ isOpen, onClose, currentUserId, formatCompactNumber, onOpenProfile }) => {
     const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -162,13 +163,15 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = React.memo(
                 }
 
                 if (isMe) {
-                  rankBg = `${rankBg} ring-2 ring-primary bg-[#2a1c4b] border-pink-400/60`;
+                  rankBg = `${rankBg} ring-2 ring-inset ring-pink-400/80 bg-[#2a1c4b] border-pink-400`;
                 }
 
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={entry.userId}
-                    className={`flex items-center justify-between p-2.5 rounded-2xl border-2 ${rankBg} transition-all`}
+                    onClick={() => onOpenProfile?.(entry.userId)}
+                    className={`w-full text-left flex items-center justify-between p-2.5 rounded-2xl border-2 ${rankBg} transition-all hover:brightness-110 active:scale-[0.99] cursor-pointer`}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-[#1b153b] border border-gray-700/30 flex items-center justify-center font-bold">
@@ -200,7 +203,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = React.memo(
                         Erhobenes Leben
                       </span>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -212,9 +215,13 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = React.memo(
               <span className="text-[10px] uppercase font-mono tracking-wider text-cosmic-accent-muted block mb-2 text-center">
                 Deine Platzierung
               </span>
-              <div className="flex items-center justify-between p-2.5 rounded-2xl border-2 border-pink-400 bg-gradient-to-r from-[#2a1c4b] to-[#1a163a]">
+              <button
+                type="button"
+                onClick={() => onOpenProfile?.(currentUserEntry.userId)}
+                className="w-full text-left flex items-center justify-between p-2.5 rounded-2xl border-2 border-pink-400 bg-gradient-to-r from-[#2a1c4b] to-[#1a163a] hover:brightness-110 active:scale-[0.99] cursor-pointer"
+              >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-pink-500/20 border border-pink-455 flex items-center justify-center font-black text-xs text-pink-300">
+                  <div className="w-8 h-8 rounded-full bg-pink-500/20 border border-pink-400 flex items-center justify-center font-black text-xs text-pink-300">
                     Rang ?
                   </div>
                   <div>
@@ -239,7 +246,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = React.memo(
                     Erhobenes Leben
                   </span>
                 </div>
-              </div>
+              </button>
             </div>
           )}
         </div>

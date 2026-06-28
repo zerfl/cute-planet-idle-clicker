@@ -1,7 +1,27 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getFirestore, doc, getDocFromServer } from "firebase/firestore";
-import firebaseConfig from "../../firebase-applet-config.json";
+import defaultConfig from "../../firebase-applet-config.json";
+
+// Dev override: when VITE_FIREBASE_* vars are present (via a gitignored .env.local), use them
+// instead of the committed config so local development can talk to a Firebase project that
+// allows localhost. Production builds have no .env.local and fall back to the JSON.
+const env = import.meta.env;
+const envDatabaseId = env.VITE_FIREBASE_DATABASE_ID || undefined;
+const envConfig =
+  env.VITE_FIREBASE_API_KEY && env.VITE_FIREBASE_PROJECT_ID
+    ? {
+        apiKey: env.VITE_FIREBASE_API_KEY,
+        authDomain: env.VITE_FIREBASE_AUTH_DOMAIN,
+        projectId: env.VITE_FIREBASE_PROJECT_ID,
+        storageBucket: env.VITE_FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+        appId: env.VITE_FIREBASE_APP_ID,
+        measurementId: env.VITE_FIREBASE_MEASUREMENT_ID,
+      }
+    : null;
+
+const firebaseConfig = envConfig ?? defaultConfig;
 
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
@@ -16,9 +36,11 @@ const isAiStudio =
     window.location.hostname.includes("vercel.app") ||
     window.location.hostname.includes("cute-planet-idle-clicker.vercel.app"));
 
-const dbId = isAiStudio
-  ? (firebaseConfig as any).firestoreDatabaseId || (firebaseConfig as any).databaseId
-  : undefined;
+const dbId =
+  envDatabaseId ||
+  (isAiStudio
+    ? (firebaseConfig as any).firestoreDatabaseId || (firebaseConfig as any).databaseId
+    : undefined);
 
 export const db = dbId ? getFirestore(app, dbId) : getFirestore(app);
 export const auth = getAuth(app);
