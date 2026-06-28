@@ -49,7 +49,6 @@ describe("migrateSave", () => {
         losses: 0,
         highestStation: 0,
         unlockedRelics: ["kometenherz", "pfotenkompass"],
-        equippedRelicIds: ["kometenherz"],
         unlockedPlanetSkins: [],
         seenBosses: [],
         shardRewardsClaimed: 0,

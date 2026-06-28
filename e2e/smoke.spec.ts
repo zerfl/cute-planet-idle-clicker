@@ -1,6 +1,22 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 const SAVE_KEY = "cute_planet_save_guest";
+
+async function dismissTutorial(page: Page) {
+  const loslegenButton = page.getByRole("button", { name: /Loslegen/ });
+  if (await loslegenButton.isVisible()) {
+    await loslegenButton.click();
+  }
+}
+
+async function openRogueliteAndStartRun(page: Page) {
+  await page.getByTestId("open-roguelite-button").click();
+  await expect(page.getByText(/30 Stationen\. 3 Akte\./)).toBeVisible();
+  await page.getByRole("button", { name: /^Start$/ }).click();
+  await expect(page.getByText(/Waehle bis zu 3 Start-Relikte/i)).toBeVisible();
+  await page.getByRole("button", { name: /Run starten/i }).click();
+  await expect(page.getByTestId("roguelite-primary-content")).toBeVisible();
+}
 
 test.describe("cute planet smoke", () => {
   // Each test gets a fresh browser context, so localStorage already starts empty
@@ -17,7 +33,7 @@ test.describe("cute planet smoke", () => {
 
     // First load shows the tutorial overlay (showTutorial defaults to true); close
     // it via its "Loslegen" button so it doesn't intercept planet clicks.
-    await page.getByRole("button", { name: /Loslegen/ }).click();
+    await dismissTutorial(page);
     await expect(page.getByRole("dialog")).toHaveCount(0);
 
     // Each click round-trips through the worker (CLICK -> state.clicksCount++ ->
@@ -48,7 +64,7 @@ test.describe("cute planet smoke", () => {
       return raw ? JSON.parse(raw) : null;
     }, SAVE_KEY);
     expect(saved).not.toBeNull();
-    expect(saved.version).toBe(2); // client-localstorage-schema versioning
+    expect(saved.version).toBe(3); // client-localstorage-schema versioning
     const clicksBefore: number = saved.clicksCount;
     expect(clicksBefore).toBeGreaterThan(0);
 
@@ -61,5 +77,56 @@ test.describe("cute planet smoke", () => {
       return raw ? (JSON.parse(raw).clicksCount ?? 0) : 0;
     }, SAVE_KEY);
     expect(clicksAfter).toBeGreaterThanOrEqual(clicksBefore);
+  });
+
+  test("desktop roguelite drawer keeps the run actions clickable", async ({ page }) => {
+    await page.setViewportSize({ width: 1366, height: 768 });
+    await page.goto("/");
+    await expect(page.locator("#planet-container")).toBeVisible({ timeout: 30_000 });
+    await dismissTutorial(page);
+
+    await openRogueliteAndStartRun(page);
+
+    const primaryContent = page.getByTestId("roguelite-primary-content");
+    const firstChoice = primaryContent.getByTestId("roguelite-choice-card").first();
+
+    await expect(firstChoice).toBeVisible();
+    await expect(page.getByTestId("roguelite-run-info-panel")).toHaveCount(0);
+    await page.screenshot({ path: "test-results/roguelite-desktop-run.png" });
+
+    await page.getByTestId("roguelite-drawer-toggle").click();
+    await expect(page.getByTestId("roguelite-run-info-panel")).toBeVisible();
+    await expect(primaryContent).toBeVisible();
+    await page.waitForTimeout(300);
+    await page.screenshot({ path: "test-results/roguelite-desktop-drawer-open.png" });
+
+    await firstChoice.click();
+    await expect(primaryContent).toContainText(/Station|Route|Weggabelung|Run wird vorbereitet/i);
+  });
+
+  test.describe("roguelite drawer mobile", () => {
+    test.use({ viewport: { width: 390, height: 844 } });
+
+    test("opens as a right drawer and closes back to the run cleanly", async ({ page }) => {
+      await page.goto("/");
+      await expect(page.locator("#planet-container")).toBeVisible({ timeout: 30_000 });
+      await dismissTutorial(page);
+
+      await openRogueliteAndStartRun(page);
+
+      const drawerToggle = page.getByTestId("roguelite-drawer-toggle");
+      await page.screenshot({ path: "test-results/roguelite-mobile-run.png" });
+      await drawerToggle.click();
+
+      const drawer = page.getByTestId("roguelite-run-info-panel");
+      await expect(drawer).toBeVisible();
+      await expect(drawer).toContainText(/Bossblick/i);
+      await page.waitForTimeout(300);
+      await page.screenshot({ path: "test-results/roguelite-mobile-drawer-open.png" });
+
+      await page.getByRole("button", { name: /Info-Panel schliessen/i }).click();
+      await expect(drawer).toHaveCount(0);
+      await expect(page.getByTestId("roguelite-primary-content")).toBeVisible();
+    });
   });
 });

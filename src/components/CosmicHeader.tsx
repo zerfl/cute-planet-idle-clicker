@@ -134,6 +134,7 @@ export const CosmicHeader: React.FC<CosmicHeaderProps> = React.memo(
             <div className="flex items-center gap-2 sm:gap-4">
               <button
                 onClick={onOpenRoguelite}
+                data-testid="open-roguelite-button"
                 className={`group relative flex items-center gap-2 rounded-xl border-2 px-3 py-2 transition-all shadow-sm cursor-pointer ${
                   hasActiveRogueliteRun
                     ? "border-fuchsia-300/70 bg-gradient-to-r from-[#261343] via-[#1b1539] to-[#152a44] text-white shadow-[0_0_30px_rgba(202,165,254,0.22)]"

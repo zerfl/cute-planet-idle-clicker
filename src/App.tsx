@@ -93,11 +93,13 @@ import {
   createNewRun,
   createRogueliteMetaState,
   finalizeRun,
+  getActForStation,
+  hasRenderableRoguelitePrimaryState,
   pickPath,
   rerollCurrentEncounter,
   selectVictoryRewards,
 } from "./roguelite/engine";
-import type { ActiveRogueliteRun, RogueliteMetaState } from "./roguelite/types";
+import type { ActiveRogueliteRun, RogueliteMetaState, RogueliteViewState } from "./roguelite/types";
 import { getMaxMoons } from "./game/maxMoons";
 
 // Static level bounds (significantly increased to slow down progression)
@@ -287,6 +289,7 @@ export default function App() {
   );
   const [activeRogueliteRun, setActiveRogueliteRun] = useState<ActiveRogueliteRun | null>(null);
   const [showRogueliteScreen, setShowRogueliteScreen] = useState(false);
+  const [rogueliteViewState, setRogueliteViewState] = useState<RogueliteViewState>("intro");
 
   const [openingResult, setOpeningResult] = useState<{
     itemId: string;
@@ -661,13 +664,30 @@ export default function App() {
       if (rawSave.glitchBenchmarks !== undefined) setGlitchBenchmarks(rawSave.glitchBenchmarks);
       if (rawSave.glitchCooldown !== undefined) setGlitchCooldown(rawSave.glitchCooldown);
       if (rawSave.rogueliteMeta) {
+        const { equippedRelicIds: _legacyEquippedRelics, ...rogueliteMetaFromSave } =
+          rawSave.rogueliteMeta as RogueliteMetaState & { equippedRelicIds?: string[] };
         setRogueliteMeta({
           ...createRogueliteMetaState(),
-          ...rawSave.rogueliteMeta,
+          ...rogueliteMetaFromSave,
         });
       }
       if (rawSave.activeRogueliteRun !== undefined) {
-        setActiveRogueliteRun(rawSave.activeRogueliteRun);
+        const savedRun = rawSave.activeRogueliteRun;
+        if (savedRun) {
+          setActiveRogueliteRun({
+            ...savedRun,
+            currentAct:
+              typeof savedRun.currentAct === "number"
+                ? savedRun.currentAct
+                : getActForStation(Math.max(1, savedRun.completedStations + 1)),
+            boss: {
+              ...savedRun.boss,
+              stage: savedRun.boss?.stage ?? "final",
+            },
+          });
+        } else {
+          setActiveRogueliteRun(null);
+        }
       }
 
       return rawSave;
@@ -1620,6 +1640,7 @@ export default function App() {
   const applyRogueliteFinalize = useCallback((result: ReturnType<typeof finalizeRun>) => {
     setRogueliteMeta(result.meta);
     setActiveRogueliteRun(null);
+    setRogueliteViewState("intro");
     if (result.grantedShards > 0) {
       workerRef.current?.postMessage({ type: "ADD_GALAXY_SHARDS", amount: result.grantedShards });
     }
@@ -1637,9 +1658,14 @@ export default function App() {
   const handleOpenRogueliteScreen = useCallback(() => {
     playUpgrade();
     startTransition(() => {
+      setRogueliteViewState(
+        activeRogueliteRun && hasRenderableRoguelitePrimaryState(activeRogueliteRun)
+          ? "run"
+          : "intro",
+      );
       setShowRogueliteScreen(true);
     });
-  }, []);
+  }, [activeRogueliteRun]);
 
   const handleCloseRogueliteScreen = useCallback(() => {
     startTransition(() => {
@@ -1647,32 +1673,45 @@ export default function App() {
     });
   }, []);
 
-  const handleToggleEquipRogueliteRelic = useCallback((relicId: string) => {
-    setRogueliteMeta((prev) => {
-      if (!prev.unlockedRelics.includes(relicId)) return prev;
-      const isEquipped = prev.equippedRelicIds.includes(relicId);
-      if (isEquipped) {
-        return {
-          ...prev,
-          equippedRelicIds: prev.equippedRelicIds.filter((id) => id !== relicId),
-        };
-      }
-      if (prev.equippedRelicIds.length >= 2) {
-        return prev;
-      }
-      return {
-        ...prev,
-        equippedRelicIds: [...prev.equippedRelicIds, relicId],
-      };
+  const handleBeginRogueliteSetup = useCallback(() => {
+    playPop();
+    startTransition(() => {
+      setRogueliteViewState("relic_select");
     });
   }, []);
 
-  const handleStartRogueliteRun = useCallback(() => {
-    playLevelUp();
+  const handleOpenRogueliteArchive = useCallback(() => {
+    playUpgrade();
     startTransition(() => {
-      setActiveRogueliteRun(createNewRun(rogueliteMeta));
+      setRogueliteViewState("archive");
     });
-  }, [rogueliteMeta]);
+  }, []);
+
+  const handleBackToRogueliteIntro = useCallback(() => {
+    playTick();
+    startTransition(() => {
+      setRogueliteViewState("intro");
+    });
+  }, []);
+
+  const handleBackToRogueliteRelicSelect = useCallback(() => {
+    playTick();
+    startTransition(() => {
+      setRogueliteViewState("relic_select");
+    });
+  }, []);
+
+  const handleStartRogueliteRun = useCallback(
+    (selectedRelicIds: string[]) => {
+      playLevelUp();
+      const nextRun = createNewRun(rogueliteMeta, selectedRelicIds);
+      startTransition(() => {
+        setActiveRogueliteRun(nextRun);
+        setRogueliteViewState(hasRenderableRoguelitePrimaryState(nextRun) ? "run" : "relic_select");
+      });
+    },
+    [rogueliteMeta],
+  );
 
   const handleChooseRogueliteEncounter = useCallback((choiceId: string) => {
     playPop();
@@ -1849,14 +1888,18 @@ export default function App() {
 
         <RogueliteScreen
           isOpen={showRogueliteScreen}
+          viewState={rogueliteViewState}
           meta={rogueliteMeta}
           activeRun={activeRogueliteRun}
           onClose={handleCloseRogueliteScreen}
+          onBeginRunSetup={handleBeginRogueliteSetup}
+          onBackToIntro={handleBackToRogueliteIntro}
+          onOpenArchive={handleOpenRogueliteArchive}
+          onCloseArchive={handleBackToRogueliteRelicSelect}
           onStartRun={handleStartRogueliteRun}
           onChooseEncounter={handleChooseRogueliteEncounter}
           onChoosePath={handleChooseRoguelitePath}
           onRerollEncounter={handleRerollRogueliteEncounter}
-          onToggleEquipRelic={handleToggleEquipRogueliteRelic}
           onClaimVictory={handleClaimRogueliteVictory}
           onClaimDefeat={handleClaimRogueliteDefeat}
         />

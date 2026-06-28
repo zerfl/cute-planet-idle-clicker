@@ -13,6 +13,7 @@ import {
 import type {
   ActiveRogueliteRun,
   RogueliteBoss,
+  RogueliteBossStage,
   RogueliteBoon,
   RogueliteChoice,
   RogueliteChoicePreview,
@@ -31,7 +32,30 @@ import type {
   RogueliteRunStats,
 } from "./types";
 
-const MAX_STATIONS = 10;
+export const ROGUELITE_STATIONS_PER_ACT = 10;
+export const ROGUELITE_TOTAL_ACTS = 3;
+export const ROGUELITE_TOTAL_STATIONS = ROGUELITE_STATIONS_PER_ACT * ROGUELITE_TOTAL_ACTS;
+export const ROGUELITE_ACT_BOSS_STATIONS = [10, 20] as const;
+
+export function getActForStation(station: number): 1 | 2 | 3 {
+  if (station <= ROGUELITE_STATIONS_PER_ACT) return 1;
+  if (station <= ROGUELITE_STATIONS_PER_ACT * 2) return 2;
+  return 3;
+}
+
+export function hasRenderableRoguelitePrimaryState(run: ActiveRogueliteRun | null): boolean {
+  if (!run) return false;
+  if (run.phase === "victory_rewards") return Boolean(run.rewardPackage);
+  if (run.phase === "defeat") return true;
+  if (run.phase === "path") return run.pathChoices.length > 0;
+  return Boolean(run.currentEncounter);
+}
+
+function getBossStageForStation(station: number): RogueliteBossStage {
+  if (station >= ROGUELITE_TOTAL_STATIONS) return "final";
+  if (station >= ROGUELITE_ACT_BOSS_STATIONS[1]) return "act_2";
+  return "act_1";
+}
 
 const ARCHETYPE_NODE_BIAS: Record<string, RogueliteNodeType[]> = {
   anomaly_weaver: ["anomaly", "echo", "meteor"],
@@ -277,17 +301,17 @@ function getBoss(id: string): RogueliteBoss {
 }
 
 function dangerForStation(station: number, type: RogueliteNodeType) {
-  if (type === "elite") return station >= 7 ? "extreme" : "high";
+  if (type === "elite") return station >= 24 ? "extreme" : station >= 12 ? "high" : "medium";
   if (type === "boss_omen") return "high";
-  if (type === "combat" || type === "meteor") return station >= 8 ? "high" : "medium";
-  if (type === "sacrifice" || type === "anomaly") return station >= 6 ? "high" : "medium";
-  return station >= 8 ? "medium" : "low";
+  if (type === "combat" || type === "meteor")
+    return station >= 22 ? "high" : station >= 10 ? "medium" : "low";
+  if (type === "sacrifice" || type === "anomaly")
+    return station >= 20 ? "high" : station >= 8 ? "medium" : "low";
+  return station >= 18 ? "medium" : "low";
 }
 
 function actForStation(station: number): 1 | 2 | 3 {
-  if (station <= 3) return 1;
-  if (station <= 7) return 2;
-  return 3;
+  return getActForStation(station);
 }
 
 function weightedNodePool(station: number, meta: RogueliteMetaState, run: ActiveRogueliteRun) {
@@ -304,10 +328,13 @@ function weightedNodePool(station: number, meta: RogueliteMetaState, run: Active
     "sacrifice",
     "boss_omen",
   ];
-  if (station >= 3) pool.push("elite");
-  if (station >= 4) pool.push("merchant");
-  if (station >= 5) pool.push("relic_vault");
-  if (meta.wins > 0 && station >= 6) pool.push("elite");
+  if (station >= 4) pool.push("elite");
+  if (station >= 5) pool.push("merchant");
+  if (station >= 7) pool.push("relic_vault");
+  if (meta.wins > 0 && station >= 10) pool.push("elite");
+  if (station >= 12) pool.push("elite", "anomaly");
+  if (station >= 18) pool.push("meteor", "boss_omen");
+  if (station >= 24) pool.push("sacrifice", "relic_vault");
   pool.push(...(ARCHETYPE_NODE_BIAS[run.runArchetype.id] ?? []));
   run.runModifiers.forEach((modifier) => pool.push(...(MODIFIER_NODE_BIAS[modifier.id] ?? [])));
   return pool;
@@ -406,6 +433,7 @@ function createBossState(
       bossId: boss.id,
       mutationIds,
       telegraphRevealed: run.activeRelicIds.includes("pfotenkompass"),
+      stage: "final",
     },
   ];
 }
@@ -1146,11 +1174,20 @@ function rollEventEncounter(
 
 function buildBossEncounter(run: ActiveRogueliteRun): RogueliteEncounter {
   const boss = getBoss(run.boss.bossId);
+  const isFinalBoss = run.boss.stage === "final";
+  const title =
+    run.boss.stage === "act_1"
+      ? `${boss.name} • Akt 1 Pruefung`
+      : run.boss.stage === "act_2"
+        ? `${boss.name} • Akt 2 Pruefung`
+        : `${boss.name} • Finale Kollision`;
   return {
     id: `${boss.id}_boss`,
-    title: `${boss.name} • Finale Kollision`,
-    description: boss.description,
-    nodeType: "boss",
+    title,
+    description: isFinalBoss
+      ? boss.description
+      : "Ein Zwischenboss prueft, ob dein Build den naechsten Akt wirklich traegt.",
+    nodeType: isFinalBoss ? "boss" : "act_boss",
     danger: "extreme",
     rewardHint: run.boss.telegraphRevealed
       ? `Mutationen: ${run.boss.mutationIds
@@ -1211,13 +1248,35 @@ function afterEncounterResolved(run: ActiveRogueliteRun): ActiveRogueliteRun {
       rewardState: { ...run.rewardState, trostRewardPending: true },
     };
   }
-  if (run.completedStations >= MAX_STATIONS) {
+  if (
+    run.completedStations >= ROGUELITE_STATIONS_PER_ACT &&
+    run.completedStations < ROGUELITE_TOTAL_STATIONS &&
+    run.completedStations % ROGUELITE_STATIONS_PER_ACT === 0
+  ) {
+    return {
+      ...run,
+      currentAct: getActForStation(run.completedStations + 1),
+      phase: "boss",
+      currentNode: null,
+      currentEncounter: buildBossEncounter({
+        ...run,
+        boss: { ...run.boss, stage: getBossStageForStation(run.completedStations) },
+      }),
+      pathChoices: [],
+      boss: { ...run.boss, stage: getBossStageForStation(run.completedStations) },
+    };
+  }
+  if (run.completedStations >= ROGUELITE_TOTAL_STATIONS) {
     return {
       ...run,
       phase: "boss",
       currentNode: null,
-      currentEncounter: buildBossEncounter(run),
+      currentEncounter: buildBossEncounter({
+        ...run,
+        boss: { ...run.boss, stage: "final" },
+      }),
       pathChoices: [],
+      boss: { ...run.boss, stage: "final" },
     };
   }
   const [withEventRoll, eventEncounter] = rollEventEncounter(run);
@@ -1248,7 +1307,6 @@ export function createRogueliteMetaState(): RogueliteMetaState {
     losses: 0,
     highestStation: 0,
     unlockedRelics: ["kometenherz", "pfotenkompass"],
-    equippedRelicIds: ["kometenherz"],
     unlockedPlanetSkins: [],
     seenBosses: [],
     shardRewardsClaimed: 0,
@@ -1257,16 +1315,26 @@ export function createRogueliteMetaState(): RogueliteMetaState {
   };
 }
 
-export function createNewRun(meta: RogueliteMetaState, seedOverride?: number): ActiveRogueliteRun {
+export function createNewRun(
+  meta: RogueliteMetaState,
+  selectedRelicIds: string[],
+  seedOverride?: number,
+): ActiveRogueliteRun {
   const seed = generateSeed(seedOverride);
   const runArchetype = chooseSeededArchetype(seed);
   const runModifiers = chooseSeededModifiers(seed);
+  const startRelics = uniqueById(
+    selectedRelicIds.filter((id) => meta.unlockedRelics.includes(id)).map((id) => getRelic(id)),
+  )
+    .slice(0, 3)
+    .map((relic) => relic.id);
   let run: ActiveRogueliteRun = {
     id: randomId("roguerun", seed),
     seed,
     rngState: seed >>> 0,
     runArchetype,
     runModifiers,
+    currentAct: 1,
     phase: "node",
     status: "active",
     startedAt: Date.now(),
@@ -1279,14 +1347,15 @@ export function createNewRun(meta: RogueliteMetaState, seedOverride?: number): A
       bossId: ROGUELITE_BOSSES[0].id,
       mutationIds: [],
       telegraphRevealed: false,
+      stage: "final",
     },
     stats: applyRunIdentityStartBonuses(
-      applyRelicStartBonuses(createBaseStats(meta), meta.equippedRelicIds),
+      applyRelicStartBonuses(createBaseStats(meta), startRelics),
       runArchetype,
       runModifiers,
     ),
     boons: [],
-    activeRelicIds: meta.equippedRelicIds.slice(0, 2),
+    activeRelicIds: startRelics,
     history: [],
     rewardState: createRewardState(),
     rewardPackage: null,
@@ -1303,6 +1372,21 @@ export function createNewRun(meta: RogueliteMetaState, seedOverride?: number): A
   const encounter = encounterResult[1];
   run.currentNode = firstNode;
   run.currentEncounter = encounter;
+  if (
+    !hasRenderableRoguelitePrimaryState(run) ||
+    (run.currentEncounter?.choices.length ?? 0) === 0
+  ) {
+    const fallbackNodeResult = makeNode(run, 1, "boon");
+    run = fallbackNodeResult[0];
+    const fallbackNode = fallbackNodeResult[1];
+    const fallbackEncounterResult = makeEncounter(run, fallbackNode);
+    run = fallbackEncounterResult[0];
+    run.currentNode = fallbackNode;
+    run.currentEncounter = fallbackEncounterResult[1];
+    run.phase = "node";
+    run.pathChoices = [];
+    run.currentAct = 1;
+  }
   return run;
 }
 
@@ -1663,7 +1747,7 @@ function buildRewardPackage(run: ActiveRogueliteRun): RogueliteRewardPackage {
   const flawless =
     run.rewardState.flawlessEligible && run.stats.runLife >= Math.floor(run.stats.maxLife * 0.8);
   const cursed = run.rewardState.cursesTaken > 0;
-  const speedClear = run.choiceCount <= 12;
+  const speedClear = run.choiceCount <= 34;
 
   const victoryType = flawless
     ? "flawless"
@@ -1673,14 +1757,15 @@ function buildRewardPackage(run: ActiveRogueliteRun): RogueliteRewardPackage {
         ? "speed_clear"
         : "normal";
 
-  let shards = 3 + Math.min(3, Math.floor(run.completedStations / 4)) + run.rewardState.bonusShards;
+  let shards = 6 + Math.min(7, Math.floor(run.completedStations / 4)) + run.rewardState.bonusShards;
   if (victoryType === "flawless") shards += 1;
   if (run.activeRelicIds.includes("splitterbeutel")) shards += 1;
   if (run.boons.some((boon) => boon.id === "double_shards_boss_mutation")) shards += 1;
   if (run.runArchetype.id === "elite_hunter") shards += Math.min(2, run.rewardState.eliteClears);
   if (run.runModifiers.some((modifier) => modifier.id === "cruel_blossom")) shards += 1;
 
-  const glitterDust = 30 + run.rewardState.eliteClears * 12 + Math.floor(run.stats.crystalDust / 3);
+  const glitterDust =
+    70 + run.rewardState.eliteClears * 14 + Math.floor(run.stats.crystalDust / 2.5);
   const relicChoices: string[] = [];
   const unlockedSet = new Set<string>(run.activeRelicIds);
   const sortedRelics = [...ROGUELITE_RELICS].sort(
@@ -1706,6 +1791,8 @@ function buildRewardPackage(run: ActiveRogueliteRun): RogueliteRewardPackage {
 function resolveBoss(run: ActiveRogueliteRun, choiceId: string): ActiveRogueliteRun {
   const boss = getBoss(run.boss.bossId);
   const stats = { ...run.stats };
+  const bossStage = run.boss.stage;
+  const isFinalBoss = bossStage === "final";
   let score =
     stats.runClicks * 1.8 +
     stats.runPassive * 1.6 +
@@ -1750,14 +1837,43 @@ function resolveBoss(run: ActiveRogueliteRun, choiceId: string): ActiveRoguelite
   if (run.activeRelicIds.includes("leerefeder")) score += 14;
   if (run.boons.some((boon) => boon.id === "freeze_boss_phase")) score += 24;
 
-  const threshold = boss.baseDifficulty + run.rewardState.cursesTaken * 8;
+  const threshold =
+    boss.baseDifficulty +
+    (bossStage === "act_1" ? -30 : bossStage === "act_2" ? -12 : 8) +
+    run.rewardState.cursesTaken * 8;
   if (score >= threshold) {
+    if (!isFinalBoss) {
+      const nextStats = {
+        ...stats,
+        runLife: Math.min(stats.maxLife, stats.runLife + (bossStage === "act_1" ? 18 : 14)),
+        runShield: stats.runShield + (bossStage === "act_1" ? 16 : 20),
+        rerolls: stats.rerolls + 1,
+        crystalDust: stats.crystalDust + (bossStage === "act_1" ? 18 : 28),
+        bossDamage: stats.bossDamage + (bossStage === "act_1" ? 8 : 14),
+      };
+      const nextRun = {
+        ...run,
+        stats: nextStats,
+        boss: { ...run.boss, stage: "final" as const },
+        choiceCount: run.choiceCount + 1,
+      };
+      const [withPaths, pathChoices] = makePathChoices(nextRun);
+      return {
+        ...withPaths,
+        currentAct: bossStage === "act_1" ? 2 : 3,
+        phase: "path",
+        currentNode: null,
+        currentEncounter: null,
+        pathChoices,
+      };
+    }
+
     return {
       ...run,
       stats,
       status: "won",
       phase: "victory_rewards",
-      rewardPackage: buildRewardPackage(run),
+      rewardPackage: buildRewardPackage({ ...run, stats }),
       currentEncounter: {
         id: "victory_reward",
         title: "Siegestruhe",
@@ -1851,7 +1967,7 @@ export function finalizeRun(
       ...meta,
       totalRuns: meta.totalRuns + 1,
       wins: meta.wins + 1,
-      highestStation: Math.max(meta.highestStation, MAX_STATIONS),
+      highestStation: Math.max(meta.highestStation, ROGUELITE_TOTAL_STATIONS),
       unlockedRelics: uniqueById([
         ...meta.unlockedRelics.map((id) => getRelic(id)),
         getRelic(selectedRelicId),
@@ -1867,7 +1983,7 @@ export function finalizeRun(
         glitterDustGained: rewardPackage.glitterDust,
         selectedRelicId,
         rewardLabel: rewardPackage.rewardLabel,
-        stationReached: MAX_STATIONS,
+        stationReached: ROGUELITE_TOTAL_STATIONS,
         victoryType: rewardPackage.victoryType,
       },
     };
@@ -1880,12 +1996,18 @@ export function finalizeRun(
     };
   }
 
-  let glitterDust = 16;
+  let glitterDust = 24;
   let shards = 0;
   let bonusRerolls = meta.bonusRerolls;
-  if (run.completedStations >= 5) glitterDust += 10;
-  if (run.completedStations >= 8) shards = 1;
-  if (run.completedStations < 5) bonusRerolls += 1;
+  if (run.completedStations >= 10) {
+    glitterDust += 18;
+    shards = 1;
+  }
+  if (run.completedStations >= 20) {
+    glitterDust += 22;
+    shards = 2;
+  }
+  if (run.completedStations < 10) bonusRerolls += 1;
 
   const nextMeta: RogueliteMetaState = {
     ...meta,
@@ -1900,7 +2022,12 @@ export function finalizeRun(
       bossName: getBoss(run.boss.bossId).name,
       shardsGained: shards,
       glitterDustGained: glitterDust,
-      rewardLabel: run.completedStations >= 8 ? "Grosse Trosttruhe" : "Kleine Trosttruhe",
+      rewardLabel:
+        run.completedStations >= 20
+          ? "Tiefe Trosttruhe"
+          : run.completedStations >= 10
+            ? "Mittlere Trosttruhe"
+            : "Kleine Trosttruhe",
       stationReached: run.completedStations,
     },
   };

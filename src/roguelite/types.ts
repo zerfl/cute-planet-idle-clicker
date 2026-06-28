@@ -22,6 +22,10 @@ export type RogueliteNodeType =
 
 export type RogueliteDanger = "low" | "medium" | "high" | "extreme";
 
+export type RogueliteViewState = "intro" | "relic_select" | "archive" | "run";
+
+export type RogueliteBossStage = "act_1" | "act_2" | "final";
+
 export type RogueliteBoonCategory =
   | "click"
   | "animals"
@@ -138,7 +142,7 @@ export interface RogueliteEncounter {
   id: string;
   title: string;
   description: string;
-  nodeType: RogueliteNodeType | "event" | "boss" | "reward";
+  nodeType: RogueliteNodeType | "event" | "act_boss" | "boss" | "reward";
   danger: RogueliteDanger;
   rewardHint?: string;
   choices: RogueliteChoice[];
@@ -178,6 +182,7 @@ export interface RogueliteBossState {
   bossId: string;
   mutationIds: string[];
   telegraphRevealed: boolean;
+  stage: RogueliteBossStage;
 }
 
 export interface RogueliteRunSummary {
@@ -207,6 +212,7 @@ export interface ActiveRogueliteRun {
   rngState: number;
   runArchetype: RogueliteRunArchetype;
   runModifiers: RogueliteRunModifier[];
+  currentAct: 1 | 2 | 3;
   phase: RoguelitePhase;
   status: "active" | "won" | "lost" | "completed";
   startedAt: number;
@@ -235,7 +241,6 @@ export interface RogueliteMetaState {
   losses: number;
   highestStation: number;
   unlockedRelics: string[];
-  equippedRelicIds: string[];
   unlockedPlanetSkins: string[];
   seenBosses: string[];
   shardRewardsClaimed: number;

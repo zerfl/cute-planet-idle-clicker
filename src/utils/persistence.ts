@@ -105,12 +105,15 @@ export function migrateSave(raw: unknown, ownerId: SaveOwnerId = null): RawSave 
 
   if (save.version < 3) {
     const rogueliteMeta = createRogueliteMetaState();
+    const legacyRogueliteMeta = isRecord(save.rogueliteMeta) ? save.rogueliteMeta : {};
+    const { equippedRelicIds: _legacyEquippedRelics, ...sanitizedRogueliteMeta } =
+      legacyRogueliteMeta;
     save = {
       ...save,
       version: 3,
       rogueliteMeta: {
         ...rogueliteMeta,
-        ...(isRecord(save.rogueliteMeta) ? save.rogueliteMeta : {}),
+        ...sanitizedRogueliteMeta,
       },
       activeRogueliteRun: isRecord(save.activeRogueliteRun) ? save.activeRogueliteRun : null,
       activePlanetSkin:
