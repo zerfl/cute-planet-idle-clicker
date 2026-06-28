@@ -7,6 +7,7 @@ import { rollTaskForLevel } from "./planetTasks";
 import { handleUseCraftedItem } from "./itemHandlers";
 import { executeBlackHoleGamble } from "./blackHoleGamble";
 import { formatCompactNumber } from "./achievements";
+import { getMaxMoons } from "./maxMoons";
 import type { WorkerCommand, WorkerEvent, WorkerGameState, StatsResult } from "./protocol";
 
 export interface WorkerActionHelpers {
@@ -482,16 +483,10 @@ export function handleWorkerAction(
       break;
     }
     case "MERGE_MOONS": {
-      let maxMoons = 3;
-      const upgrades = state.purchasedUpgrades || [];
-      if (upgrades.includes("upg-moon-limit-1")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-2")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-3")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-4")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-5")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-6")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-7")) maxMoons++;
-      if (state.zodiac === "mond") maxMoons++;
+      const maxMoons = getMaxMoons({
+        purchasedUpgrades: state.purchasedUpgrades,
+        zodiac: state.zodiac,
+      });
 
       if (state.starsCount >= 50 && (state.moonsCount || 0) < maxMoons) {
         state.starsCount -= 50;
@@ -523,6 +518,13 @@ export function handleWorkerAction(
       const phoenixLvl = state.zodiacLevels?.phoenix || 1;
       const phoenixMultiplier = state.zodiac === "phoenix" ? 1.5 + (phoenixLvl - 1) * 0.15 : 1.0;
       state.glitterDust = (state.glitterDust || 0) + Math.ceil(Number(amount) * phoenixMultiplier);
+      broadcastStateUpdate(true);
+      break;
+    }
+    case "ADD_GALAXY_SHARDS": {
+      const amount = Math.max(0, Math.trunc(Number(data.amount) || 0));
+      if (amount <= 0) break;
+      state.galaxyShards = (state.galaxyShards || 0) + amount;
       broadcastStateUpdate(true);
       break;
     }

@@ -22,7 +22,7 @@ describe("migrateSave", () => {
     expect(migrateSave(42)).toBeNull();
   });
 
-  it("upgrades a v1 save to version 2 with owner metadata", () => {
+  it("upgrades an older save with owner metadata and roguelite defaults", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-06-27T10:00:00.000Z"));
 
@@ -37,10 +37,25 @@ describe("migrateSave", () => {
 
     expect(migrated).toEqual({
       ...legacyV1,
-      version: 2,
+      version: SAVE_VERSION,
       ownerId: "user-123",
       lastSavedAt: Date.now(),
       lastCloudUpdatedAt: null,
+      activePlanetSkin: "default",
+      activeRogueliteRun: null,
+      rogueliteMeta: {
+        totalRuns: 0,
+        wins: 0,
+        losses: 0,
+        highestStation: 0,
+        unlockedRelics: ["kometenherz", "pfotenkompass"],
+        equippedRelicIds: ["kometenherz"],
+        unlockedPlanetSkins: [],
+        seenBosses: [],
+        shardRewardsClaimed: 0,
+        bonusRerolls: 0,
+        lastRunSummary: null,
+      },
     });
     expect(legacyV1).not.toHaveProperty("ownerId");
     vi.useRealTimers();

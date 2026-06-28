@@ -4,6 +4,7 @@ import { Star, Moon } from "lucide-react";
 import { ZODIACS } from "../data/zodiacs";
 import { PlanetAccessory } from "./PlanetAccessory";
 import { PlanetTask } from "../types";
+import { ROGUELITE_PLANET_SKINS } from "../roguelite/data";
 
 interface PlanetProps {
   level: number;
@@ -19,6 +20,7 @@ interface PlanetProps {
   isLowMemory?: boolean;
   moonsCount?: number;
   activeMoonSkin?: string;
+  activePlanetSkin?: string;
   activeZodiacId?: string;
   onOpenZodiacModal?: () => void;
 }
@@ -589,6 +591,7 @@ export const Planet: React.FC<PlanetProps> = React.memo(
     isLowMemory = false,
     moonsCount = 0,
     activeMoonSkin = "default",
+    activePlanetSkin = "default",
     activeZodiacId,
     onOpenZodiacModal,
   }) => {
@@ -599,6 +602,12 @@ export const Planet: React.FC<PlanetProps> = React.memo(
         PLANET_THEMES[PLANET_THEMES.length - 1]
       );
     }, [level]);
+
+    const activePlanetImage = useMemo(() => {
+      if (activePlanetSkin === "default") return theme.image;
+      const skin = ROGUELITE_PLANET_SKINS.find((entry) => entry.id === activePlanetSkin);
+      return skin?.previewImage ?? theme.image;
+    }, [activePlanetSkin, theme.image]);
 
     // Generate orbit arrays for stars
     const orbits = useMemo(() => {
@@ -751,7 +760,7 @@ export const Planet: React.FC<PlanetProps> = React.memo(
               </defs>
 
               <image
-                href={theme.image}
+                href={activePlanetImage}
                 x="10"
                 y="10"
                 width="180"

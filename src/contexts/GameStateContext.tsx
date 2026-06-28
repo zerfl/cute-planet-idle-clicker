@@ -27,6 +27,7 @@ export interface GameStateValue {
   shootingStarsCount: number;
   clicksCount: number;
   starClicksTriggered: number;
+  activeZodiacId: string;
 
   // Derived from worker calculations (change on buys/upgrades)
   totalLps: number;

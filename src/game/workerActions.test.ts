@@ -112,6 +112,52 @@ describe("handleWorkerAction", () => {
     });
   });
 
+  describe("MERGE_MOONS", () => {
+    it("allows one extra moon when full moon research stacks with the active moon zodiac", () => {
+      const state = makeState({
+        starsCount: 100,
+        moonsCount: 10,
+        zodiac: "mond",
+        purchasedUpgrades: [
+          "upg-moon-limit-1",
+          "upg-moon-limit-2",
+          "upg-moon-limit-3",
+          "upg-moon-limit-4",
+          "upg-moon-limit-5",
+          "upg-moon-limit-6",
+          "upg-moon-limit-7",
+        ],
+      });
+
+      dispatch({ type: "MERGE_MOONS" }, state);
+
+      expect(state.moonsCount).toBe(11);
+      expect(state.starsCount).toBe(50);
+    });
+
+    it("blocks moon merging at the fully stacked moon cap", () => {
+      const state = makeState({
+        starsCount: 100,
+        moonsCount: 11,
+        zodiac: "mond",
+        purchasedUpgrades: [
+          "upg-moon-limit-1",
+          "upg-moon-limit-2",
+          "upg-moon-limit-3",
+          "upg-moon-limit-4",
+          "upg-moon-limit-5",
+          "upg-moon-limit-6",
+          "upg-moon-limit-7",
+        ],
+      });
+      const helpers = dispatch({ type: "MERGE_MOONS" }, state);
+
+      expect(state.moonsCount).toBe(11);
+      expect(state.starsCount).toBe(100);
+      expect(helpers.broadcastStateUpdate).not.toHaveBeenCalled();
+    });
+  });
+
   describe("SPEND_GLITTER_DUST", () => {
     it("spends when affordable", () => {
       const state = makeState({ glitterDust: 50 });

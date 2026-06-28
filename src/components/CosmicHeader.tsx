@@ -1,6 +1,16 @@
 import React from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Volume2, VolumeX, Settings, Cloud, Trophy, Info, RotateCcw, X } from "lucide-react";
+import {
+  Volume2,
+  VolumeX,
+  Settings,
+  Cloud,
+  Trophy,
+  Info,
+  RotateCcw,
+  X,
+  Swords,
+} from "lucide-react";
 
 interface CosmicHeaderProps {
   isNightStyle: boolean;
@@ -18,6 +28,9 @@ interface CosmicHeaderProps {
   formatCompactNumber: (num: number) => string;
   prestigeCount: number;
   onOpenGalaxyShardsShop: () => void;
+  onOpenRoguelite: () => void;
+  hasActiveRogueliteRun: boolean;
+  rogueliteRunStatus?: string;
   inGlitchGalaxy?: boolean;
 }
 
@@ -38,6 +51,9 @@ export const CosmicHeader: React.FC<CosmicHeaderProps> = React.memo(
     formatCompactNumber,
     prestigeCount,
     onOpenGalaxyShardsShop,
+    onOpenRoguelite,
+    hasActiveRogueliteRun,
+    rogueliteRunStatus,
     inGlitchGalaxy = false,
   }) => {
     const [secretInput, setSecretInput] = React.useState("");
@@ -116,6 +132,31 @@ export const CosmicHeader: React.FC<CosmicHeaderProps> = React.memo(
 
             {/* Core Quick stats & Utility buttons */}
             <div className="flex items-center gap-2 sm:gap-4">
+              <button
+                onClick={onOpenRoguelite}
+                className={`group relative flex items-center gap-2 rounded-xl border-2 px-3 py-2 transition-all shadow-sm cursor-pointer ${
+                  hasActiveRogueliteRun
+                    ? "border-fuchsia-300/70 bg-gradient-to-r from-[#261343] via-[#1b1539] to-[#152a44] text-white shadow-[0_0_30px_rgba(202,165,254,0.22)]"
+                    : "border-cosmic-accent/50 bg-[#16132f] hover:bg-[#201b44] text-cosmic-text"
+                }`}
+                title="Galaxie-Roguelite oeffnen"
+              >
+                <Swords
+                  className={`h-4 w-4 ${hasActiveRogueliteRun ? "text-fuchsia-200" : "text-cosmic-pink"} ${hasActiveRogueliteRun ? "animate-pulse" : ""}`}
+                />
+                <div className="hidden text-left sm:block">
+                  <div className="text-[9px] font-mono font-black uppercase tracking-[0.18em] text-cosmic-accent-muted">
+                    Rogue-Lite
+                  </div>
+                  <div className="text-[10px] font-black uppercase tracking-[0.12em]">
+                    {hasActiveRogueliteRun ? (rogueliteRunStatus ?? "Run aktiv") : "Start"}
+                  </div>
+                </div>
+                {hasActiveRogueliteRun && (
+                  <span className="absolute -right-1.5 -top-1.5 h-3.5 w-3.5 rounded-full border border-white/30 bg-fuchsia-400 animate-pulse" />
+                )}
+              </button>
+
               {/* Secret code input field */}
               <input
                 type="text"

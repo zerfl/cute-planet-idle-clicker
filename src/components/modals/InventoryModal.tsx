@@ -6,6 +6,7 @@ import { COSMETIC_ITEMS, CosmeticItem, RARITY_STYLES } from "../../data/cosmetic
 import { CRAFTING_RECIPES } from "../../data/recipes";
 import { ZODIACS } from "../../data/zodiacs";
 import { useGameState } from "../../contexts/GameStateContext";
+import { ROGUELITE_PLANET_SKINS } from "../../roguelite/data";
 
 interface InventoryModalProps {
   isOpen: boolean;
@@ -16,11 +17,14 @@ interface InventoryModalProps {
   activeAccessory: string;
   activeFrame: string;
   activeMoonSkin: string;
+  activePlanetSkin: string;
+  unlockedPlanetSkins: string[];
   onOpenShootingStar: (cosmetic: CosmeticItem, isDuplicate: boolean, glitterRefund: number) => void;
   onApplyCosmetic: (
     id: string,
     type: "star_color" | "planet_accessory" | "frame_style" | "moon_skin",
   ) => void;
+  onApplyPlanetSkin: (skinId: string) => void;
 
   // Glitter Dust props
   purchasedUpgrades: string[];
@@ -45,8 +49,11 @@ export const InventoryModal: React.FC<InventoryModalProps> = React.memo(
     activeAccessory,
     activeFrame,
     activeMoonSkin,
+    activePlanetSkin,
+    unlockedPlanetSkins,
     onOpenShootingStar,
     onApplyCosmetic,
+    onApplyPlanetSkin,
     purchasedUpgrades,
     cosmeticRarityLevels,
     onUnlockCosmeticDirect,
@@ -177,11 +184,14 @@ export const InventoryModal: React.FC<InventoryModalProps> = React.memo(
       { id: "planet_accessory", label: "👒 Planet-Huete" },
       { id: "frame_style", label: "🖼️ Fensterrahmen" },
       { id: "moon_skin", label: "🌙 Mond-Skins" },
+      { id: "planet_skin", label: "🪐 Planeten-Skins" },
       { id: "crafted", label: "🔮 Kreationen" },
     ] as const;
 
     const currentItems =
-      activeTab === "crafted" ? [] : COSMETIC_ITEMS.filter((i) => i.type === activeTab);
+      activeTab === "crafted" || activeTab === "planet_skin"
+        ? []
+        : COSMETIC_ITEMS.filter((i) => i.type === activeTab);
     const sortedItems = [...currentItems].sort((a, b) => {
       const aUnlocked = unlockedCosmetics.includes(a.id);
       const bUnlocked = unlockedCosmetics.includes(b.id);
@@ -1047,6 +1057,106 @@ export const InventoryModal: React.FC<InventoryModalProps> = React.memo(
                   </div>
                 </div>
               )}
+
+              {activeTab === "planet_skin" && (
+                <div
+                  onClick={() => onApplyPlanetSkin("default")}
+                  className={`p-3.5 rounded-2.5xl border-2 transition-all flex flex-col items-center text-center justify-between cursor-pointer ${
+                    activePlanetSkin === "default"
+                      ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
+                      : isNight
+                        ? "bg-[#181335]/45 border-cosmic-accent/20 hover:bg-[#1f1945]/60"
+                        : "bg-white border-amber-200 hover:bg-amber-50"
+                  }`}
+                >
+                  <div className="text-3xl select-none">🪐</div>
+                  <div className="mt-2 text-center">
+                    <h6
+                      className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-[#fff]" : "text-slate-800"}`}
+                    >
+                      Level-Skin
+                    </h6>
+                    <span className="text-[9px] font-mono text-gray-400 block mt-0.5 uppercase">
+                      Standard
+                    </span>
+                  </div>
+                  <div className="mt-3.5 w-full">
+                    {activePlanetSkin === "default" ? (
+                      <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
+                      </span>
+                    ) : (
+                      <span
+                        className={`text-[9px] uppercase font-bold ${isNight ? "text-purple-300" : "text-amber-804"}`}
+                      >
+                        Aktivieren
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "planet_skin" &&
+                ROGUELITE_PLANET_SKINS.map((skin) => {
+                  const isUnlocked = unlockedPlanetSkins.includes(skin.id);
+                  const isActive = activePlanetSkin === skin.id;
+                  return (
+                    <div
+                      key={skin.id}
+                      onClick={() => isUnlocked && onApplyPlanetSkin(skin.id)}
+                      className={`p-2 border-2 rounded-2.5xl flex flex-col items-center justify-between text-center relative overflow-hidden min-h-[145px] transition-all ${
+                        isActive
+                          ? "bg-[#18392c]/50 border-green-400 shadow-md scale-102"
+                          : isUnlocked
+                            ? isNight
+                              ? "bg-[#211a4a]/40 border-purple-500/20 hover:bg-cosmic-surface-mid/80 cursor-pointer"
+                              : "bg-white border-amber-200 hover:bg-amber-50/50 cursor-pointer"
+                            : "bg-[#14122d]/40 border-gray-600/10 opacity-45 cursor-not-allowed select-none"
+                      }`}
+                    >
+                      {!isUnlocked && (
+                        <div className="absolute right-2 top-2 w-4 h-4 rounded-full bg-slate-900/40 flex items-center justify-center">
+                          <Lock className="w-2.5 h-2.5 text-gray-400" />
+                        </div>
+                      )}
+                      <img
+                        src={skin.previewImage}
+                        alt={skin.name}
+                        className="h-24 w-full rounded-xl object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                      <div className="mt-3 text-center px-1">
+                        <h6
+                          className={`font-sans font-black text-[11px] leading-tight ${isNight ? "text-[#fff]" : "text-slate-800"}`}
+                        >
+                          {skin.name}
+                        </h6>
+                        <span className="text-[9px] font-mono text-gray-400 block mt-0.5 uppercase">
+                          Roguelite
+                        </span>
+                      </div>
+                      <div className="mt-3.5 w-full">
+                        {isActive ? (
+                          <span className="text-[10px] uppercase font-black text-green-400 flex items-center justify-center gap-1">
+                            <Check className="w-3.5 h-3.5 stroke-[3]" /> Aktiviert
+                          </span>
+                        ) : (
+                          <span
+                            className={`text-[9px] uppercase font-bold ${
+                              isUnlocked
+                                ? isNight
+                                  ? "text-purple-300"
+                                  : "text-amber-804"
+                                : "text-gray-500"
+                            }`}
+                          >
+                            {isUnlocked ? "Aktivieren" : "Gesperrt"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
 
               {sortedItems.map((cosmetic) => {
                 const isUnlocked = unlockedCosmetics.includes(cosmetic.id);

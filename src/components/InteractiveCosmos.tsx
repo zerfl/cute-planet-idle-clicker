@@ -40,6 +40,7 @@ interface InteractiveCosmosProps {
   activeStarColor: string;
   activeAccessory: string;
   activeMoonSkin: string;
+  activePlanetSkin: string;
   isLowMemory: boolean;
   activeZodiacId: string;
   openZodiacModal: () => void;
@@ -97,6 +98,7 @@ export const InteractiveCosmos: React.FC<InteractiveCosmosProps> = ({
   activeStarColor,
   activeAccessory,
   activeMoonSkin,
+  activePlanetSkin,
   isLowMemory,
   activeZodiacId,
   openZodiacModal,
@@ -212,6 +214,7 @@ export const InteractiveCosmos: React.FC<InteractiveCosmosProps> = ({
             activeStarColor={activeStarColor}
             activeAccessory={activeAccessory}
             activeMoonSkin={activeMoonSkin}
+            activePlanetSkin={activePlanetSkin}
             isLowMemory={isLowMemory}
             activeZodiacId={activeZodiacId}
             onOpenZodiacModal={openZodiacModal}

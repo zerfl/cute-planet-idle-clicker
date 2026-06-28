@@ -3,6 +3,7 @@ import { Modal } from "../ui/Modal";
 import { formatCompactNumber } from "../../data";
 import { Sparkles, Monitor, UserRound } from "lucide-react";
 import { useGameState } from "../../contexts/GameStateContext";
+import { getMaxMoons } from "../../game/maxMoons";
 import type { RawSave } from "../../utils/persistence";
 
 interface SyncConflictDialogProps {
@@ -14,19 +15,6 @@ interface SyncConflictDialogProps {
   onAdoptPreviousLocalSave: () => void;
 }
 
-const getMaxMoonsForList = (upgrades: string[] | undefined): number => {
-  if (!upgrades) return 3;
-  let limit = 3;
-  if (upgrades.includes("upg-moon-limit-1")) limit++;
-  if (upgrades.includes("upg-moon-limit-2")) limit++;
-  if (upgrades.includes("upg-moon-limit-3")) limit++;
-  if (upgrades.includes("upg-moon-limit-4")) limit++;
-  if (upgrades.includes("upg-moon-limit-5")) limit++;
-  if (upgrades.includes("upg-moon-limit-6")) limit++;
-  if (upgrades.includes("upg-moon-limit-7")) limit++;
-  return limit;
-};
-
 export const SyncConflictDialog: React.FC<SyncConflictDialogProps> = React.memo(
   ({
     isOpen,
@@ -36,7 +24,8 @@ export const SyncConflictDialog: React.FC<SyncConflictDialogProps> = React.memo(
     onKeepCurrentAccount,
     onAdoptPreviousLocalSave,
   }) => {
-    const { life, planetLevel, secondsPlayed, prestigeCount, moonsCount } = useGameState();
+    const { life, planetLevel, secondsPlayed, prestigeCount, moonsCount, activeZodiacId } =
+      useGameState();
     const formatTime = (totalSeconds: number) => {
       const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -83,7 +72,7 @@ export const SyncConflictDialog: React.FC<SyncConflictDialogProps> = React.memo(
               <div className="flex justify-between">
                 <span>Erschaffene Monde:</span>
                 <span className="text-purple-305">
-                  {moonsCount || 0}/{getMaxMoonsForList(purchasedUpgrades)} 🌙
+                  {moonsCount || 0}/{getMaxMoons({ purchasedUpgrades, zodiac: activeZodiacId })} 🌙
                 </span>
               </div>
               <div className="flex justify-between">
@@ -119,7 +108,10 @@ export const SyncConflictDialog: React.FC<SyncConflictDialogProps> = React.memo(
                 <span>Erschaffene Monde:</span>
                 <span className="text-purple-305">
                   {(previousLocalSave.moonsCount as number) || 0}/
-                  {getMaxMoonsForList(previousLocalSave.purchasedUpgrades as string[] | undefined)}{" "}
+                  {getMaxMoons({
+                    purchasedUpgrades: previousLocalSave.purchasedUpgrades as string[] | undefined,
+                    zodiac: previousLocalSave.zodiac as string | undefined,
+                  })}{" "}
                   🌙
                 </span>
               </div>

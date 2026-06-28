@@ -1,3 +1,5 @@
+import { createRogueliteMetaState } from "../roguelite/engine";
+
 /**
  * localStorage save schema versioning with per-owner save slots.
  *
@@ -9,7 +11,7 @@
 export const LEGACY_SAVE_KEY = "cute_planet_save";
 export const SAVE_KEY_PREFIX = "cute_planet_save";
 export const SAVE_META_KEY = "cute_planet_save_meta";
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 
 export type SaveOwnerId = string | null;
 
@@ -98,6 +100,21 @@ export function migrateSave(raw: unknown, ownerId: SaveOwnerId = null): RawSave 
       ownerId,
       lastSavedAt: getNumericField(save.lastSavedAt, Date.now()),
       lastCloudUpdatedAt: normalizeCloudTimestamp(save.lastCloudUpdatedAt),
+    };
+  }
+
+  if (save.version < 3) {
+    const rogueliteMeta = createRogueliteMetaState();
+    save = {
+      ...save,
+      version: 3,
+      rogueliteMeta: {
+        ...rogueliteMeta,
+        ...(isRecord(save.rogueliteMeta) ? save.rogueliteMeta : {}),
+      },
+      activeRogueliteRun: isRecord(save.activeRogueliteRun) ? save.activeRogueliteRun : null,
+      activePlanetSkin:
+        typeof save.activePlanetSkin === "string" ? save.activePlanetSkin : "default",
     };
   }
 

@@ -17,6 +17,7 @@ const gameState: GameStateValue = {
   shootingStarsCount: 1,
   clicksCount: 30,
   starClicksTriggered: 4,
+  activeZodiacId: "katze",
   totalLps: 25,
   totalStarsLps: 5,
   totalAnimalsLps: 20,

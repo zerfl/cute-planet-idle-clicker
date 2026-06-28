@@ -186,6 +186,7 @@ export type WorkerCommand =
   | { type: "UPDATE_SHOOTING_STARS"; count: number }
   | { type: "MISSION_CLAIMED" }
   | { type: "ADD_GLITTER_DUST"; amount: number }
+  | { type: "ADD_GALAXY_SHARDS"; amount: number }
   | { type: "SPEND_GLITTER_DUST"; amount: number }
   // Cosmetics
   | { type: "UNLOCK_COSMETIC_DIRECT"; cosmeticId: string; cost: number }

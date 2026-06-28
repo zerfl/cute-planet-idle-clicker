@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import React, { startTransition, useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Heart,
@@ -87,6 +87,18 @@ import { useOfflineEarnings } from "./hooks/useOfflineEarnings";
 import { applyWorkerEvent, type WorkerEventHandlers } from "./game/applyWorkerEvent";
 import { CosmicOverlays } from "./components/CosmicOverlays";
 import { InteractiveCosmos } from "./components/InteractiveCosmos";
+import { RogueliteScreen } from "./components/RogueliteScreen";
+import {
+  chooseEncounterOption,
+  createNewRun,
+  createRogueliteMetaState,
+  finalizeRun,
+  pickPath,
+  rerollCurrentEncounter,
+  selectVictoryRewards,
+} from "./roguelite/engine";
+import type { ActiveRogueliteRun, RogueliteMetaState } from "./roguelite/types";
+import { getMaxMoons } from "./game/maxMoons";
 
 // Static level bounds (significantly increased to slow down progression)
 const EXP_PER_LEVEL = [
@@ -242,6 +254,7 @@ export default function App() {
   const [activeAccessory, setActiveAccessory] = useState<string>("none");
   const [activeFrame, setActiveFrame] = useState<string>("default");
   const [activeMoonSkin, setActiveMoonSkin] = useState<string>("default");
+  const [activePlanetSkin, setActivePlanetSkin] = useState<string>("default");
   const [shootingStarsCount, setShootingStarsCount] = useState<number>(0);
   const [missionSetNumber, setMissionSetNumber] = useState<number>(1);
   const [claimedMissionIds, setClaimedMissionIds] = useState<string[]>([]);
@@ -269,6 +282,11 @@ export default function App() {
   const [spentGalaxyShards, setSpentGalaxyShards] = useState<number>(0);
   const [glitchBenchmarks, setGlitchBenchmarks] = useState<any>(undefined);
   const [glitchCooldown, setGlitchCooldown] = useState<boolean>(false);
+  const [rogueliteMeta, setRogueliteMeta] = useState<RogueliteMetaState>(
+    createRogueliteMetaState(),
+  );
+  const [activeRogueliteRun, setActiveRogueliteRun] = useState<ActiveRogueliteRun | null>(null);
+  const [showRogueliteScreen, setShowRogueliteScreen] = useState(false);
 
   const [openingResult, setOpeningResult] = useState<{
     itemId: string;
@@ -568,6 +586,7 @@ export default function App() {
     setActiveAccessory("none");
     setActiveFrame("default");
     setActiveMoonSkin("default");
+    setActivePlanetSkin("default");
     setShootingStarsCount(0);
     setMissionSetNumber(1);
     setClaimedMissionIds([]);
@@ -590,6 +609,8 @@ export default function App() {
     setSpentGalaxyShards(0);
     setGlitchBenchmarks({});
     setGlitchCooldown(0);
+    setRogueliteMeta(createRogueliteMetaState());
+    setActiveRogueliteRun(null);
   }, []);
 
   const hydrateClientStateFromSave = useCallback(
@@ -610,6 +631,7 @@ export default function App() {
       if (rawSave.activeAccessory) setActiveAccessory(rawSave.activeAccessory);
       if (rawSave.activeFrame) setActiveFrame(rawSave.activeFrame);
       if (rawSave.activeMoonSkin) setActiveMoonSkin(rawSave.activeMoonSkin);
+      if (rawSave.activePlanetSkin) setActivePlanetSkin(rawSave.activePlanetSkin);
       if (rawSave.shootingStarsCount !== undefined)
         setShootingStarsCount(rawSave.shootingStarsCount);
       if (rawSave.missionSetNumber !== undefined) setMissionSetNumber(rawSave.missionSetNumber);
@@ -638,6 +660,15 @@ export default function App() {
         setSpentGalaxyShards(rawSave.spentGalaxyShards || 0);
       if (rawSave.glitchBenchmarks !== undefined) setGlitchBenchmarks(rawSave.glitchBenchmarks);
       if (rawSave.glitchCooldown !== undefined) setGlitchCooldown(rawSave.glitchCooldown);
+      if (rawSave.rogueliteMeta) {
+        setRogueliteMeta({
+          ...createRogueliteMetaState(),
+          ...rawSave.rogueliteMeta,
+        });
+      }
+      if (rawSave.activeRogueliteRun !== undefined) {
+        setActiveRogueliteRun(rawSave.activeRogueliteRun);
+      }
 
       return rawSave;
     },
@@ -988,6 +1019,7 @@ export default function App() {
       activeAccessory,
       activeFrame,
       activeMoonSkin,
+      activePlanetSkin,
       shootingStarsCount,
       missionSetNumber,
       claimedMissionIds,
@@ -1018,6 +1050,8 @@ export default function App() {
       spentGalaxyShards,
       glitchBenchmarks,
       glitchCooldown,
+      rogueliteMeta,
+      activeRogueliteRun,
     };
   }, [
     isLoaded,
@@ -1037,6 +1071,7 @@ export default function App() {
     activeAccessory,
     activeFrame,
     activeMoonSkin,
+    activePlanetSkin,
     shootingStarsCount,
     missionSetNumber,
     claimedMissionIds,
@@ -1067,6 +1102,8 @@ export default function App() {
     spentGalaxyShards,
     glitchBenchmarks,
     glitchCooldown,
+    rogueliteMeta,
+    activeRogueliteRun,
   ]);
 
   // Synchronize dynamic local saves and autosave intervals
@@ -1096,6 +1133,7 @@ export default function App() {
           activeAccessory: s.activeAccessory,
           activeFrame: s.activeFrame,
           activeMoonSkin: s.activeMoonSkin,
+          activePlanetSkin: s.activePlanetSkin,
           shootingStarsCount: s.shootingStarsCount,
           missionSetNumber: s.missionSetNumber,
           claimedMissionIds: s.claimedMissionIds,
@@ -1126,6 +1164,8 @@ export default function App() {
           spentGalaxyShards: s.spentGalaxyShards,
           glitchBenchmarks: s.glitchBenchmarks,
           glitchCooldown: s.glitchCooldown,
+          rogueliteMeta: s.rogueliteMeta,
+          activeRogueliteRun: s.activeRogueliteRun,
           lastSavedAt: Date.now(),
         };
         writeSave(activeSaveOwnerId, stateToSave);
@@ -1291,16 +1331,8 @@ export default function App() {
   }, [starsCount]);
 
   const maxMoons = useMemo(() => {
-    let limit = 3;
-    if (purchasedUpgrades.includes("upg-moon-limit-1")) limit++;
-    if (purchasedUpgrades.includes("upg-moon-limit-2")) limit++;
-    if (purchasedUpgrades.includes("upg-moon-limit-3")) limit++;
-    if (purchasedUpgrades.includes("upg-moon-limit-4")) limit++;
-    if (purchasedUpgrades.includes("upg-moon-limit-5")) limit++;
-    if (purchasedUpgrades.includes("upg-moon-limit-6")) limit++;
-    if (purchasedUpgrades.includes("upg-moon-limit-7")) limit++;
-    return limit;
-  }, [purchasedUpgrades]);
+    return getMaxMoons({ purchasedUpgrades, zodiac: activeZodiacId });
+  }, [activeZodiacId, purchasedUpgrades]);
 
   // Memoized context value — changes only when a game scalar actually changes.
   // GameModalsContainer does NOT consume this context, so its React.memo holds
@@ -1319,6 +1351,7 @@ export default function App() {
       shootingStarsCount,
       clicksCount,
       starClicksTriggered,
+      activeZodiacId,
       totalLps,
       totalStarsLps,
       totalAnimalsLps,
@@ -1341,6 +1374,7 @@ export default function App() {
       shootingStarsCount,
       clicksCount,
       starClicksTriggered,
+      activeZodiacId,
       totalLps,
       totalStarsLps,
       totalAnimalsLps,
@@ -1489,9 +1523,13 @@ export default function App() {
     setActiveStarColor("default");
     setActiveAccessory("none");
     setActiveFrame("default");
+    setActivePlanetSkin("default");
     setShootingStarsCount(0);
     setMissionSetNumber(1);
     setClaimedMissionIds([]);
+    setRogueliteMeta(createRogueliteMetaState());
+    setActiveRogueliteRun(null);
+    setShowRogueliteScreen(false);
 
     setShowResetDialog(false);
   }, [playLevelUp, setShowResetDialog]);
@@ -1543,6 +1581,7 @@ export default function App() {
     activeAccessory,
     activeFrame,
     activeMoonSkin,
+    activePlanetSkin,
     shootingStarsCount,
     missionSetNumber,
     claimedMissionIds,
@@ -1570,11 +1609,112 @@ export default function App() {
     spentGalaxyShards,
     glitchBenchmarks,
     glitchCooldown,
+    rogueliteMeta,
+    activeRogueliteRun,
     lastSavedAt: Date.now(),
   };
   const handleForceSaveToCloud = useCallback(() => {
     saveStateToCloud(latestCloudSaveRef.current);
   }, [saveStateToCloud]);
+
+  const applyRogueliteFinalize = useCallback((result: ReturnType<typeof finalizeRun>) => {
+    setRogueliteMeta(result.meta);
+    setActiveRogueliteRun(null);
+    if (result.grantedShards > 0) {
+      workerRef.current?.postMessage({ type: "ADD_GALAXY_SHARDS", amount: result.grantedShards });
+    }
+    if (result.grantedGlitterDust > 0) {
+      workerRef.current?.postMessage({
+        type: "ADD_GLITTER_DUST",
+        amount: result.grantedGlitterDust,
+      });
+    }
+    if (result.unlockedSkinId) {
+      setActivePlanetSkin(result.unlockedSkinId);
+    }
+  }, []);
+
+  const handleOpenRogueliteScreen = useCallback(() => {
+    playUpgrade();
+    startTransition(() => {
+      setShowRogueliteScreen(true);
+    });
+  }, []);
+
+  const handleCloseRogueliteScreen = useCallback(() => {
+    startTransition(() => {
+      setShowRogueliteScreen(false);
+    });
+  }, []);
+
+  const handleToggleEquipRogueliteRelic = useCallback((relicId: string) => {
+    setRogueliteMeta((prev) => {
+      if (!prev.unlockedRelics.includes(relicId)) return prev;
+      const isEquipped = prev.equippedRelicIds.includes(relicId);
+      if (isEquipped) {
+        return {
+          ...prev,
+          equippedRelicIds: prev.equippedRelicIds.filter((id) => id !== relicId),
+        };
+      }
+      if (prev.equippedRelicIds.length >= 2) {
+        return prev;
+      }
+      return {
+        ...prev,
+        equippedRelicIds: [...prev.equippedRelicIds, relicId],
+      };
+    });
+  }, []);
+
+  const handleStartRogueliteRun = useCallback(() => {
+    playLevelUp();
+    startTransition(() => {
+      setActiveRogueliteRun(createNewRun(rogueliteMeta));
+    });
+  }, [rogueliteMeta]);
+
+  const handleChooseRogueliteEncounter = useCallback((choiceId: string) => {
+    playPop();
+    startTransition(() => {
+      setActiveRogueliteRun((prev) => (prev ? chooseEncounterOption(prev, choiceId) : prev));
+    });
+  }, []);
+
+  const handleChooseRoguelitePath = useCallback((pathId: string) => {
+    playPop();
+    startTransition(() => {
+      setActiveRogueliteRun((prev) => (prev ? pickPath(prev, pathId) : prev));
+    });
+  }, []);
+
+  const handleRerollRogueliteEncounter = useCallback(() => {
+    playUpgrade();
+    startTransition(() => {
+      setActiveRogueliteRun((prev) => (prev ? rerollCurrentEncounter(prev) : prev));
+    });
+  }, []);
+
+  const handleClaimRogueliteVictory = useCallback(
+    (selectedRelicId: string) => {
+      if (!activeRogueliteRun) return;
+      playLevelUp();
+      const claimedRun = selectVictoryRewards(activeRogueliteRun, selectedRelicId);
+      applyRogueliteFinalize(finalizeRun(rogueliteMeta, claimedRun));
+    },
+    [activeRogueliteRun, applyRogueliteFinalize, rogueliteMeta],
+  );
+
+  const handleClaimRogueliteDefeat = useCallback(() => {
+    if (!activeRogueliteRun) return;
+    playTick();
+    applyRogueliteFinalize(finalizeRun(rogueliteMeta, activeRogueliteRun));
+  }, [activeRogueliteRun, applyRogueliteFinalize, rogueliteMeta]);
+
+  useEffect(() => {
+    if (!workerRef.current) return;
+    workerRef.current.postMessage({ type: showRogueliteScreen ? "PAUSE_TIMERS" : "RESUME_TIMERS" });
+  }, [showRogueliteScreen]);
 
   // Helper to view time played beautifully
   const formatTimePlayed = useCallback((totalSeconds: number) => {
@@ -1631,6 +1771,9 @@ export default function App() {
             playUpgrade();
             setShowGalaxyShardsShop(true);
           }}
+          onOpenRoguelite={handleOpenRogueliteScreen}
+          hasActiveRogueliteRun={Boolean(activeRogueliteRun)}
+          rogueliteRunStatus={activeRogueliteRun?.phase}
           inGlitchGalaxy={inGlitchGalaxy}
         />
 
@@ -1668,6 +1811,7 @@ export default function App() {
           activeStarColor={activeStarColor}
           activeAccessory={activeAccessory}
           activeMoonSkin={activeMoonSkin}
+          activePlanetSkin={activePlanetSkin}
           isLowMemory={isLowMemory}
           activeZodiacId={activeZodiacId}
           openZodiacModal={openZodiacModal}
@@ -1702,6 +1846,20 @@ export default function App() {
 
         {/* 4. Footer credits with minimalist elements */}
         <CosmicFooter />
+
+        <RogueliteScreen
+          isOpen={showRogueliteScreen}
+          meta={rogueliteMeta}
+          activeRun={activeRogueliteRun}
+          onClose={handleCloseRogueliteScreen}
+          onStartRun={handleStartRogueliteRun}
+          onChooseEncounter={handleChooseRogueliteEncounter}
+          onChoosePath={handleChooseRoguelitePath}
+          onRerollEncounter={handleRerollRogueliteEncounter}
+          onToggleEquipRelic={handleToggleEquipRogueliteRelic}
+          onClaimVictory={handleClaimRogueliteVictory}
+          onClaimDefeat={handleClaimRogueliteDefeat}
+        />
 
         <GameStateProvider value={gameState}>
           <GameModalsContainer
@@ -1755,6 +1913,7 @@ export default function App() {
             handleClaimMissionReward={handleClaimMissionReward}
             handleOpenShootingStar={handleOpenShootingStar}
             handleApplyCosmetic={handleApplyCosmetic}
+            handleApplyPlanetSkin={setActivePlanetSkin}
             handleUnlockCosmeticDirect={handleUnlockCosmeticDirect}
             handleUpgradeCosmeticRarity={handleUpgradeCosmeticRarity}
             handleUseCraftedItem={handleUseCraftedItem}
@@ -1802,6 +1961,8 @@ export default function App() {
             activeStarColor={activeStarColor}
             activeAccessory={activeAccessory}
             activeMoonSkin={activeMoonSkin}
+            activePlanetSkin={activePlanetSkin}
+            unlockedPlanetSkins={rogueliteMeta.unlockedPlanetSkins}
             activeZodiacId={activeZodiacId}
             cosmeticRarityLevels={cosmeticRarityLevels}
             upgradesSpecs={upgradesSpecs}

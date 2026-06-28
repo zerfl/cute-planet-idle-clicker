@@ -1,3 +1,5 @@
+import { getMaxMoons } from "./maxMoons";
+
 export interface BlackHoleGambleResult {
   success: boolean;
   roll?: number;
@@ -166,16 +168,10 @@ export function executeBlackHoleGamble(
       // NEW GOOD 3: FREE MOON / STARS
       type = "good";
       titleGerman = "Mond-Fusion 🌕";
-      let maxMoons = 3;
-      const upgrades = state.purchasedUpgrades || [];
-      if (upgrades.includes("upg-moon-limit-1")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-2")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-3")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-4")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-5")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-6")) maxMoons++;
-      if (upgrades.includes("upg-moon-limit-7")) maxMoons++;
-      if (state.zodiac === "mond") maxMoons++;
+      const maxMoons = getMaxMoons({
+        purchasedUpgrades: state.purchasedUpgrades,
+        zodiac: state.zodiac,
+      });
 
       if ((state.moonsCount || 0) < maxMoons) {
         state.moonsCount = (state.moonsCount || 0) + 1;

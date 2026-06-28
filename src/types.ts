@@ -1,3 +1,5 @@
+import type { ActiveRogueliteRun, RogueliteMetaState } from "./roguelite/types";
+
 export interface Animal {
   id: string;
   name: string;
@@ -123,6 +125,9 @@ export interface GameState {
   animalLastPet?: Record<string, number>; // animalId -> timestamp (ms)
   bowlLastFed?: number; // timestamp (ms) of last feed click
   bowlFedMinutesCredited?: number; // number of minutes credited under current feed
+  rogueliteMeta?: RogueliteMetaState;
+  activeRogueliteRun?: ActiveRogueliteRun | null;
+  activePlanetSkin?: string;
 }
 
 export interface CosmicEventOption {

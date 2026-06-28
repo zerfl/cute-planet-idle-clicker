@@ -17,6 +17,7 @@ import {
   Monitor,
 } from "lucide-react";
 import { formatCompactNumber } from "../../data";
+import { getMaxMoons } from "../../game/maxMoons";
 
 interface CloudSyncModalProps {
   isOpen: boolean;
@@ -33,19 +34,6 @@ interface CloudSyncModalProps {
   cloudStats: any; // CloudSaveData | null
 }
 
-const getMaxMoonsForList = (upgrades: string[] | undefined): number => {
-  if (!upgrades) return 3;
-  let limit = 3;
-  if (upgrades.includes("upg-moon-limit-1")) limit++;
-  if (upgrades.includes("upg-moon-limit-2")) limit++;
-  if (upgrades.includes("upg-moon-limit-3")) limit++;
-  if (upgrades.includes("upg-moon-limit-4")) limit++;
-  if (upgrades.includes("upg-moon-limit-5")) limit++;
-  if (upgrades.includes("upg-moon-limit-6")) limit++;
-  if (upgrades.includes("upg-moon-limit-7")) limit++;
-  return limit;
-};
-
 export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(
   ({
     isOpen,
@@ -61,7 +49,8 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(
     purchasedUpgrades,
     cloudStats,
   }) => {
-    const { life, planetLevel, secondsPlayed, prestigeCount, moonsCount } = useGameState();
+    const { life, planetLevel, secondsPlayed, prestigeCount, moonsCount, activeZodiacId } =
+      useGameState();
 
     const formatTime = (totalSeconds: number) => {
       const hours = Math.floor(totalSeconds / 3600);
@@ -264,7 +253,8 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(
                     <div className="flex justify-between">
                       <span>Monde:</span>
                       <span className="text-purple-300">
-                        {moonsCount || 0}/{getMaxMoonsForList(purchasedUpgrades)} 🌙
+                        {moonsCount || 0}/
+                        {getMaxMoons({ purchasedUpgrades, zodiac: activeZodiacId })} 🌙
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -297,7 +287,11 @@ export const CloudSyncModal: React.FC<CloudSyncModalProps> = React.memo(
                         <span>Monde:</span>
                         <span className="text-purple-300">
                           {cloudStats.moonsCount || 0}/
-                          {getMaxMoonsForList(cloudStats.purchasedUpgrades)} 🌙
+                          {getMaxMoons({
+                            purchasedUpgrades: cloudStats.purchasedUpgrades,
+                            zodiac: cloudStats.zodiac,
+                          })}{" "}
+                          🌙
                         </span>
                       </div>
                       <div className="flex justify-between">

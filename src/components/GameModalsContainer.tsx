@@ -83,6 +83,7 @@ interface GameModalsContainerProps {
     id: string,
     type: "star_color" | "planet_accessory" | "frame_style" | "moon_skin",
   ) => void;
+  handleApplyPlanetSkin: (skinId: string) => void;
   handleUnlockCosmeticDirect: (cosmeticId: string, cost: number) => void;
   handleUpgradeCosmeticRarity: (cosmeticId: string, targetRarity: string, cost: number) => void;
   handleUseCraftedItem: (itemId: string, count?: number) => void;
@@ -132,6 +133,8 @@ interface GameModalsContainerProps {
   activeStarColor: string;
   activeAccessory: string;
   activeMoonSkin: string;
+  activePlanetSkin: string;
+  unlockedPlanetSkins: string[];
   activeZodiacId: string;
   cosmeticRarityLevels: Record<string, string>;
   upgradesSpecs: any;
@@ -190,6 +193,7 @@ export const GameModalsContainer: React.FC<GameModalsContainerProps> = React.mem
     handleClaimMissionReward,
     handleOpenShootingStar,
     handleApplyCosmetic,
+    handleApplyPlanetSkin,
     handleUnlockCosmeticDirect,
     handleUpgradeCosmeticRarity,
     handleUseCraftedItem,
@@ -238,6 +242,8 @@ export const GameModalsContainer: React.FC<GameModalsContainerProps> = React.mem
     activeStarColor,
     activeAccessory,
     activeMoonSkin,
+    activePlanetSkin,
+    unlockedPlanetSkins,
     activeZodiacId,
     cosmeticRarityLevels,
     upgradesSpecs,
@@ -442,8 +448,11 @@ export const GameModalsContainer: React.FC<GameModalsContainerProps> = React.mem
             activeAccessory={activeAccessory}
             activeFrame={activeFrame}
             activeMoonSkin={activeMoonSkin}
+            activePlanetSkin={activePlanetSkin}
+            unlockedPlanetSkins={unlockedPlanetSkins}
             onOpenShootingStar={handleOpenShootingStar}
             onApplyCosmetic={handleApplyCosmetic}
+            onApplyPlanetSkin={handleApplyPlanetSkin}
             purchasedUpgrades={purchasedUpgrades}
             cosmeticRarityLevels={cosmeticRarityLevels}
             onUnlockCosmeticDirect={handleUnlockCosmeticDirect}
