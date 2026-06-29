@@ -215,7 +215,7 @@ export function applyWorkerEvent(data: WorkerEvent, h: WorkerEventHandlers): voi
 
       const pId = nextParticleId.current++;
       setFloatingTexts((prev) => {
-        const next = [
+        const next: FloatingText[] = [
           ...prev,
           {
             id: pId,
@@ -248,7 +248,7 @@ export function applyWorkerEvent(data: WorkerEvent, h: WorkerEventHandlers): voi
 
       const pId = nextParticleId.current++;
       setFloatingTexts((prev) => {
-        const next = [
+        const next: FloatingText[] = [
           ...prev,
           {
             id: pId,
@@ -272,7 +272,7 @@ export function applyWorkerEvent(data: WorkerEvent, h: WorkerEventHandlers): voi
       // Spawn planet level evolution tag
       const pId = nextParticleId.current++;
       setFloatingTexts((ptList) => {
-        const next = [
+        const next: FloatingText[] = [
           ...ptList,
           {
             id: pId,
@@ -302,7 +302,7 @@ export function applyWorkerEvent(data: WorkerEvent, h: WorkerEventHandlers): voi
       playLevelUp();
       const pId = nextParticleId.current++;
       setFloatingTexts((prev) => {
-        const next = [
+        const next: FloatingText[] = [
           ...prev,
           {
             id: pId,

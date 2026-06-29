@@ -28,7 +28,10 @@ optional Firebase (Firestore) cloud sync.
 - Commits: Conventional Commits with domain scopes, e.g. `feat(roguelite):`, `fix(sync):`.
   Do **not** put Claude / Claude Code / AI-assistant branding in commit messages or files.
 - Comments: sparingly — only where the code isn't self-explanatory.
-- Code style is enforced by Prettier + ESLint; run `npm run lint:fix` / `npm run format`.
+- Code style is enforced by Prettier + ESLint; after a large changeset and before
+  committing, run `npm run lint:fix && npm run format` (auto-fixes unused imports, Tailwind
+  canonical classes, and formatting). `exhaustive-deps` and `any` are judgement calls — see
+  the "Auto-fix before you commit" note in `docs/conventions.md`.
 
 ## Where to look next (read these only when the task needs them)
 

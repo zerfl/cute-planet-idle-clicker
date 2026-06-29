@@ -395,7 +395,7 @@ export function useFirebaseSync() {
     const prompt = accountSwitchPrompt;
     if (!activeUser || !prompt) return;
 
-    const migratedSave = writeSave(activeUser.uid, {
+    const migratedSave = writeSave<RawSave>(activeUser.uid, {
       ...prompt.previousLocalSave,
       ownerId: activeUser.uid,
       lastSavedAt: Number(prompt.previousLocalSave.lastSavedAt) || Date.now(),

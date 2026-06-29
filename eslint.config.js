@@ -4,6 +4,8 @@ import tseslint from "typescript-eslint";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import jsxA11y from "eslint-plugin-jsx-a11y";
+import unusedImports from "eslint-plugin-unused-imports";
+import betterTailwindcss from "eslint-plugin-better-tailwindcss";
 
 /**
  * Flat ESLint config for the Cute Planet idle clicker.
@@ -48,6 +50,11 @@ export default tseslint.config(
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
       "jsx-a11y": jsxA11y,
+      "unused-imports": unusedImports,
+      "better-tailwindcss": betterTailwindcss,
+    },
+    settings: {
+      "better-tailwindcss": { entryPoint: "src/index.css" },
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -59,10 +66,27 @@ export default tseslint.config(
 
       // Pragmatic relaxations for the existing code (tighten incrementally).
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": [
+
+      // Unused imports are auto-removed on `--fix` (the base no-unused-vars rule has no
+      // fixer); unused locals are reported but left for a human to delete or prefix with `_`.
+      "@typescript-eslint/no-unused-vars": "off",
+      "unused-imports/no-unused-imports": "warn",
+      "unused-imports/no-unused-vars": [
         "warn",
-        { argsIgnorePattern: "^_", varsIgnorePattern: "^_", ignoreRestSiblings: true },
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
       ],
+
+      // Rewrite deprecated/non-canonical Tailwind utilities (e.g. bg-gradient-to-b ->
+      // bg-linear-to-b, z-[60] -> z-60) on `--fix`. Only this one rule is enabled to avoid
+      // a large class-reordering diff.
+      "better-tailwindcss/enforce-canonical-classes": "warn",
+
       "@typescript-eslint/no-empty-object-type": "warn",
       "no-empty": ["warn", { allowEmptyCatch: true }],
 

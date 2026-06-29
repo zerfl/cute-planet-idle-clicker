@@ -119,7 +119,7 @@ interface GameModalsContainerProps {
   user: any;
   authLoading: boolean;
   syncing: boolean;
-  lastSynced: string | null;
+  lastSynced: Date | null;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   cloudSaveFound: any;

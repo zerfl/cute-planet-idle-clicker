@@ -1,31 +1,7 @@
 import React, { startTransition, useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import {
-  Heart,
-  Volume2,
-  VolumeX,
-  RotateCcw,
-  Sparkles,
-  ShoppingBag,
-  Info,
-  Layers,
-  Award,
-  ChevronRight,
-  TrendingUp,
-  Star as StarIcon,
-  Settings,
-  Music,
-} from "lucide-react";
 
-import {
-  Animal,
-  FloatingText,
-  GameState,
-  Upgrade,
-  PlanetTask,
-  ActiveCosmicEvent,
-  PlacedAnimal,
-} from "./types";
+import { PlanetTask, ActiveCosmicEvent, PlacedAnimal, FloatingText } from "./types";
 import {
   INITIAL_ANIMALS,
   calculateCost,
@@ -33,27 +9,10 @@ import {
   getPrestigeRequirement,
 } from "./data";
 import { GehegeModal } from "./components/modals/GehegeModal";
-import { Planet } from "./components/Planet";
-import {
-  playPop,
-  playBuy,
-  playUpgrade,
-  playTick,
-  playLevelUp,
-  setMuted,
-  getMuted,
-  startBackgroundMusic,
-  stopBackgroundMusic,
-  setMusicVolume,
-  MUSIC_STYLES,
-  getMusicStyle,
-  setMusicStyle,
-  MusicStyleId,
-} from "./utils/audio";
+import { playPop, playBuy, playUpgrade, playTick, playLevelUp } from "./utils/audio";
 
 import { STATIC_UPGRADES } from "./data/upgrades";
 import { useFirebaseSync } from "./hooks/useFirebaseSync";
-import { Cloud, Trophy } from "lucide-react";
 import { calculateOfflineLps } from "./utils/offline";
 import {
   migrateLegacyGlobalSave,
@@ -102,18 +61,11 @@ import {
 import type { ActiveRogueliteRun, RogueliteMetaState, RogueliteViewState } from "./roguelite/types";
 import { getMaxMoons } from "./game/maxMoons";
 
-// Static level bounds (significantly increased to slow down progression)
-const EXP_PER_LEVEL = [
-  0, 1500, 5000, 18000, 60000, 220000, 850000, 3200000, 12000000, 45000000, 160000000, 550000000,
-  1800000000, 6000000000, 20000000000, 65000000000, 200000000000, 600000000000, 1800000000000,
-  5000000000000,
-];
-
 export default function App() {
   // Loaded state guards
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const { isMutedState, musicVolumeState, musicStyleState, setMusicStyleState, handleToggleMute } =
+  const { isMutedState, musicStyleState, setMusicStyleState, handleToggleMute } =
     useAudioSettings();
 
   // 1. Primary Game Engine State
@@ -179,7 +131,6 @@ export default function App() {
     setShowAchievementsModal,
     showGehegeModal,
     setShowGehegeModal,
-    openPrestigeModal,
     openOfflineModal,
     openZodiacModal,
     openGehegeModal,
@@ -524,12 +475,7 @@ export default function App() {
   // Destructure calculation stats for ease of rendering in the TSX layout
   const upgradesSpecs = calculations.upgradesSpecs;
   const clickPower = calculations.clickPower;
-  const rawClickPower = calculations.rawClickPower;
-  const xpMultiplier = calculations.xpMultiplier;
   const clickMultiplierForEvents = calculations.clickMultiplierForEvents;
-  const starMultiplierForEvents = calculations.starMultiplierForEvents;
-  const animalMultiplierForEvents = calculations.animalMultiplierForEvents;
-  const xpEventMultiplier = calculations.xpEventMultiplier;
   const starPowerPerStar = calculations.starPowerPerStar;
   const totalStarsLps = calculations.totalStarsLps;
   const totalAnimalsLps = calculations.totalAnimalsLps;
@@ -616,7 +562,7 @@ export default function App() {
     setUnlockedGlitchGalaxy(false);
     setSpentGalaxyShards(0);
     setGlitchBenchmarks({});
-    setGlitchCooldown(0);
+    setGlitchCooldown(false);
     setRogueliteMeta(createRogueliteMetaState());
     setActiveRogueliteRun(null);
   }, []);
@@ -1337,7 +1283,7 @@ export default function App() {
       const actualClickLife = clickVal * clickMultiplierForEvents;
       const pId = nextParticleId.current++;
       setFloatingTexts((prev) => {
-        const next = [
+        const next: FloatingText[] = [
           ...prev,
           {
             id: pId,
@@ -1355,19 +1301,6 @@ export default function App() {
     },
     [activeZodiacId, clickPower, clickMultiplierForEvents],
   );
-
-  const handleSpawningText = useCallback((txt: string, pType: "heart" | "click") => {
-    const rx = 50 + Math.random() * 150;
-    const ry = 40 + Math.random() * 50;
-    const pId = nextParticleId.current++;
-    setFloatingTexts((prev) => {
-      const next = [
-        ...prev,
-        { id: pId, x: rx, y: ry, text: txt, type: pType, createdAt: Date.now() },
-      ];
-      return next.length > 15 ? next.slice(next.length - 15) : next;
-    });
-  }, []);
 
   // Buy cute star
   const starCost = useMemo(() => {
@@ -1505,8 +1438,6 @@ export default function App() {
     },
     [],
   );
-
-  const staticUpgrades = STATIC_UPGRADES;
 
   const handleBuyUpgrade = useCallback(
     (id: string, cost: number) => {
@@ -1785,9 +1716,6 @@ export default function App() {
     return parts.join(" ");
   }, []);
 
-  // Stable modal openers — defined once so memoized children never see new refs
-  const closeTutorial = useCallback(() => setShowTutorial(false), []);
-
   if (!isLoaded) {
     return <LoadingScreen />;
   }
@@ -1797,7 +1725,7 @@ export default function App() {
       <div
         className={`min-h-screen relative overflow-hidden transition-all duration-1000 ease-in-out flex flex-col font-sans scroll-smooth ${
           isNightStyle
-            ? "bg-gradient-to-b from-cosmic-bg via-[#1b1535] to-[#0b0818] text-cosmic-text selection:bg-cosmic-pink selection:text-cosmic-bg"
+            ? "bg-linear-to-b from-cosmic-bg via-[#1b1535] to-[#0b0818] text-cosmic-text selection:bg-cosmic-pink selection:text-cosmic-bg"
             : ""
         } ${inGlitchGalaxy ? "glitch-bg shadow-[inset_0_0_80px_rgba(244,63,94,0.3)]" : ""}`}
       >
@@ -2068,18 +1996,18 @@ export default function App() {
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.85, y: 20 }}
-              className={`fixed bottom-6 right-6 z-[60] flex items-center gap-3 px-4 py-3 rounded-2xl border-2 shadow-2xl backdrop-blur-md transition-colors ${
+              className={`fixed bottom-6 right-6 z-60 flex items-center gap-3 px-4 py-3 rounded-2xl border-2 shadow-2xl backdrop-blur-md transition-colors ${
                 autosaveNotification.success
                   ? "bg-[#163a24]/90 border-emerald-400 text-emerald-100"
                   : "bg-[#2c1328]/90 border-cosmic-pink text-rose-100"
               }`}
             >
               {autosaveNotification.success ? (
-                <div className="w-5 h-5 rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center">
+                <div className="size-5  rounded-full bg-emerald-500/20 border border-emerald-400 flex items-center justify-center">
                   <span className="text-xs text-emerald-400">✓</span>
                 </div>
               ) : (
-                <div className="w-5 h-5 rounded-full bg-rose-500/20 border border-rose-400 flex items-center justify-center animate-spin">
+                <div className="size-5  rounded-full bg-rose-500/20 border border-rose-400 flex items-center justify-center animate-spin">
                   <span className="text-[10px] text-rose-350">⏳</span>
                 </div>
               )}
@@ -2098,7 +2026,7 @@ export default function App() {
         {/* Black Hole Result Dialog */}
         <AnimatePresence>
           {blackHoleResult && blackHoleResult.show && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+            <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
               <motion.div
                 initial={{ opacity: 0, scale: 0.9, y: 30 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -2106,15 +2034,15 @@ export default function App() {
                 id="blackhole-result-dialog"
                 className={`w-full max-w-md p-6 rounded-3xl border-3 shadow-[0_0_50px_rgba(147,51,234,0.4)] text-center relative overflow-hidden transition-all ${
                   blackHoleResult.outcomeType === "good"
-                    ? "bg-gradient-to-b from-[#1c0d3a] via-[#0d0722] to-black border-purple-500 text-purple-100"
-                    : "bg-gradient-to-b from-[#1a070e] via-[#0c0307] to-black border-rose-800 text-rose-100"
+                    ? "bg-linear-to-b from-[#1c0d3a] via-[#0d0722] to-black border-purple-500 text-purple-100"
+                    : "bg-linear-to-b from-[#1a070e] via-[#0c0307] to-black border-rose-800 text-rose-100"
                 }`}
               >
                 {/* Spinning/pulsing decorative backdrop glows */}
-                <div className="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-purple-600/10 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-rose-600/10 blur-3xl pointer-events-none" />
+                <div className="absolute -top-24 -left-24 size-48  rounded-full bg-purple-600/10 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-24 -right-24 size-48  rounded-full bg-rose-600/10 blur-3xl pointer-events-none" />
 
-                <div className="w-20 h-20 mx-auto rounded-full bg-black/60 border border-purple-500/50 flex items-center justify-center text-4xl mb-4 shadow-[0_0_20px_rgba(147,51,234,0.3)] animate-pulse relative">
+                <div className="size-20  mx-auto rounded-full bg-black/60 border border-purple-500/50 flex items-center justify-center text-4xl mb-4 shadow-[0_0_20px_rgba(147,51,234,0.3)] animate-pulse relative">
                   {blackHoleResult.outcomeType === "good" ? "✨" : "🕳️"}
                   <span className="absolute inset-0 rounded-full border border-purple-400 animate-ping opacity-25"></span>
                 </div>
@@ -2131,11 +2059,11 @@ export default function App() {
                     : "🌀 Gravitativer Verlust"}
                 </span>
 
-                <h3 className="font-sans font-black text-lg uppercase mt-3 tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-white to-rose-300">
+                <h3 className="font-sans font-black text-lg uppercase mt-3 tracking-wide text-transparent bg-clip-text bg-linear-to-r from-purple-200 via-white to-rose-300">
                   {blackHoleResult.title}
                 </h3>
 
-                <p className="text-xs font-semibold leading-relaxed mt-3 px-2 text-slate-300">
+                <p className="text-xs/relaxed font-semibold  mt-3 px-2 text-slate-300">
                   {blackHoleResult.text}
                 </p>
 

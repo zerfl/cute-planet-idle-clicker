@@ -102,6 +102,11 @@ export const RunView: React.FC<{
         : "Finale";
   const choiceGridClass = cx("sm:grid-cols-2", isWide && !isInfoOpen && "xl:grid-cols-3");
 
+  // EncounterStage only renders the active phases; a victory with no reward package falls
+  // back to the recovery view, matching prior behaviour.
+  const stageContent: "path" | "encounter" | "recovery" =
+    primaryContent === "path" || primaryContent === "encounter" ? primaryContent : "recovery";
+
   // First-run coach
   const showCoach = !coachSeen && primaryContent === "encounter";
   const coachTarget: CoachTarget | null = showCoach ? COACH_STEPS[coachStep].target : null;
@@ -123,7 +128,7 @@ export const RunView: React.FC<{
   };
 
   return (
-    <div className="relative flex h-full min-h-0 w-full flex-col gap-2.5">
+    <div className="relative flex size-full min-h-0  flex-col gap-2.5">
       {/* Orientation: context row + voyage map */}
       <Panel className={cx("shrink-0 p-3.5", coachTarget === "route" && COACH_RING)}>
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -135,7 +140,7 @@ export const RunView: React.FC<{
           </div>
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-cosmic-yellow/30 bg-cosmic-yellow/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-cosmic-yellow">
-              <Target className="h-3.5 w-3.5" />
+              <Target className="size-3.5 " />
               Ziel: Station {ROGUELITE_TOTAL_STATIONS}
             </span>
             <button
@@ -151,9 +156,9 @@ export const RunView: React.FC<{
               )}
             >
               {isInfoOpen ? (
-                <PanelRightClose className="h-4 w-4" />
+                <PanelRightClose className="size-4 " />
               ) : (
-                <PanelRightOpen className="h-4 w-4" />
+                <PanelRightOpen className="size-4 " />
               )}
               Details
             </button>
@@ -180,7 +185,7 @@ export const RunView: React.FC<{
         >
           <EncounterStage
             activeRun={activeRun}
-            primaryContent={primaryContent}
+            primaryContent={stageContent}
             choiceGridClass={choiceGridClass}
             onChooseEncounter={handleChooseEncounter}
             onChoosePath={handleChoosePath}

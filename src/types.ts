@@ -52,7 +52,7 @@ export interface FloatingText {
   x: number;
   y: number;
   text: string;
-  type: "click" | "star-click" | "level" | "heart" | "star" | "moon-click";
+  type: "click" | "crit-click" | "star-click" | "level" | "heart" | "star" | "moon-click";
   createdAt?: number;
 }
 

@@ -51,3 +51,26 @@ npm run check   # typecheck + lint + format:check + test
 ```
 
 This mirrors CI (`.github/workflows/ci.yml`), which also runs the build and the e2e job.
+
+### Auto-fix before you commit
+
+After a large changeset — and any time before committing — run the auto-fixers over the
+whole repo (the pre-commit hook only touches *staged* files):
+
+```bash
+npm run lint:fix && npm run format
+```
+
+What that fixes for you vs. what needs a human:
+
+- **Auto-fixed** — unused imports (`unused-imports/no-unused-imports`), Tailwind canonical
+  classes (`better-tailwindcss/enforce-canonical-classes`, e.g. `bg-gradient-to-b` →
+  `bg-linear-to-b`, `z-[60]` → `z-60`), and all Prettier formatting. Editor-on-save does the
+  same if you use the recommended VS Code extensions (`.vscode/`).
+- **Judgement calls** — don't blanket-accept these:
+  - `react-hooks/exhaustive-deps`: decide case by case per
+    `.agents/skills/vercel-react-best-practices/` (start with `rules/rerender-dependencies.md`);
+    a wrong "fix" can change behaviour.
+  - Unused **locals** (not imports): delete if dead, otherwise prefix with `_`.
+  - `@typescript-eslint/no-explicit-any`: the codebase is moving to **no `any`** — don't add
+    new ones; replace them with real types.
