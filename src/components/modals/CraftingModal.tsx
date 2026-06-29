@@ -709,7 +709,7 @@ export const CraftingModal: React.FC<CraftingModalProps> = React.memo(
       if (!toast) return;
       const t = setTimeout(() => setToast(null), 2200);
       return () => clearTimeout(t);
-    }, [toast?.id]);
+    }, [toast]);
 
     const maxQty = 99;
 

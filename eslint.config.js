@@ -60,8 +60,8 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       ...jsxA11y.flatConfigs.recommended.rules,
 
-      // Keep the hooks dependency check loud but non-blocking on legacy code.
-      "react-hooks/exhaustive-deps": "warn",
+      // Hooks dependency check: all violations resolved, so enforce as an error to prevent regressions.
+      "react-hooks/exhaustive-deps": "error",
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
 
       // Pragmatic relaxations for the existing code (tighten incrementally).

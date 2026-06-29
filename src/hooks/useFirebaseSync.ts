@@ -316,6 +316,10 @@ export function useFirebaseSync() {
     });
 
     return unsubscribe;
+    // Mount-only: subscribe to auth state exactly once. `resolveCurrentUserSave` is invoked with
+    // the callback's fresh `currentUser`, so it does not belong in the dependency array — depending
+    // on it (or memoizing it) would re-register the auth listener whenever cloud state changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loginWithGoogle = async () => {

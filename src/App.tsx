@@ -262,28 +262,6 @@ export default function App() {
 
   const [openingResult, setOpeningResult] = useState<OpeningResult | null>(null);
 
-  const handleClaimOfflineEarnings = useCallback((earnedLife: number) => {
-    playBuy();
-
-    setLife((prevLife) => {
-      const updatedLife = prevLife + earnedLife;
-      setTotalLifeEarned((prevTotal) => {
-        const updatedTotalLife = prevTotal + earnedLife;
-        workerRef.current?.postMessage({
-          type: "INIT",
-          savedState: { life: updatedLife, totalLifeEarned: updatedTotalLife },
-        });
-        return updatedTotalLife;
-      });
-      return updatedLife;
-    });
-
-    setOfflineSeconds(0);
-    setOfflineLpsRate(0);
-    setOfflineEarnedLife(0);
-    setShowOfflineModal(false);
-  }, []);
-
   const glitchedFormatCompactNumber = useCallback(
     (num: number): string => {
       const normal = formatCompactNumber(num);
@@ -355,7 +333,14 @@ export default function App() {
         return updatedClaimed;
       });
     },
-    [purchasedUpgrades, unlockedCosmetics, missionSetNumber, activeZodiacId],
+    [
+      purchasedUpgrades,
+      unlockedCosmetics,
+      missionSetNumber,
+      activeZodiacId,
+      nextParticleId,
+      setFloatingTexts,
+    ],
   );
 
   // Check and progress mission set on cooldown end
@@ -407,7 +392,7 @@ export default function App() {
         setUnlockedCosmetics((prev) => [...prev, cosmetic.id]);
       }
     },
-    [],
+    [nextParticleId, setFloatingTexts],
   );
 
   const handleApplyCosmetic = useCallback(
@@ -421,22 +406,25 @@ export default function App() {
     [],
   );
 
-  const handleUnlockCosmeticDirect = useCallback((cosmeticId: string, cost: number) => {
-    playTick();
-    workerRef.current?.postMessage({ type: "UNLOCK_COSMETIC_DIRECT", cosmeticId, cost });
-    const pId = nextParticleId.current++;
-    setFloatingTexts((prev) => [
-      ...prev,
-      {
-        id: pId,
-        x: 120,
-        y: 90,
-        text: `Freigeschaltet! ✨`,
-        type: "star-click",
-        createdAt: Date.now(),
-      },
-    ]);
-  }, []);
+  const handleUnlockCosmeticDirect = useCallback(
+    (cosmeticId: string, cost: number) => {
+      playTick();
+      workerRef.current?.postMessage({ type: "UNLOCK_COSMETIC_DIRECT", cosmeticId, cost });
+      const pId = nextParticleId.current++;
+      setFloatingTexts((prev) => [
+        ...prev,
+        {
+          id: pId,
+          x: 120,
+          y: 90,
+          text: `Freigeschaltet! ✨`,
+          type: "star-click",
+          createdAt: Date.now(),
+        },
+      ]);
+    },
+    [nextParticleId, setFloatingTexts],
+  );
 
   const handleUpgradeCosmeticRarity = useCallback(
     (cosmeticId: string, targetRarity: string, cost: number) => {
@@ -460,7 +448,7 @@ export default function App() {
         },
       ]);
     },
-    [],
+    [nextParticleId, setFloatingTexts],
   );
 
   // Destructure calculation stats for ease of rendering in the TSX layout
@@ -519,6 +507,33 @@ export default function App() {
     offlineEarnedLife,
     setOfflineEarnedLife,
   } = useOfflineEarnings(isLoaded, activeSaveOwnerId);
+
+  // Defined here (after useOfflineEarnings) so the stable offline setters it depends on are already
+  // in scope for the dependency array.
+  const handleClaimOfflineEarnings = useCallback(
+    (earnedLife: number) => {
+      playBuy();
+
+      setLife((prevLife) => {
+        const updatedLife = prevLife + earnedLife;
+        setTotalLifeEarned((prevTotal) => {
+          const updatedTotalLife = prevTotal + earnedLife;
+          workerRef.current?.postMessage({
+            type: "INIT",
+            savedState: { life: updatedLife, totalLifeEarned: updatedTotalLife },
+          });
+          return updatedTotalLife;
+        });
+        return updatedLife;
+      });
+
+      setOfflineSeconds(0);
+      setOfflineLpsRate(0);
+      setOfflineEarnedLife(0);
+      setShowOfflineModal(false);
+    },
+    [setOfflineEarnedLife, setOfflineLpsRate, setOfflineSeconds, setShowOfflineModal],
+  );
 
   const resetHydratedClientState = useCallback(() => {
     setPlacedAnimals([]);
@@ -766,7 +781,7 @@ export default function App() {
       worker.postMessage({ type: "CLEANUP" });
       worker.terminate();
     };
-  }, []);
+  }, [nextParticleId, setFloatingTexts]);
 
   useEffect(() => {
     if (!workerRef.current || authLoading) {
@@ -895,7 +910,15 @@ export default function App() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [
+    planetLevel,
+    slummerGlassLevel,
+    setFloatingTexts,
+    setOfflineEarnedLife,
+    setOfflineLpsRate,
+    setOfflineSeconds,
+    setShowCheatEventModal,
+  ]);
 
   // Interval to increment animal love when feeding is active
   useEffect(() => {
@@ -1090,6 +1113,12 @@ export default function App() {
     activeRogueliteRun,
   ]);
 
+  // Keep the latest cloud-save fn in a ref so the autosave interval below can call the freshest
+  // closure without listing the (unstable) `saveStateToCloud` as an effect dependency — otherwise
+  // the 5s interval would be torn down and recreated on every render.
+  const saveStateToCloudRef = useRef(saveStateToCloud);
+  saveStateToCloudRef.current = saveStateToCloud;
+
   // Synchronize dynamic local saves and autosave intervals
   useEffect(() => {
     // Reset the gate so the first cloud sync waits a full minute after login
@@ -1169,7 +1198,7 @@ export default function App() {
 
           try {
             if (user) {
-              await saveStateToCloud(stateToSave);
+              await saveStateToCloudRef.current(stateToSave);
             }
             setTimeout(() => {
               setAutosaveNotification({
@@ -1293,7 +1322,7 @@ export default function App() {
         return next.length > 15 ? next.slice(next.length - 15) : next;
       });
     },
-    [activeZodiacId, clickPower, clickMultiplierForEvents],
+    [activeZodiacId, clickPower, clickMultiplierForEvents, nextParticleId, setFloatingTexts],
   );
 
   // Buy cute star
@@ -1413,7 +1442,7 @@ export default function App() {
         },
       ]);
     }
-  }, [starsCount, moonsCount, maxMoons]);
+  }, [starsCount, moonsCount, maxMoons, setFloatingTexts]);
 
   const handleBuyAnimal = useCallback(
     (animalId: string, cost: number, countToBuy: number) => {
@@ -1494,7 +1523,7 @@ export default function App() {
     setShowRogueliteScreen(false);
 
     setShowResetDialog(false);
-  }, [playLevelUp, setShowResetDialog, resetHydratedClientState]);
+  }, [setShowResetDialog, resetHydratedClientState]);
 
   const handleEnterGlitchGalaxy = useCallback(() => {
     playLevelUp();
@@ -1521,7 +1550,15 @@ export default function App() {
     });
     setShowPrestigeModal(false);
     setShowVoyageModal(false);
-  }, [planetLevel, life, prestigeCount, inGlitchGalaxy, handleRepairGlitchGalaxy]);
+  }, [
+    planetLevel,
+    life,
+    prestigeCount,
+    inGlitchGalaxy,
+    handleRepairGlitchGalaxy,
+    setShowPrestigeModal,
+    setShowVoyageModal,
+  ]);
 
   // Stable force-save callback — reads current state from a ref so the identity
   // never changes even though the saved values are always fresh.

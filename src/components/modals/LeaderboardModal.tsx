@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Modal } from "../ui/Modal";
 import { collection, query, orderBy, limit, getDocs, doc, getDoc } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "../../lib/firebase";
@@ -27,7 +27,7 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = React.memo(
     const [error, setError] = useState<string | null>(null);
     const [currentUserEntry, setCurrentUserEntry] = useState<LeaderboardEntry | null>(null);
 
-    const fetchLeaderboard = async () => {
+    const fetchLeaderboard = useCallback(async () => {
       setLoading(true);
       setError(null);
       try {
@@ -69,13 +69,13 @@ export const LeaderboardModal: React.FC<LeaderboardModalProps> = React.memo(
       } finally {
         setLoading(false);
       }
-    };
+    }, [currentUserId]);
 
     useEffect(() => {
       if (isOpen) {
         fetchLeaderboard();
       }
-    }, [isOpen, currentUserId]);
+    }, [isOpen, fetchLeaderboard]);
 
     return (
       <Modal
