@@ -80,7 +80,7 @@ export const Coach: React.FC<{
         data-testid="roguelite-coach"
         role="dialog"
         aria-label="Einführung"
-        className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-md rounded-3xl border border-cosmic-accent/40 bg-cosmic-surface p-4 shadow-[0_24px_70px_rgba(6,4,16,0.7)] sm:p-5"
+        className="fixed inset-x-3 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-50 mx-auto max-h-[calc(100dvh-1.5rem-env(safe-area-inset-bottom))] max-w-md overflow-y-auto rounded-3xl border border-cosmic-accent/40 bg-cosmic-surface p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_24px_70px_rgba(6,4,16,0.7)] sm:p-5"
       >
         <div className="flex items-center gap-2">
           <span className="flex size-9  items-center justify-center rounded-2xl border border-cosmic-accent/40 bg-cosmic-accent/12">
@@ -96,8 +96,8 @@ export const Coach: React.FC<{
         </h4>
         <p className="mt-1 text-[13px] leading-snug text-cosmic-text-muted">{step.body}</p>
 
-        <div className="mt-3.5 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5">
+        <div className="mt-3.5 flex flex-col gap-3 min-[361px]:flex-row min-[361px]:items-center min-[361px]:justify-between">
+          <div className="flex items-center gap-1.5 max-[360px]:justify-center">
             {COACH_STEPS.map((_, i) => (
               <span
                 key={i}
@@ -108,13 +108,13 @@ export const Coach: React.FC<{
               />
             ))}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center justify-end gap-2 max-[360px]:flex-col max-[360px]:items-stretch">
             {!isLast && (
-              <GhostButton onClick={onSkip} className="px-3 py-2">
+              <GhostButton onClick={onSkip} className="min-w-0 px-3 py-2 max-[360px]:w-full">
                 Überspringen
               </GhostButton>
             )}
-            <PrimaryButton onClick={onNext} className="px-4 py-2.5">
+            <PrimaryButton onClick={onNext} className="min-w-0 px-4 py-2.5 max-[360px]:w-full">
               {isLast ? "Los geht's" : "Weiter"}
             </PrimaryButton>
           </div>

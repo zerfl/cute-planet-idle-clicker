@@ -33,6 +33,38 @@ async function dismissCoachIfPresent(page: Page) {
   }
 }
 
+async function expectCoachButtonsInsideViewport(page: Page) {
+  const viewport = page.viewportSize();
+  expect(viewport).not.toBeNull();
+
+  const boxes = await page
+    .getByTestId("roguelite-coach")
+    .getByRole("button")
+    .evaluateAll((buttons) =>
+      buttons.map((button) => {
+        const rect = button.getBoundingClientRect();
+        return {
+          bottom: rect.bottom,
+          height: rect.height,
+          label: button.textContent?.trim() ?? "",
+          left: rect.left,
+          right: rect.right,
+          top: rect.top,
+          width: rect.width,
+        };
+      }),
+    );
+
+  for (const box of boxes) {
+    expect(box.width, `${box.label} has width`).toBeGreaterThan(0);
+    expect(box.height, `${box.label} has height`).toBeGreaterThan(0);
+    expect(box.left, `${box.label} left edge`).toBeGreaterThanOrEqual(0);
+    expect(box.top, `${box.label} top edge`).toBeGreaterThanOrEqual(0);
+    expect(box.right, `${box.label} right edge`).toBeLessThanOrEqual(viewport!.width);
+    expect(box.bottom, `${box.label} bottom edge`).toBeLessThanOrEqual(viewport!.height);
+  }
+}
+
 test.describe("cute planet smoke", () => {
   // Each test gets a fresh browser context, so localStorage already starts empty
   // and survives an in-test reload (which is exactly what we assert below).
@@ -136,6 +168,41 @@ test.describe("cute planet smoke", () => {
     await coach.getByRole("button", { name: /Los geht/i }).click();
     await expect(coach).toHaveCount(0);
   });
+
+  for (const viewport of [
+    { height: 568, width: 320 },
+    { height: 480, width: 280 },
+  ]) {
+    test(`roguelite coach stays reachable at ${viewport.width}x${viewport.height}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize(viewport);
+      await page.goto("/");
+      await expect(page.locator("#planet-container")).toBeVisible({ timeout: 30_000 });
+      await dismissTutorial(page);
+
+      await openRogueliteAndStartRun(page);
+
+      const coach = page.getByTestId("roguelite-coach");
+      await expect(coach).toBeVisible();
+      await expectCoachButtonsInsideViewport(page);
+
+      await coach.getByRole("button", { name: /Weiter/i }).click();
+      await expectCoachButtonsInsideViewport(page);
+
+      await coach.getByRole("button", { name: /Weiter/i }).click();
+      await expectCoachButtonsInsideViewport(page);
+
+      await coach.getByRole("button", { name: /Los geht/i }).click();
+      await expect(coach).toHaveCount(0);
+
+      const primaryContent = page.getByTestId("roguelite-primary-content");
+      const firstChoice = primaryContent.getByTestId("roguelite-choice-card").first();
+      await expect(firstChoice).toBeVisible();
+      await firstChoice.click();
+      await expect(primaryContent).toBeVisible();
+    });
+  }
 
   test("desktop roguelite run keeps the choices clickable with the details rail", async ({
     page,

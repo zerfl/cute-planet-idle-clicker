@@ -128,7 +128,7 @@ export const RogueliteScreen: React.FC<RogueliteScreenProps> = React.memo(
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-120 overflow-y-auto text-cosmic-text md:overflow-hidden"
+          className="fixed inset-0 z-120 min-h-dvh overflow-y-auto text-cosmic-text md:overflow-hidden"
           style={{
             backgroundColor: "#0c0a1c",
             backgroundImage: `radial-gradient(circle at 50% -8%, rgba(202,165,254,0.14), transparent 58%), linear-gradient(180deg, rgba(16,13,35,0.92), rgba(12,10,28,0.97)), url(${ART.particles}), url(${ART.backdrop})`,
@@ -136,7 +136,7 @@ export const RogueliteScreen: React.FC<RogueliteScreenProps> = React.memo(
             backgroundPosition: "center",
           }}
         >
-          <div className="flex min-h-screen flex-col gap-2.5 p-2.5  md:h-screen md:min-h-0 md:p-3.5 ">
+          <div className="flex min-h-dvh flex-col gap-2.5 p-2.5  md:h-dvh md:min-h-0 md:p-3.5 ">
             {/* Shell header */}
             <Panel className="flex shrink-0 items-center justify-between gap-3 px-4 py-3">
               <div className="min-w-0">
