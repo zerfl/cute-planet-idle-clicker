@@ -1277,7 +1277,7 @@ export const GehegeModal: React.FC<GehegeModalProps> = ({
       )}
 
       {/* Enclosure Lower Command Bar */}
-      <footer className="w-full bg-slate-900 border-t border-slate-800/85 p-4  flex flex-col sm:flex-row items-center justify-between gap-4 shadow-inner z-10">
+      <footer className="w-full bg-slate-900 border-t border-slate-800/85 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-inner z-10">
         <div id="gehege-stats" className="flex items-center gap-4 text-xs font-mono text-slate-400">
           <div>
             Platziert:{" "}

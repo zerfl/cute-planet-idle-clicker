@@ -110,7 +110,7 @@ export const UpgradesModal: React.FC<UpgradesModalProps> = React.memo(
         </div>
 
         {/* Modal Content - Scrollable upgrades list */}
-        <div className="p-4 sm:p-5 grow overflow-y-auto space-y-3">
+        <div className="p-4 sm:p-5 grow overflow-y-auto space-y-3 *:cv-auto">
           {/* Unpurchased Upgrades list */}
           {staticUpgrades
             .filter((upg) => !purchasedUpgrades.includes(upg.id))

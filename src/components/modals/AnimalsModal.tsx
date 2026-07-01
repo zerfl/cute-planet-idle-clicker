@@ -603,7 +603,7 @@ export const AnimalsModal: React.FC<AnimalsModalProps> = React.memo(
               </div>
             </div>
           ) : (
-            <div className="space-y-3.5">
+            <div className="space-y-3.5 *:cv-auto">
               {animalDefs.map((animal) => {
                 const count = purchasedAnimals[animal.id] || 0;
 

@@ -196,7 +196,7 @@ export const AchievementsModal: React.FC<AchievementsModalProps> = React.memo(
 
         {/* Modal Scrollable Content: Custom grid list */}
         <div className="p-4 sm:p-5 grow overflow-y-auto space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-3 *:cv-auto">
             {achievements
               .filter((ach) => {
                 const matchCat =

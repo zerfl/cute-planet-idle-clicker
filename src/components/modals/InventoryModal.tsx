@@ -905,7 +905,7 @@ export const InventoryModal: React.FC<InventoryModalProps> = React.memo(
               })}
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3.5 mt-1 sm:grid-cols-2 md:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3.5 mt-1 sm:grid-cols-2 md:grid-cols-3 *:cv-auto">
               {/* Hardcoded Default items */}
               {activeTab === "star_color" && (
                 <div
