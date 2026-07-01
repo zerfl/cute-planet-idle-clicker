@@ -33,8 +33,8 @@ export interface RogueliteScreenProps {
 }
 
 const ART = {
-  backdrop: "/assets/roguelite/roguelite_background_full.png",
-  particles: "/assets/roguelite/roguelite_particles_overlay.png",
+  backdrop: "/assets/roguelite/roguelite_background_full.webp",
+  particles: "/assets/roguelite/roguelite_particles_overlay.webp",
 };
 
 const STEPS: { key: RogueliteViewState | "run"; label: string }[] = [

@@ -91,7 +91,7 @@ describe("animal sprite metadata", () => {
     expect(imageAnimals).toHaveLength(50);
 
     imageAnimals.forEach((animal) => {
-      expect(animal.sheetSrc).toBe(`/assets/animals/animated/${animal.id}.png`);
+      expect(animal.sheetSrc).toBe(`/assets/animals/animated/${animal.id}.webp`);
       expect(animal.frameWidth).toBe(160);
       expect(animal.frameHeight).toBe(160);
       expect(animal.columns).toBe(6);
@@ -104,7 +104,7 @@ describe("animal sprite metadata", () => {
         "assets",
         "animals",
         "animated",
-        `${animal.id}.png`,
+        `${animal.id}.webp`,
       );
       expect(fs.existsSync(assetPath)).toBe(true);
     });

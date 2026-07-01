@@ -516,37 +516,37 @@ export const ROGUELITE_PLANET_SKINS: RoguelitePlanetSkin[] = [
     id: "kometenzucker",
     name: "Kometenzucker",
     description: "Suesse Kometenstreifen ueberziehen deinen Hauptplaneten.",
-    previewImage: "/assets/planets/18_zuckerstern_garten.png",
+    previewImage: "/assets/planets/18_zuckerstern_garten.webp",
   },
   {
     id: "aurora_bruch",
     name: "Aurora-Bruch",
     description: "Leuchtende Scherben in goldener Nordlicht-Farbe.",
-    previewImage: "/assets/planets/09_auroras_goldene_krone.png",
+    previewImage: "/assets/planets/09_auroras_goldene_krone.webp",
   },
   {
     id: "mondscherbe",
     name: "Mondscherbe",
     description: "Ein zartes Mondlicht mit silbrigem Glanz.",
-    previewImage: "/assets/planets/12_kirschmond_planet.png",
+    previewImage: "/assets/planets/12_kirschmond_planet.webp",
   },
   {
     id: "nebelflausch",
     name: "Nebelflausch",
     description: "Vertraeumte Wolken und milchige Sternenspuren.",
-    previewImage: "/assets/planets/11_sternenwatte_planet.png",
+    previewImage: "/assets/planets/11_sternenwatte_planet.webp",
   },
   {
     id: "sternensirup",
     name: "Sternensirup",
     description: "Warme Karamell-Funken mit kosmischem Glanz.",
-    previewImage: "/assets/planets/15_honigstern_planet.png",
+    previewImage: "/assets/planets/15_honigstern_planet.webp",
   },
   {
     id: "pfotenorbit",
     name: "Pfotenorbit",
     description: "Pfotenfoermige Umlaufbahnen fuer extra Niedlichkeit.",
-    previewImage: "/assets/planets/13_glitzerpfoten_planet.png",
+    previewImage: "/assets/planets/13_glitzerpfoten_planet.webp",
   },
 ];
 

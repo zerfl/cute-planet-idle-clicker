@@ -39,7 +39,9 @@ import {
 } from "./utils/persistence";
 import { generateMissionsForSet } from "./data/missions";
 import { TutorialModal } from "./components/modals/TutorialModal";
-import { GalaxyVoyageModal } from "./components/modals/GalaxyVoyageModal";
+const GalaxyVoyageModal = React.lazy(() =>
+  import("./components/modals/GalaxyVoyageModal").then((m) => ({ default: m.GalaxyVoyageModal })),
+);
 import { GalaxyShardsShopModal } from "./components/modals/GalaxyShardsShopModal";
 
 // Modularized UI Components
@@ -60,7 +62,9 @@ import { useOfflineEarnings } from "./hooks/useOfflineEarnings";
 import { applyWorkerEvent, type WorkerEventHandlers } from "./game/applyWorkerEvent";
 import { CosmicOverlays } from "./components/CosmicOverlays";
 import { InteractiveCosmos } from "./components/InteractiveCosmos";
-import { RogueliteScreen } from "./components/roguelite/RogueliteScreen";
+const RogueliteScreen = React.lazy(() =>
+  import("./components/roguelite/RogueliteScreen").then((m) => ({ default: m.RogueliteScreen })),
+);
 import {
   chooseEncounterOption,
   createNewRun,
@@ -342,6 +346,19 @@ export default function App() {
       setFloatingTexts,
     ],
   );
+
+  // Warm the most-opened modal chunks once the browser is idle so the first
+  // tap doesn't pay the lazy-load latency.
+  useEffect(() => {
+    if (!isLoaded) return;
+    const warm = () => {
+      void import("./components/modals/AnimalsModal");
+      void import("./components/modals/UpgradesModal");
+      void import("./components/modals/StarsModal");
+    };
+    const id = window.requestIdleCallback(warm, { timeout: 5000 });
+    return () => window.cancelIdleCallback(id);
+  }, [isLoaded]);
 
   // Check and progress mission set on cooldown end
   useEffect(() => {
@@ -1862,23 +1879,27 @@ export default function App() {
         {/* 4. Footer credits with minimalist elements */}
         <CosmicFooter />
 
-        <RogueliteScreen
-          isOpen={showRogueliteScreen}
-          viewState={rogueliteViewState}
-          meta={rogueliteMeta}
-          activeRun={activeRogueliteRun}
-          onClose={handleCloseRogueliteScreen}
-          onBeginRunSetup={handleBeginRogueliteSetup}
-          onBackToIntro={handleBackToRogueliteIntro}
-          onOpenArchive={handleOpenRogueliteArchive}
-          onCloseArchive={handleBackToRogueliteRelicSelect}
-          onStartRun={handleStartRogueliteRun}
-          onChooseEncounter={handleChooseRogueliteEncounter}
-          onChoosePath={handleChooseRoguelitePath}
-          onRerollEncounter={handleRerollRogueliteEncounter}
-          onClaimVictory={handleClaimRogueliteVictory}
-          onClaimDefeat={handleClaimRogueliteDefeat}
-        />
+        {showRogueliteScreen && (
+          <React.Suspense fallback={null}>
+            <RogueliteScreen
+              isOpen={showRogueliteScreen}
+              viewState={rogueliteViewState}
+              meta={rogueliteMeta}
+              activeRun={activeRogueliteRun}
+              onClose={handleCloseRogueliteScreen}
+              onBeginRunSetup={handleBeginRogueliteSetup}
+              onBackToIntro={handleBackToRogueliteIntro}
+              onOpenArchive={handleOpenRogueliteArchive}
+              onCloseArchive={handleBackToRogueliteRelicSelect}
+              onStartRun={handleStartRogueliteRun}
+              onChooseEncounter={handleChooseRogueliteEncounter}
+              onChoosePath={handleChooseRoguelitePath}
+              onRerollEncounter={handleRerollRogueliteEncounter}
+              onClaimVictory={handleClaimRogueliteVictory}
+              onClaimDefeat={handleClaimRogueliteDefeat}
+            />
+          </React.Suspense>
+        )}
 
         <GameStateProvider value={gameState}>
           <GameModalsContainer
@@ -2130,12 +2151,16 @@ export default function App() {
         handleRepairGlitchGalaxy={handleRepairGlitchGalaxy}
       />
 
-      <GalaxyVoyageModal
-        isOpen={showVoyageModal}
-        prestigeCount={prestigeCount}
-        onConfirmVoyage={handleConfirmPrestige}
-        inGlitchGalaxy={inGlitchGalaxy}
-      />
+      {showVoyageModal && (
+        <React.Suspense fallback={null}>
+          <GalaxyVoyageModal
+            isOpen={showVoyageModal}
+            prestigeCount={prestigeCount}
+            onConfirmVoyage={handleConfirmPrestige}
+            inGlitchGalaxy={inGlitchGalaxy}
+          />
+        </React.Suspense>
+      )}
     </ModalSettingsProvider>
   );
 }

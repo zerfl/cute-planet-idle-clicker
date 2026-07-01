@@ -56,8 +56,8 @@ export const EnclosurePreview: React.FC<EnclosurePreviewProps> = ({
       <img
         src={
           isNight
-            ? "/assets/stuff/gehegelandschaft_nacht.png"
-            : "/assets/stuff/gehegelandschaft_tag.png"
+            ? "/assets/stuff/gehegelandschaft_nacht.webp"
+            : "/assets/stuff/gehegelandschaft_tag.webp"
         }
         alt="Gehegelandschaft"
         referrerPolicy="no-referrer"

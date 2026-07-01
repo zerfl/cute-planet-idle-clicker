@@ -25,7 +25,7 @@ function getZodiacImage(id: string): string {
     schildkroete: "zodiacturtle",
   };
   const fileName = mapping[id] || `zodiac${id}`;
-  return `/assets/zodiac/${fileName}.png`;
+  return `/assets/zodiac/${fileName}.webp`;
 }
 
 export const ZodiacModal: React.FC<ZodiacModalProps> = React.memo(

@@ -1,23 +1,61 @@
 import React from "react";
-import { ResetDialog } from "./modals/ResetDialog";
-import { CheatEventModal } from "./modals/CheatEventModal";
-import { UpgradesModal } from "./modals/UpgradesModal";
-import { AnimalsModal } from "./modals/AnimalsModal";
-import { StarsModal } from "./modals/StarsModal";
-import { CraftingModal } from "./modals/CraftingModal";
-import { StatsModal } from "./modals/StatsModal";
-import { OfflineEarningsModal } from "./modals/OfflineEarningsModal";
-import { AchievementsModal } from "./modals/AchievementsModal";
-import { MusicSettingsModal } from "./modals/MusicSettingsModal";
-import { CloudSyncModal } from "./modals/CloudSyncModal";
-import { SyncConflictDialog } from "./modals/SyncConflictDialog";
-import { MissionsModal } from "./modals/MissionsModal";
-import { OpeningResultModal } from "./modals/OpeningResultModal";
-import { InventoryModal } from "./modals/InventoryModal";
-import { ZodiacModal } from "./modals/ZodiacModal";
-import { LeaderboardModal } from "./modals/LeaderboardModal";
-import { ProfileModal } from "./modals/ProfileModal";
-import { PrestigeModal } from "./modals/PrestigeModal";
+const ResetDialog = React.lazy(() =>
+  import("./modals/ResetDialog").then((m) => ({ default: m.ResetDialog })),
+);
+const CheatEventModal = React.lazy(() =>
+  import("./modals/CheatEventModal").then((m) => ({ default: m.CheatEventModal })),
+);
+const UpgradesModal = React.lazy(() =>
+  import("./modals/UpgradesModal").then((m) => ({ default: m.UpgradesModal })),
+);
+const AnimalsModal = React.lazy(() =>
+  import("./modals/AnimalsModal").then((m) => ({ default: m.AnimalsModal })),
+);
+const StarsModal = React.lazy(() =>
+  import("./modals/StarsModal").then((m) => ({ default: m.StarsModal })),
+);
+const CraftingModal = React.lazy(() =>
+  import("./modals/CraftingModal").then((m) => ({ default: m.CraftingModal })),
+);
+const StatsModal = React.lazy(() =>
+  import("./modals/StatsModal").then((m) => ({ default: m.StatsModal })),
+);
+const OfflineEarningsModal = React.lazy(() =>
+  import("./modals/OfflineEarningsModal").then((m) => ({ default: m.OfflineEarningsModal })),
+);
+const AchievementsModal = React.lazy(() =>
+  import("./modals/AchievementsModal").then((m) => ({ default: m.AchievementsModal })),
+);
+const MusicSettingsModal = React.lazy(() =>
+  import("./modals/MusicSettingsModal").then((m) => ({ default: m.MusicSettingsModal })),
+);
+const CloudSyncModal = React.lazy(() =>
+  import("./modals/CloudSyncModal").then((m) => ({ default: m.CloudSyncModal })),
+);
+const SyncConflictDialog = React.lazy(() =>
+  import("./modals/SyncConflictDialog").then((m) => ({ default: m.SyncConflictDialog })),
+);
+const MissionsModal = React.lazy(() =>
+  import("./modals/MissionsModal").then((m) => ({ default: m.MissionsModal })),
+);
+const OpeningResultModal = React.lazy(() =>
+  import("./modals/OpeningResultModal").then((m) => ({ default: m.OpeningResultModal })),
+);
+const InventoryModal = React.lazy(() =>
+  import("./modals/InventoryModal").then((m) => ({ default: m.InventoryModal })),
+);
+const ZodiacModal = React.lazy(() =>
+  import("./modals/ZodiacModal").then((m) => ({ default: m.ZodiacModal })),
+);
+const LeaderboardModal = React.lazy(() =>
+  import("./modals/LeaderboardModal").then((m) => ({ default: m.LeaderboardModal })),
+);
+const ProfileModal = React.lazy(() =>
+  import("./modals/ProfileModal").then((m) => ({ default: m.ProfileModal })),
+);
+const PrestigeModal = React.lazy(() =>
+  import("./modals/PrestigeModal").then((m) => ({ default: m.PrestigeModal })),
+);
 import type { User } from "firebase/auth";
 import type { FontScaleOption } from "../hooks/useDisplayPreferences";
 import type { AccountSwitchPrompt, CloudSaveData } from "../hooks/useFirebaseSync";
@@ -263,7 +301,7 @@ export const GameModalsContainer: React.FC<GameModalsContainerProps> = React.mem
     const [profileUserId, setProfileUserId] = React.useState<string | null>(null);
 
     return (
-      <>
+      <React.Suspense fallback={null}>
         {showResetDialog && (
           <ResetDialog
             isOpen={showResetDialog}
@@ -516,7 +554,7 @@ export const GameModalsContainer: React.FC<GameModalsContainerProps> = React.mem
             formatCompactNumber={formatCompactNumber}
           />
         )}
-      </>
+      </React.Suspense>
     );
   },
 );

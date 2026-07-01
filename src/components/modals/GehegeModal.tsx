@@ -673,7 +673,9 @@ const FeedBowlComponent = React.memo<FeedBowlComponentProps>(
           )}
 
           <img
-            src={isVoll ? "/assets/stuff/futternapf_voll.png" : "/assets/stuff/futternapf_leer.png"}
+            src={
+              isVoll ? "/assets/stuff/futternapf_voll.webp" : "/assets/stuff/futternapf_leer.webp"
+            }
             alt="Futternapf"
             className="size-14  object-contain drop-shadow-[0_4px_6px_rgba(0,0,0,0.6)]"
             referrerPolicy="no-referrer"
@@ -1168,8 +1170,8 @@ export const GehegeModal: React.FC<GehegeModalProps> = ({
             <img
               src={
                 isNight
-                  ? "/assets/stuff/gehegelandschaft_nacht.png"
-                  : "/assets/stuff/gehegelandschaft_tag.png"
+                  ? "/assets/stuff/gehegelandschaft_nacht.webp"
+                  : "/assets/stuff/gehegelandschaft_tag.webp"
               }
               alt="Gehegelandschaft"
               className="size-full  object-cover transition-opacity duration-1000"

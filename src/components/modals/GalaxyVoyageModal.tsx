@@ -56,8 +56,8 @@ export const GalaxyVoyageModal: React.FC<GalaxyVoyageModalProps> = React.memo(
         }`}
         panelStyle={{
           backgroundImage: inGlitchGalaxy
-            ? "url('/assets/stuff/glitch_galaxie.png')"
-            : "url('/assets/stuff/pastell_galaxie_reise.png')",
+            ? "url('/assets/stuff/glitch_galaxie.webp')"
+            : "url('/assets/stuff/pastell_galaxie_reise.webp')",
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -141,7 +141,7 @@ export const GalaxyVoyageModal: React.FC<GalaxyVoyageModalProps> = React.memo(
           {inGlitchGalaxy && (
             <div className="w-full max-w-md aspect-video rounded-2xl overflow-hidden border-2 border-cyan-500 shadow-[0_0_25px_rgba(6,182,212,0.35)] mb-2 relative">
               <img
-                src="/assets/stuff/glitch_galaxie.png"
+                src="/assets/stuff/glitch_galaxie.webp"
                 alt="Instabile Glitch-Galaxie"
                 className="size-full  object-cover"
                 referrerPolicy="no-referrer"

@@ -204,7 +204,7 @@ export const CosmicOverlays: React.FC<CosmicOverlaysProps> = ({
             <div
               className="relative max-w-md w-full rounded-[2.5rem] overflow-hidden border-4 select-none text-white p-6 sm:p-10 flex flex-col justify-end border-cyan-500 shadow-[0_0_55px_rgba(6,182,212,0.45)] min-h-[420px]"
               style={{
-                backgroundImage: "url('/assets/stuff/glitch_galaxie.png')",
+                backgroundImage: "url('/assets/stuff/glitch_galaxie.webp')",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}
@@ -218,7 +218,7 @@ export const CosmicOverlays: React.FC<CosmicOverlaysProps> = ({
               <div className="relative z-10 text-center flex flex-col justify-end h-full">
                 <div className="w-full aspect-video rounded-xl overflow-hidden border border-cyan-400/40 shadow-[0_0_15px_rgba(6,182,212,0.3)] mb-4 mx-auto max-w-sm">
                   <img
-                    src="/assets/stuff/glitch_galaxie.png"
+                    src="/assets/stuff/glitch_galaxie.webp"
                     alt="Glitch Galaxie"
                     className="size-full  object-cover"
                     referrerPolicy="no-referrer"

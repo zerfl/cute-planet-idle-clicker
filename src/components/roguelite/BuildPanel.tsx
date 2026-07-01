@@ -10,7 +10,7 @@ import type { ActiveRogueliteRun } from "../../roguelite/types";
 import { StatGrid } from "./Vitals";
 import { CATEGORY_VISUALS, Eyebrow, Panel, cx, nodeVisual } from "./theme";
 
-const BOSS_COMET = "/assets/roguelite/roguelite_boss_comet.png";
+const BOSS_COMET = "/assets/roguelite/roguelite_boss_comet.webp";
 
 function PanelSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (

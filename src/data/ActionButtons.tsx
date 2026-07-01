@@ -58,7 +58,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = React.memo(
           }`}
         >
           <img
-            src="/assets/stuff/tier_gehege.png"
+            src="/assets/stuff/tier_gehege.webp"
             alt="Tier Gehege"
             referrerPolicy="no-referrer"
             className={`size-9 game:size-12 object-contain mb-1 ${disableAnimations ? "" : "group-hover:animate-bounce"}`}
@@ -76,7 +76,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = React.memo(
           }`}
         >
           <img
-            src="/assets/stuff/tiere_zuechten.png"
+            src="/assets/stuff/tiere_zuechten.webp"
             alt="Tiere zuechten"
             referrerPolicy="no-referrer"
             className={`size-9 game:size-12 object-contain mb-1 ${disableAnimations ? "" : "group-hover:animate-bounce"}`}
@@ -99,7 +99,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = React.memo(
           }`}
         >
           <img
-            src="/assets/stuff/schmieden.png"
+            src="/assets/stuff/schmieden.webp"
             alt="Schmieden"
             referrerPolicy="no-referrer"
             className={`size-9 game:size-12 object-contain mb-1 ${disableAnimations ? "" : "group-hover:animate-pulse"}`}
@@ -121,7 +121,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = React.memo(
           }`}
         >
           <img
-            src="/assets/stuff/sterne_rufen.png"
+            src="/assets/stuff/sterne_rufen.webp"
             alt="Sterne rufen"
             referrerPolicy="no-referrer"
             className={`size-9 game:size-12 object-contain mb-1 ${disableAnimations ? "" : "group-hover:animate-spin"}`}
@@ -144,7 +144,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = React.memo(
           }`}
         >
           <img
-            src="/assets/stuff/forschung.png"
+            src="/assets/stuff/forschung.webp"
             alt="Forschung"
             referrerPolicy="no-referrer"
             className={`size-9 game:size-12 object-contain mb-1 ${disableAnimations ? "" : "group-hover:animate-pulse"}`}
@@ -166,7 +166,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = React.memo(
           }`}
         >
           <img
-            src="/assets/stuff/erfolge.png"
+            src="/assets/stuff/erfolge.webp"
             alt="Erfolge"
             referrerPolicy="no-referrer"
             className={`size-9 game:size-12 object-contain mb-1 ${disableAnimations ? "" : "group-hover:animate-bounce"}`}
@@ -188,7 +188,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = React.memo(
           }`}
         >
           <img
-            src="/assets/stuff/tagebuch.png"
+            src="/assets/stuff/tagebuch.webp"
             alt="Tagebuch"
             referrerPolicy="no-referrer"
             className={`size-9 game:size-12 object-contain mb-1 ${disableAnimations ? "" : "group-hover:rotate-12 transition-transform"}`}
@@ -210,7 +210,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = React.memo(
           }`}
         >
           <img
-            src="/assets/stuff/missionen.png"
+            src="/assets/stuff/missionen.webp"
             alt="Missionen"
             referrerPolicy="no-referrer"
             className={`size-9 game:size-12 object-contain mb-1 ${disableAnimations ? "" : "group-hover:animate-bounce"}`}
@@ -236,7 +236,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = React.memo(
           }`}
         >
           <img
-            src="/assets/stuff/inventar.png"
+            src="/assets/stuff/inventar.webp"
             alt="Inventar"
             referrerPolicy="no-referrer"
             className={`size-9 game:size-12 object-contain mb-1 ${disableAnimations ? "" : "group-hover:animate-bounce"}`}

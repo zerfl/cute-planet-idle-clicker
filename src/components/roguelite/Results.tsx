@@ -15,7 +15,7 @@ import {
   usePrefersReducedMotion,
 } from "./theme";
 
-const REWARD_CHEST = "/assets/roguelite/roguelite_reward_chest.png";
+const REWARD_CHEST = "/assets/roguelite/roguelite_reward_chest.webp";
 
 export function buildDefeatPreview(run: ActiveRogueliteRun) {
   let glitterDust = 24;
